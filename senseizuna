@@ -39,7 +39,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1;
         }
         .hero-content {
@@ -47,21 +47,25 @@
             z-index: 2;
             max-width: 800px;
             padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
         }
         h1 {
             font-size: 3rem;
             margin: 0;
-            text-shadow: 0 0 10px #FFD700;
+            text-shadow: 0 0 15px #FFD700, 0 0 5px #000;
         }
         .pen-name {
             font-size: 1.5rem;
             color: #C0C0C0;
             margin: 10px 0;
+            text-shadow: 0 0 10px #000;
         }
         .book-title {
             font-size: 2rem;
             color: #FFD700;
             margin: 20px 0;
+            text-shadow: 0 0 10px #000;
         }
         .cta-button {
             display: inline-block;
@@ -95,6 +99,7 @@
             text-decoration: none;
             margin: 0 20px;
             font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
         }
         nav a:hover {
             color: #FFD700;
@@ -105,11 +110,20 @@
             position: relative;
             z-index: 1;
         }
-        h2 {
+        section h2 {
             color: #FFD700;
+            text-shadow: 0 0 10px #000;
         }
-        p {
+        section p {
             color: #C0C0C0;
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: 0 0 5px #000;
+        }
+        section .content-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
             max-width: 800px;
             margin: 0 auto;
         }
@@ -122,6 +136,7 @@
             display: block;
             margin: 10px 0 5px;
             color: #C0C0C0;
+            text-shadow: 0 0 5px #000;
         }
         .contact-form input, .contact-form textarea {
             width: 100%;
@@ -161,6 +176,7 @@
             color: #FFD700;
             text-decoration: none;
             margin: 0 10px;
+            text-shadow: 0 0 5px #000;
         }
         footer a:hover {
             color: #e6c200;
@@ -194,32 +210,38 @@
         </div>
     </section>
     <section id="about">
-        <h2>About Itoshiro Zuna</h2>
-        <p>Itoshiro Zuna, meaning ‘one who weaves the thread of eras,’ is the pen name of a visionary author. Inspired by a childhood memory under a metal arch and a meditation vision with my boxer Akaya, I crafted *The Fractal Symphony of Time* to explore time as a living, fractal force. Dedicated to my wife, children, parents, and Akaya’s memory, this book is my invitation to see yourself as a creator in the cosmic melody.</p>
+        <div class="content-box">
+            <h2>About Itoshiro Zuna</h2>
+            <p>Itoshiro Zuna, meaning ‘one who weaves the thread of eras,’ is the pen name of a visionary author. Inspired by a childhood memory under a metal arch and a meditation vision with my boxer Akaya, I crafted *The Fractal Symphony of Time* to explore time as a living, fractal force. Dedicated to my wife, children, parents, and Akaya’s memory, this book is my invitation to see yourself as a creator in the cosmic melody.</p>
+        </div>
     </section>
     <section class="book-preview" id="book">
-        <h2>Explore My Books</h2>
-        <p>A metaphysical journey through dimensions and consciousness.</p>
-        <div style="text-align: center; padding: 20px;">
-            <p style="font-size: 1.2rem; margin: 10px 0;">The Fractal Symphony of Time</p>
-            <a href="https://amzn.to/44CdNom" class="cta-button">Get Your Copy Now</a>
-            <p style="font-size: 1.2rem; margin: 20px 0;">When Realms Bleed: The World As I See It</p>
-            <a href="https://amzn.to/443m18U" class="cta-button">Get Your Copy Now</a>
+        <div class="content-box">
+            <h2>Explore My Books</h2>
+            <p>A metaphysical journey through dimensions and consciousness.</p>
+            <div style="text-align: center; padding: 20px;">
+                <p style="font-size: 1.2rem; margin: 10px 0;">The Fractal Symphony of Time</p>
+                <a href="https://amzn.to/44CdNom" class="cta-button">Get Your Copy Now</a>
+                <p style="font-size: 1.2rem; margin: 20px 0;">When Realms Bleed: The World As I See It</p>
+                <a href="https://amzn.to/443m18U" class="cta-button">Get Your Copy Now</a>
+            </div>
         </div>
     </section>
     <section id="contact">
-        <h2>Contact Me</h2>
-        <p>Have a question or want to share your thoughts? Send me a message below.</p>
-        <div class="contact-form">
-            <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST">
-                <label for="name">Name</label>
-                <input type="text" name="name" id="name" required>
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" required>
-                <label for="message">Message</label>
-                <textarea name="message" id="message" rows="5" required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
+        <div class="content-box">
+            <h2>Contact Me</h2>
+            <p>Have a question or want to share your thoughts? Send me a message below.</p>
+            <div class="contact-form">
+                <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" required>
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" required>
+                    <label for="message">Message</label>
+                    <textarea name="message" id="message" rows="5" required></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
         </div>
     </section>
     <footer>
