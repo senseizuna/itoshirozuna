@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            font-family: 'Futura', sans-serif;
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(to bottom, #0a0a23, #1c2526);
             color: #fff;
             overflow-x: hidden;
@@ -20,7 +20,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            background: url('images/cosmic-bg.jpg') no-repeat center/cover; /* Updated background */
+            background: url('images/cosmic-bg.jpg') no-repeat center/cover;
             position: relative;
         }
         .hero::before {
@@ -89,6 +89,18 @@
         nav a:hover {
             color: #FFD700;
         }
+        section {
+            padding: 40px;
+            text-align: center;
+        }
+        h2 {
+            color: #FFD700;
+        }
+        p {
+            color: #C0C0C0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
             .book-title { font-size: 1.5rem; }
@@ -111,15 +123,21 @@
             <p class="pen-name">One who weaves the thread of eras, carrying the name that arrives through hidden harbors</p>
             <p class="book-title">The Fractal Symphony of Time</p>
             <img src="images/book-cover.jpg" alt="The Fractal Symphony of Time Book Cover by Itoshiro Zuna" class="book-cover">
-            <a href="https://www.amazon.com/dp/YOUR_ASIN" class="cta-button">Buy Now on Kindle</a>
+            <a href="https://amzn.to/44CdNom" class="cta-button">Buy Now on Kindle</a>
         </div>
     </section>
+    <section id="about">
+        <h2>About Itoshiro Zuna</h2>
+        <p>Itoshiro Zuna, meaning ‘one who weaves the thread of eras,’ is the pen name of a visionary author. Inspired by a childhood memory under a metal arch and a meditation vision with my boxer Akaya, I crafted *The Fractal Symphony of Time* to explore time as a living, fractal force. Dedicated to my wife, children, parents, and Akaya’s memory, this book is my invitation to see yourself as a creator in the cosmic melody.</p>
+    </section>
     <section class="book-preview" id="book">
-        <h2 style="text-align: center; color: #FFD700;">Explore The Fractal Symphony of Time</h2>
-        <p style="text-align: center; color: #C0C0C0;">A metaphysical journey through dimensions and consciousness.</p>
+        <h2>Explore My Books</h2>
+        <p>A metaphysical journey through dimensions and consciousness.</p>
         <div style="text-align: center; padding: 20px;">
-            <!-- Add embed code here if available, or keep the direct link -->
-            <a href="https://www.amazon.com/dp/YOUR_ASIN" class="cta-button">Get Your Copy Now</a>
+            <p style="font-size: 1.2rem; margin: 10px 0;">The Fractal Symphony of Time</p>
+            <a href="https://amzn.to/44CdNom" class="cta-button">Get Your Copy Now</a>
+            <p style="font-size: 1.2rem; margin: 20px 0;">When Realms Bleed: The World As I See It</p>
+            <a href="https://amzn.to/443m18U" class="cta-button">Get Your Copy Now</a>
         </div>
     </section>
 </body>
