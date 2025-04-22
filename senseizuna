@@ -9,9 +9,18 @@
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(to bottom, #0a0a23, #1c2526);
             color: #fff;
             overflow-x: hidden;
+            position: relative;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(to bottom, #0a0a23, #1c2526);
         }
         .hero {
             height: 100vh;
@@ -20,8 +29,8 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            background: url('images/cosmic-bg.jpg') no-repeat center/cover;
             position: relative;
+            z-index: 1;
         }
         .hero::before {
             content: '';
@@ -31,10 +40,11 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
         }
         .hero-content {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             max-width: 800px;
             padding: 20px;
         }
@@ -78,7 +88,7 @@
             width: 100%;
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 0;
-            z-index: 2;
+            z-index: 3;
         }
         nav a {
             color: #fff;
@@ -92,6 +102,8 @@
         section {
             padding: 40px;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         h2 {
             color: #FFD700;
@@ -100,6 +112,58 @@
             color: #C0C0C0;
             max-width: 800px;
             margin: 0 auto;
+        }
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .contact-form label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #C0C0C0;
+        }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+            color: #444;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .contact-form input:focus, .contact-form textarea:focus {
+            outline: none;
+            background: #fff;
+            border-color: #FFD700;
+        }
+        .contact-form button {
+            background: #FFD700;
+            color: #0a0a23;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .contact-form button:hover {
+            background: #e6c200;
+        }
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        footer a {
+            color: #FFD700;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover {
+            color: #e6c200;
         }
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
@@ -110,12 +174,15 @@
     </style>
 </head>
 <body>
+    <canvas id="fractalCanvas"></canvas>
     <nav>
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#book">Book</a>
-        <a href="#blog">Blog</a>
+        <a href="blog.html">Blog</a>
         <a href="#contact">Contact</a>
+        <a href="https://x.com/senseizuna" target="_blank">X</a>
+        <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
     </nav>
     <section class="hero" id="home">
         <div class="hero-content">
@@ -140,5 +207,85 @@
             <a href="https://amzn.to/443m18U" class="cta-button">Get Your Copy Now</a>
         </div>
     </section>
+    <section id="contact">
+        <h2>Contact Me</h2>
+        <p>Have a question or want to share your thoughts? Send me a message below.</p>
+        <div class="contact-form">
+            <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" required>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required>
+                <label for="message">Message</label>
+                <textarea name="message" id="message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </section>
+    <footer>
+        <p>Follow me on social media:</p>
+        <a href="https://x.com/senseizuna" target="_blank">@senseizuna on X</a>
+        <a href="https://instagram.com/itoshirozuna" target="_blank">@itoshirozuna on Instagram</a>
+        <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
+    </footer>
+    <script>
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let time = 0;
+        const colors = [
+            'rgba(0, 255, 0, 0.5)',    // Green
+            'rgba(255, 215, 0, 0.5)',  // Gold
+            'rgba(192, 192, 192, 0.5)' // Silver
+        ];
+
+        function drawFlowerOfLife(x, y, radius, depth) {
+            if (depth <= 0) return;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = colors[depth % colors.length];
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            const offset = radius * Math.sin(time + depth) * 0.5;
+            const newRadius = radius * 0.5;
+            const positions = [
+                [x + (radius + offset), y],
+                [x - (radius + offset), y],
+                [x + (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
+                [x + (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)],
+                [x - (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
+                [x - (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)]
+            ];
+
+            for (const [px, py] of positions) {
+                drawFlowerOfLife(px, py, newRadius, depth - 1);
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 35, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const gridSize = 150;
+            for (let x = 0; x < canvas.width + gridSize; x += gridSize) {
+                for (let y = 0; y < canvas.height + gridSize; y += gridSize) {
+                    drawFlowerOfLife(x, y, 50, 3);
+                }
+            }
+
+            time += 0.02;
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
 </body>
 </html>
