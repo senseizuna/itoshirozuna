@@ -35,6 +35,7 @@
             text-decoration: none;
             margin: 0 20px;
             font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
         }
         nav a:hover {
             color: #FFD700;
@@ -45,12 +46,21 @@
             position: relative;
             z-index: 1;
         }
-        h1, h2 {
+        section h1 {
             color: #FFD700;
+            font-size: 2.5rem;
+            text-shadow: 0 0 15px #000;
         }
-        p {
+        section p {
             color: #C0C0C0;
-            max-width: 800px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
+        }
+        .content-box {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 900px;
             margin: 0 auto;
         }
         article {
@@ -61,6 +71,13 @@
         }
         article h3 {
             color: #FFD700;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px #000;
+        }
+        article p {
+            color: #C0C0C0;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
         }
         footer {
             background: rgba(0, 0, 0, 0.8);
@@ -73,6 +90,7 @@
             color: #FFD700;
             text-decoration: none;
             margin: 0 10px;
+            text-shadow: 0 0 5px #000;
         }
         footer a:hover {
             color: #e6c200;
@@ -80,6 +98,8 @@
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
             h2 { font-size: 1.5rem; }
+            article h3 { font-size: 1.5rem; }
+            article p { font-size: 1rem; }
         }
     </style>
 </head>
@@ -95,14 +115,16 @@
         <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
     </nav>
     <section>
-        <h1>Blog</h1>
-        <p>Explore articles by Itoshiro Zuna on metaphysical journeys, dimensions, and consciousness.</p>
-        <article>
-            <h3>The Fractal Nature of Time: A Deeper Look</h3>
-            <p><em>Published on April 21, 2025</em></p>
-            <p>In *The Fractal Symphony of Time*, I explore how time isn’t linear but a fractal spiral, echoing the infinite patterns of the universe. Drawing from my meditation vision with Akaya, I realized that each moment we live is a note in a cosmic melody, resonating across dimensions. This article delves into how understanding time as a fractal can shift our perception of reality, helping us align with the universe’s rhythm.</p>
-        </article>
-        <!-- Add more articles here by copying the <article> block -->
+        <div class="content-box">
+            <h1>Blog</h1>
+            <p>Explore articles by Itoshiro Zuna on metaphysical journeys, dimensions, and consciousness.</p>
+            <article>
+                <h3>The Fractal Nature of Time: A Deeper Look</h3>
+                <p><em>Published on April 21, 2025</em></p>
+                <p>In *The Fractal Symphony of Time*, I explore how time isn’t linear but a fractal spiral, echoing the infinite patterns of the universe. Drawing from my meditation vision with Akaya, I realized that each moment we live is a note in a cosmic melody, resonating across dimensions. This article delves into how understanding time as a fractal can shift our perception of reality, helping us align with the universe’s rhythm.</p>
+            </article>
+            <!-- Add more articles here by copying the <article> block -->
+        </div>
     </section>
     <footer>
         <p>Follow me on social media:</p>
