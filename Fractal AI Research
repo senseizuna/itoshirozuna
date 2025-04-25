@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fractalverse 3D AI Research Adaptation Enhanced</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; }
+    #controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 150px;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      font-family: Arial;
+      font-size: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 8px;
+      border-radius: 8px;
+    }
+    button { margin: 3px 0; padding: 3px 6px; width: 100%; font-size: 12px; }
+    p { margin: 3px 0; text-align: center; }
+    label { margin: 3px 0; display: block; }
+    input[type="range"], input[type="checkbox"] { vertical-align: middle; }
+    input[type="range"] { width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <p>Energy Points Collected: <span id="energyPoints">0</span></p>
+    <p>Total Reward: <span id="totalReward">0</span></p>
+    <p>Average Reward: <span id="avgReward">0</span></p>
+    <p>Exploration Rate: <span id="explorationRate">0.1</span></p>
+    <p>Episode: <span id="episodeCount">0</span></p>
+    <label>Fractal Scale: <input type="range" id="fractalScale" min="1" max="3" step="0.1" value="2"></label>
+    <label>Fractal Power: <input type="range" id="fractalPower" min="6" max="10" step="0.1" value="8"></label>
+    <label>Chasers: <input type="checkbox" id="chasers" checked></label>
+    <label>Barriers: <input type="checkbox" id="barriers" checked></label>
+    <button id="startAI">Start AI Training</button>
+    <button id="stopAI">Stop AI Training</button>
+    <button id="resetEnv">Reset Environment</button>
+    <button id="downloadLog">Download Log</button>
+  </div>
+  <script>
+    // CONFIG
+    const BLOCK = 20;
+    const CHUNK_SIZE = 32;
+    const FRACTAL_SCALE = 2.0;
+    const FRACTAL_POWER = 8.0;
+    const API_URL = 'http://localhost:5000';
+
+    class FractalverseAI {
+      constructor() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(this.renderer.domElement);
+
+        // Camera and Controls
+        this.camera.position.set(0, 0, 300);
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enablePan = true;
+        this.controls.enableZoom = true;
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
+
+        // Lighting
+        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(this.ambientLight);
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        this.directionalLight.position.set(-1, -1, -1).normalize();
+        this.scene.add(this.directionalLight);
+
+        // State
+        this.time = 0;
+        this.energyPoints = [];
+        this.obstacles = [];
+        this.particles = [];
+        this.energyPointsCollected = 0;
+        this.totalReward = 0;
+        this.aiTraining = false;
+        this.fractalScale = FRACTAL_SCALE;
+        this.fractalPower = FRACTAL_POWER;
+        this.episodeCount = 0;
+        this.episodeRewards = [];
+        this.avgReward = 0;
+        this.explorationRate = 0.1;
+        this.explorationDecay = 0.995;
+        this.minExplorationRate = 0.01;
+        this.stepsSinceLastPoint = 0;
+        this.trainingLog = [];
+        this.lastAvoidanceRewardTime = 0;
+
+        // Player (Agent)
+        this.player = new THREE.Vector3(0, 0, 0);
+        const playerGeo = new THREE.SphereGeometry(5, 32, 32);
+        const playerMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+        this.playerMesh = new THREE.Mesh(playerGeo, playerMat);
+        this.playerMesh.position.copy(this.player);
+        this.scene.add(this.playerMesh);
+
+        // Path Visualization (Heightmap Influence)
+        this.pathPoints = [];
+        this.pathGeometry = new THREE.BufferGeometry();
+        this.pathMaterial = new THREE.PointsMaterial({ size: 2, vertexColors: true });
+        this.path = new THREE.Points(this.pathGeometry, this.pathMaterial);
+        this.scene.add(this.path);
+
+        // Q-Value Visualization
+        this.qArrows = [];
+        this.actions = [
+          new THREE.Vector3(5, 0, 0),
+          new THREE.Vector3(-5, 0, 0),
+          new THREE.Vector3(0, 5, 0),
+          new THREE.Vector3(0, -5, 0),
+          new THREE.Vector3(0, 0, 5),
+          new THREE.Vector3(0, 0, -5)
+        ];
+        this.setupQArrows();
+
+        // Fractal Material with Heightmap
+        this.fractalMaterial = new THREE.ShaderMaterial({
+          side: THREE.BackSide,
+          uniforms: {
+            time: { value: 0 },
+            scale: { value: this.fractalScale },
+            power: { value: this.fractalPower }
+          },
+          vertexShader: `
+            varying vec3 vPosition;
+            varying vec3 vNormal;
+            void main() {
+              vPosition = position;
+              vNormal = normal;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            uniform float time;
+            uniform float scale;
+            uniform float power;
+            varying vec3 vPosition;
+            varying vec3 vNormal;
+            float mandelbulb(vec3 pos) {
+              vec3 z = pos;
+              float dr = 1.0;
+              float r = 0.0;
+              for (int i = 0; i < 10; i++) {
+                r = length(z);
+                if (r > 2.0) break;
+                float theta = acos(z.z / r) * power;
+                float phi = atan(z.y, z.x) * power;
+                float zr = pow(r, power);
+                dr = pow(r, power - 1.0) * power * dr + 1.0;
+                z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+                z += pos;
+              }
+              return 0.5 * log(r) * r / dr;
+            }
+            void main() {
+              vec3 pos = vPosition / scale;
+              float d = mandelbulb(pos);
+              float hue = 0.8 + 0.2 * sin(d * 10.0 + time);
+              vec3 color = vec3(hue, 0.6 + 0.2 * sin(time), 0.5);
+              vec3 lightDir = normalize(vec3(-1.0, -1.0, -1.0));
+              float diff = max(dot(vNormal, lightDir), 0.0);
+              color = color * (0.5 + 0.5 * diff);
+              gl_FragColor = vec4(color, 1.0);
+            }
+          `
+        });
+
+        // Fractal Terrain (Large sphere for skybox)
+        this.terrain = new THREE.Mesh(new THREE.SphereGeometry(500, 128, 128), this.fractalMaterial);
+        this.terrain.position.set(0, 0, 0);
+        this.scene.add(this.terrain);
+
+        // Initialize
+        this.setup();
+      }
+
+      setup() {
+        this.spawnEnergyPoints();
+        this.spawnObstacles();
+        this.setupEventListeners();
+        this.animate();
+      }
+
+      setupQArrows() {
+        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+        this.actions.forEach((action, i) => {
+          const arrow = new THREE.ArrowHelper(
+            action.clone().normalize(),
+            this.player,
+            10,
+            colors[i],
+            5,
+            2
+          );
+          this.scene.add(arrow);
+          this.qArrows.push(arrow);
+        });
+      }
+
+      updateQArrows(qValues) {
+        const maxQ = Math.max(...qValues);
+        const minQ = Math.min(...qValues);
+        const range = maxQ - minQ || 1;
+        this.qArrows.forEach((arrow, i) => {
+          const qValue = qValues[i];
+          const normalized = (qValue - minQ) / range;
+          arrow.setLength(10 + normalized * 10);
+          arrow.position.copy(this.player);
+        });
+      }
+
+      getHeightAtPosition(pos) {
+        const normalizedPos = pos.clone().divideScalar(this.fractalScale);
+        let z = normalizedPos.clone();
+        let dr = 1.0;
+        let r = 0.0;
+        for (let i = 0; i < 10; i++) {
+          r = z.length();
+          if (r > 2.0) break;
+          const theta = Math.acos(z.z / r) * this.fractalPower;
+          const phi = Math.atan2(z.y, z.x) * this.fractalPower;
+          const zr = Math.pow(r, this.fractalPower);
+          dr = Math.pow(r, this.fractalPower - 1.0) * this.fractalPower * dr + 1.0;
+          z = new THREE.Vector3(
+            Math.sin(theta) * Math.cos(phi),
+            Math.sin(theta) * Math.sin(phi),
+            Math.cos(theta)
+          ).multiplyScalar(zr).add(normalizedPos);
+        }
+        return (0.5 * Math.log(r) * r / dr) * 10;
+      }
+
+      updatePathVisualization() {
+        this.pathPoints.push(this.player.clone());
+        if (this.pathPoints.length > 1000) this.pathPoints.shift();
+
+        const positions = [];
+        const colors = [];
+        this.pathPoints.forEach(point => {
+          const height = this.getHeightAtPosition(point);
+          positions.push(point.x, point.y, point.z);
+          const color = new THREE.Color().setHSL(height / 20, 0.7, 0.5);
+          colors.push(color.r, color.g, color.b);
+        });
+
+        this.pathGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        this.pathGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        this.pathGeometry.attributes.position.needsUpdate = true;
+        this.pathGeometry.attributes.color.needsUpdate = true;
+      }
+
+      mandelbulbDistance(pos) {
+        let z = pos.clone();
+        let dr = 1.0;
+        let r = 0.0;
+        for (let i = 0; i < 10; i++) {
+          r = z.length();
+          if (r > 2.0) break;
+          const theta = Math.acos(z.z / r) * this.fractalPower;
+          const phi = Math.atan2(z.y, z.x) * this.fractalPower;
+          const zr = Math.pow(r, this.fractalPower);
+          dr = Math.pow(r, this.fractalPower - 1.0) * this.fractalPower * dr + 1.0;
+          z = new THREE.Vector3(
+            Math.sin(theta) * Math.cos(phi),
+            Math.sin(theta) * Math.sin(phi),
+            Math.cos(theta)
+          ).multiplyScalar(zr).add(pos);
+        }
+        return 0.5 * Math.log(r) * r / dr;
+      }
+
+      spawnEnergyPoints() {
+        this.energyPoints = [];
+        const numPoints = 50;
+        for (let i = 0; i < numPoints; i++) {
+          let pos;
+          let attempts = 0;
+          const maxAttempts = 100;
+          do {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const radius = 400 * Math.cbrt(Math.random());
+            pos = new THREE.Vector3(
+              radius * Math.sin(phi) * Math.cos(theta),
+              radius * Math.sin(phi) * Math.sin(theta),
+              radius * Math.cos(phi)
+            );
+            const scaledPos = pos.clone().divideScalar(this.fractalScale);
+            const d = this.mandelbulbDistance(scaledPos);
+            attempts++;
+            if (attempts >= maxAttempts) {
+              pos.set(
+                (Math.random() - 0.5) * 400,
+                (Math.random() - 0.5) * 400,
+                (Math.random() - 0.5) * 400
+              );
+              break;
+            }
+          } while (Math.abs(this.mandelbulbDistance(pos.clone().divideScalar(this.fractalScale))) > 0.1);
+
+          const geo = new THREE.SphereGeometry(3, 16, 16);
+          const mat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.copy(pos);
+          this.scene.add(mesh);
+          const velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.5
+          );
+          this.energyPoints.push({ pos, mesh, velocity });
+        }
+      }
+
+      spawnObstacles() {
+        this.obstacles = [];
+        const enableChasers = document.getElementById('chasers').checked;
+        const enableBarriers = document.getElementById('barriers').checked;
+
+        if (enableChasers) {
+          for (let i = 0; i < 2; i++) {
+            const x = (Math.random() - 0.5) * 400;
+            const y = (Math.random() - 0.5) * 400;
+            const z = (Math.random() - 0.5) * 400;
+            const geo = new THREE.BoxGeometry(8, 8, 8);
+            const mat = new THREE.MeshLambertMaterial({ color: 0xff4500 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            this.scene.add(mesh);
+            this.obstacles.push({ pos: new THREE.Vector3(x, y, z), mesh, type: 'chaser' });
+          }
+        }
+
+        if (enableBarriers) {
+          for (let i = 0; i < 2; i++) {
+            const x = (Math.random() - 0.5) * 400;
+            const y = (Math.random() - 0.5) * 400;
+            const z = (Math.random() - 0.5) * 400;
+            const geo = new THREE.BoxGeometry(20, 20, 20);
+            const mat = new THREE.MeshLambertMaterial({ color: 0x808080 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            this.scene.add(mesh);
+            this.obstacles.push({ pos: new THREE.Vector3(x, y, z), mesh, type: 'barrier' });
+          }
+        }
+      }
+
+      createFirework(position) {
+        const particleCount = 30;
+        const positions = [];
+        const velocities = [];
+        const colors = [];
+        const sizes = [];
+
+        for (let i = 0; i < particleCount; i++) {
+          positions.push(position.x, position.y, position.z);
+          const velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 10
+          );
+          velocities.push(velocity);
+          const color = new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
+          colors.push(color.r, color.g, color.b);
+          sizes.push(2 + Math.random() * 2);
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+        const material = new THREE.PointsMaterial({
+          size: 2,
+          vertexColors: true,
+          transparent: true,
+          opacity: 1
+        });
+
+        const particleSystem = new THREE.Points(geometry, material);
+        this.scene.add(particleSystem);
+        this.particles.push({ system: particleSystem, velocities, lifetime: 1.0 });
+      }
+
+      updateParticles(delta) {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const particle = this.particles[i];
+          particle.lifetime -= delta;
+          if (particle.lifetime <= 0) {
+            this.scene.remove(particle.system);
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          const positions = particle.system.geometry.attributes.position.array;
+          for (let j = 0; j < positions.length; j += 3) {
+            positions[j] += particle.velocities[j / 3].x * delta;
+            positions[j + 1] += particle.velocities[j / 3].y * delta;
+            positions[j + 2] += particle.velocities[j / 3].z * delta;
+          }
+          particle.system.geometry.attributes.position.needsUpdate = true;
+          particle.system.material.opacity = particle.lifetime;
+        }
+      }
+
+      updateDynamicElements() {
+        this.energyPoints.forEach(point => {
+          point.pos.add(point.velocity);
+          point.mesh.position.copy(point.pos);
+          if (Math.abs(point.pos.x) > 400) point.velocity.x *= -1;
+          if (Math.abs(point.pos.y) > 400) point.velocity.y *= -1;
+          if (Math.abs(point.pos.z) > 400) point.velocity.z *= -1;
+        });
+
+        this.obstacles.forEach(obstacle => {
+          if (obstacle.type === 'chaser') {
+            const direction = this.player.clone().sub(obstacle.pos).normalize();
+            obstacle.pos.add(direction.multiplyScalar(1.0));
+            obstacle.mesh.position.copy(obstacle.pos);
+            obstacle.mesh.rotation.x += 0.02;
+            obstacle.mesh.rotation.y += 0.02;
+          } else if (obstacle.type === 'barrier') {
+            obstacle.mesh.rotation.x += 0.01;
+            obstacle.mesh.rotation.y += 0.01;
+          }
+          if (Math.abs(obstacle.pos.x) > 400) obstacle.pos.x = Math.sign(obstacle.pos.x) * 400;
+          if (Math.abs(obstacle.pos.y) > 400) obstacle.pos.y = Math.sign(obstacle.pos.y) * 400;
+          if (Math.abs(obstacle.pos.z) > 400) obstacle.pos.z = Math.sign(obstacle.pos.z) * 400;
+        });
+      }
+
+      setupEventListeners() {
+        document.getElementById('startAI').addEventListener('click', () => {
+          console.log("Starting AI training...");
+          this.aiTraining = true;
+          this.aiTrainingInterval = setInterval(() => {
+            console.log("Interval tick: Running aiStep...");
+            this.aiStep();
+          }, 100);
+        });
+
+        document.getElementById('stopAI').addEventListener('click', () => {
+          console.log("Stopping AI training...");
+          this.aiTraining = false;
+          clearInterval(this.aiTrainingInterval);
+        });
+
+        document.getElementById('resetEnv').addEventListener('click', () => {
+          this.resetEnvironment();
+        });
+
+        document.getElementById('fractalScale').addEventListener('input', (e) => {
+          this.fractalScale = parseFloat(e.target.value);
+          this.fractalMaterial.uniforms.scale.value = this.fractalScale;
+        });
+
+        document.getElementById('fractalPower').addEventListener('input', (e) => {
+          this.fractalPower = parseFloat(e.target.value);
+          this.fractalMaterial.uniforms.power.value = this.fractalPower;
+        });
+
+        document.getElementById('chasers').addEventListener('change', () => {
+          this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
+          this.spawnObstacles();
+        });
+
+        document.getElementById('barriers').addEventListener('change', () => {
+          this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
+          this.spawnObstacles();
+        });
+
+        document.getElementById('downloadLog').addEventListener('click', () => {
+          this.downloadLog();
+        });
+
+        window.addEventListener('resize', () => this.onWindowResize());
+      }
+
+      getState() {
+        const closestPoint = this.energyPoints.length > 0
+          ? this.energyPoints.reduce((closest, point) =>
+              this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
+            )
+          : { pos: new THREE.Vector3(0, 0, 0) };
+        const closestObstacle = this.obstacles.length > 0
+          ? this.obstacles.reduce((closest, obstacle) =>
+              this.player.distanceTo(obstacle.pos) < this.player.distanceTo(closest.pos) ? obstacle : closest
+            )
+          : { pos: new THREE.Vector3(0, 0, 0) };
+        return {
+          playerPos: [this.player.x, this.player.y, this.player.z],
+          closestPointPos: [closestPoint.pos.x, closestPoint.pos.y, closestPoint.pos.z],
+          closestObstaclePos: [closestObstacle.pos.x, closestObstacle.pos.y, closestObstacle.pos.z]
+        };
+      }
+
+      async getReward() {
+        let reward = 0;
+        this.stepsSinceLastPoint++;
+
+        // Log distances to energy points
+        const closestPoint = this.energyPoints.length > 0
+          ? this.energyPoints.reduce((closest, point) =>
+              this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
+            )
+          : null;
+        if (closestPoint) {
+          const distance = this.player.distanceTo(closestPoint.pos);
+          console.log(`Distance to closest energy point: ${distance}`);
+          reward += (400 - distance) * 0.0005;
+        } else {
+          console.log("No energy points available");
+          reward -= 0.1;
+        }
+
+        // Collect energy points
+        let collected = false;
+        for (let i = this.energyPoints.length - 1; i >= 0; i--) {
+          const point = this.energyPoints[i];
+          const distance = this.player.distanceTo(point.pos);
+          if (distance < 20) { // Increased collection radius
+            console.log(`Collected energy point at (${point.pos.x}, ${point.pos.y}, ${point.pos.z}), distance: ${distance}`);
+            this.createFirework(point.pos);
+            this.scene.remove(point.mesh);
+            this.energyPoints.splice(i, 1);
+            this.energyPointsCollected++;
+            this.totalReward += 10;
+            reward += 10;
+            this.stepsSinceLastPoint = 0;
+            collected = true;
+            if (this.energyPoints.length === 0) {
+              this.spawnEnergyPoints();
+            }
+            break;
+          }
+        }
+
+        // Fallback: Force collection if no points collected after 20 steps
+        if (!collected && this.stepsSinceLastPoint > 20 && closestPoint) {
+          console.log("Forcing collection of closest energy point due to timeout");
+          const index = this.energyPoints.findIndex(point => point === closestPoint);
+          if (index !== -1) {
+            this.createFirework(closestPoint.pos);
+            this.scene.remove(closestPoint.mesh);
+            this.energyPoints.splice(index, 1);
+            this.energyPointsCollected++;
+            this.totalReward += 10;
+            reward += 10;
+            this.stepsSinceLastPoint = 0;
+            if (this.energyPoints.length === 0) {
+              this.spawnEnergyPoints();
+            }
+          }
+        }
+
+        // Penalty for proximity to obstacles
+        for (const obstacle of this.obstacles) {
+          const distance = this.player.distanceTo(obstacle.pos);
+          const threshold = obstacle.type === 'barrier' ? 30 : 20;
+          if (distance < threshold) {
+            console.log(`Penalty from ${obstacle.type} at distance ${distance}`);
+            reward -= 5;
+            this.totalReward -= 5;
+            break;
+          }
+        }
+
+        // Avoidance reward
+        const now = Date.now();
+        if (now - this.lastAvoidanceRewardTime >= 2000) {
+          let hasCollision = false;
+          for (const obstacle of this.obstacles) {
+            const threshold = obstacle.type === 'barrier' ? 30 : 20;
+            if (this.player.distanceTo(obstacle.pos) < threshold) {
+              hasCollision = true;
+              break;
+            }
+          }
+          if (!hasCollision) {
+            reward += 0.5;
+            this.totalReward += 0.5;
+            console.log("Avoidance reward applied");
+          }
+          this.lastAvoidanceRewardTime = now;
+        }
+
+        // End episode if no points collected for a while
+        if (this.stepsSinceLastPoint > 50) {
+          console.log("Ending episode due to timeout");
+          reward -= 10;
+          this.endEpisode();
+        }
+
+        console.log(`Reward calculated: ${reward}, Total Reward: ${this.totalReward}, Energy Points Collected: ${this.energyPointsCollected}`);
+        this.updateUI();
+        return reward;
+      }
+
+      takeAction(actionIndex) {
+        console.log(`Taking action ${actionIndex}...`);
+        if (actionIndex < 0 || actionIndex >= this.actions.length) {
+          console.error(`Invalid action index: ${actionIndex}`);
+          actionIndex = 0;
+        }
+        const action = this.actions[actionIndex];
+        this.player.add(action);
+        this.player.clamp(
+          new THREE.Vector3(-400, -400, -400),
+          new THREE.Vector3(400, 400, 400)
+        );
+        console.log(`Player position set to (${this.player.x}, ${this.player.y}, ${this.player.z})`);
+      }
+
+      updatePlayer() {
+        this.playerMesh.position.copy(this.player);
+        this.renderer.render(this.scene, this.camera);
+        console.log(`PlayerMesh updated to (${this.playerMesh.position.x}, ${this.playerMesh.position.y}, ${this.playerMesh.position.z})`);
+      }
+
+      async aiStep() {
+        if (!this.aiTraining) return;
+
+        let action, qValues;
+        let state = this.getState();
+        try {
+          console.log("aiStep: Sending state to backend:", state);
+          const predictRes = await fetch(`${API_URL}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state })
+          });
+          if (!predictRes.ok) throw new Error(predictRes.statusText);
+          const predictData = await predictRes.json();
+          console.log("aiStep: Received from backend:", predictData);
+          ({ action, qValues, explorationRate: this.explorationRate } = predictData);
+
+          console.log("aiStep: Calculating reward...");
+          const reward = await this.getReward();
+          console.log("aiStep: Reward calculated:", reward);
+          const nextState = this.getState();
+          this.trainingLog.push({
+            episode: this.episodeCount,
+            step: this.stepsSinceLastPoint,
+            state,
+            action,
+            reward,
+            nextState,
+            totalReward: this.totalReward,
+            explorationRate: this.explorationRate
+          });
+
+          console.log("aiStep: Sending training data to backend...");
+          const trainRes = await fetch(`${API_URL}/train`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state, action, reward, nextState })
+          });
+          if (!trainRes.ok) throw new Error(trainRes.statusText);
+          console.log("aiStep: Training response:", await trainRes.json());
+        } catch (err) {
+          console.warn("AI step network error, picking random action:", err);
+          action = Math.floor(Math.random() * this.actions.length);
+          qValues = Array(this.actions.length).fill(0);
+        }
+
+        console.log("aiStep: Applying action...");
+        this.takeAction(action);
+        console.log("aiStep: Updating Q-arrows...");
+        this.updateQArrows(qValues);
+        console.log("aiStep: Updating path visualization...");
+        this.updatePathVisualization();
+        console.log("aiStep: Step complete");
+      }
+
+      endEpisode() {
+        console.log(`Ending episode ${this.episodeCount}, total reward: ${this.totalReward}`);
+        this.episodeCount++;
+        this.episodeRewards.push(this.totalReward);
+        if (this.episodeRewards.length > 100) {
+          this.episodeRewards.shift();
+        }
+        this.avgReward = this.episodeRewards.length > 0
+          ? this.episodeRewards.reduce((a, b) => a + b, 0) / this.episodeRewards.length
+          : 0;
+        this.stepsSinceLastPoint = 0;
+        this.resetEnvironment();
+        this.updateUI();
+        console.log(`New episode ${this.episodeCount} started, avg reward: ${this.avgReward}`);
+      }
+
+      resetEnvironment() {
+        this.player.set(0, 0, 0);
+        this.playerMesh.position.copy(this.player);
+        this.energyPointsCollected = 0;
+        this.totalReward = 0;
+        this.stepsSinceLastPoint = 0;
+        this.pathPoints = [];
+        this.energyPoints.forEach(point => this.scene.remove(point.mesh));
+        this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
+        this.particles.forEach(particle => this.scene.remove(particle.system));
+        this.particles = [];
+        this.spawnEnergyPoints();
+        this.spawnObstacles();
+        this.updateUI();
+      }
+
+      downloadLog() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.trainingLog, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute('href', dataStr);
+        downloadAnchor.setAttribute('download', 'training_log.json');
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      }
+
+      updateUI() {
+        console.log(`Updating UI: Energy Points: ${this.energyPointsCollected}, Total Reward: ${this.totalReward}, Avg Reward: ${this.avgReward}, Episode: ${this.episodeCount}`);
+        document.getElementById('energyPoints').innerHTML = this.energyPointsCollected;
+        document.getElementById('totalReward').innerHTML = this.totalReward.toFixed(2);
+        document.getElementById('avgReward').innerHTML = this.avgReward.toFixed(2);
+        document.getElementById('explorationRate').innerHTML = this.explorationRate.toFixed(3);
+        document.getElementById('episodeCount').innerHTML = this.episodeCount;
+      }
+
+      animate() {
+        let lastTime = 0;
+        const animateLoop = (currentTime) => {
+          requestAnimationFrame(animateLoop);
+          const delta = (currentTime - lastTime) / 1000;
+          lastTime = currentTime;
+
+          this.time += 0.02;
+          this.fractalMaterial.uniforms.time.value = this.time;
+          this.updateDynamicElements();
+          this.updateParticles(delta);
+          this.updatePlayer();
+          this.renderer.render(this.scene, this.camera);
+        };
+        requestAnimationFrame(animateLoop);
+      }
+
+      onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    }
+
+    const game = new FractalverseAI();
+  </script>
+</body>
+</html>
