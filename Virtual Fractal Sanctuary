@@ -8,26 +8,113 @@
     body { margin:0; overflow:hidden; background:#0a0a23; }
     canvas { display:block; }
     #info{position:absolute;top:10px;left:10px;color:#fff;font:14px sans-serif;}
+    #fps{position:absolute;top:10px;right:50px;color:#fff;font:14px sans-serif;}
     #dimension{position:absolute;top:40px;left:10px;color:#fff;font:14px sans-serif;}
     #profile{position:absolute;top:70px;left:10px;color:#fff;font:14px sans-serif;}
-    #messages{position:absolute;bottom:10px;right:10px;width:300px;height:150px;
+    #progress{position:absolute;top:100px;left:10px;color:#fff;font:14px sans-serif;}
+    #messages{position:absolute;bottom:10px;left:10px;width:240px;height:120px;
               background:rgba(0,0,0,0.5);color:#fff;padding:5px;overflow-y:auto;
               font:12px sans-serif;white-space:pre-wrap;}
-    #input{position:absolute;bottom:170px;right:10px;width:290px;padding:5px;font:12px sans-serif;}
-    button{position:absolute;right:10px;padding:5px;background:#444;color:#fff;border:none;cursor:pointer;}
-    #saveFractal{top:40px;}
-    #vrButton{top:10px;}
+    #input{position:absolute;bottom:140px;left:10px;width:232px;padding:5px;font:12px sans-serif;}
+    #voiceSelect{position:absolute;bottom:10px;right:10px;color:#fff;font:14px sans-serif;}
+    #progressBar{position:absolute;top:120px;left:10px;width:200px;height:10px;background:#333;border:1px solid #fff;}
+    #progressFill{width:0%;height:100%;background:#00ff00;}
+    #settingsPanel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;padding:10px;
+                   background:rgba(0,0,0,0.8);color:#fff;font:14px sans-serif;display:none;border:1px solid #fff;}
+    #settingsPanel label{display:block;margin:5px 0;}
+    #settingsPanel select, #settingsPanel input[type="range"], #settingsPanel input[type="text"]{width:100%;margin:5px 0;}
+    #settingsPanel button{margin-top:10px;}
+    #feedbackPanel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;padding:10px;
+                   background:rgba(0,0,0,0.8);color:#fff;font:14px sans-serif;display:none;border:1px solid #fff;}
+    #feedbackPanel label{display:block;margin:5px 0;}
+    #feedbackPanel select, #feedbackPanel textarea{width:100%;margin:5px 0;}
+    #feedbackPanel button{margin-top:10px;}
+    #fractalTab{position:absolute;top:10px;right:10px;color:#fff;font:14px sans-serif;}
+    #weatherSelect{position:absolute;top:40px;right:10px;color:#fff;font:14px sans-serif;}
+    #optionsMenu{position:absolute;top:70px;right:10px;}
+    #optionsButton{padding:5px;background:#444;color:#fff;border:none;cursor:pointer;}
+    #optionsDropdown{position:absolute;top:30px;right:0;background:#333;border:1px solid #fff;padding:5px;
+                     display:none;flex-direction:column;gap:5px;height:200px;overflow-y:auto;}
+    #optionsDropdown button{padding:5px;background:#444;color:#fff;border:none;cursor:pointer;width:150px;text-align:left;}
   </style>
 </head>
 <body>
-  <div id="info">Virtual Fractal Sanctuary v7 – Click bubbles to pop them</div>
+  <div id="info">Virtual Fractal Sanctuary v7 – Choose a mode to begin</div>
+  <div id="fps">FPS: 0</div>
   <div id="dimension">Density 1, Dimension 1</div>
   <div id="profile">Profile: 0/108 stages reached</div>
-  <button id="vrButton">Enter VR</button>
-  <button id="saveFractal">Save Image</button>
+  <div id="progress">Progress: 0/108 stages</div>
+  <div id="progressBar"><div id="progressFill"></div></div>
+  <div id="fractalTab">
+    Fractal: <select id="fractalDropdown">
+      <option value="default">Default</option>
+      <option value="julia">Julia</option>
+      <option value="mandelbrot">Mandelbrot</option>
+    </select>
+  </div>
+  <div id="weatherSelect">
+    Weather: <select id="weatherDropdown">
+      <option value="none">None</option>
+      <option value="rain">Rain</option>
+      <option value="snow">Snow</option>
+    </select>
+  </div>
+  <div id="optionsMenu">
+    <button id="optionsButton">Options ▼</button>
+    <div id="optionsDropdown">
+      <button id="vrButton">Enter VR</button>
+      <button id="saveFractal">Save Image</button>
+      <button id="startButton">Start Meditation</button>
+      <button id="stopButton">Stop Meditation</button>
+      <button id="resetButton">Reset Meditation</button>
+      <button id="funModeButton">Fun Mode</button>
+      <button id="meditationModeButton">Meditation Mode</button>
+      <button id="settingsButton">Settings</button>
+      <button id="zoomInButton">Zoom In</button>
+      <button id="zoomOutButton">Zoom Out</button>
+      <button id="feedbackButton">Feedback</button>
+      <button id="saveProfileButton">Save Profile</button>
+      <button id="loadProfileButton">Load Profile</button>
+      <button id="shareFractalButton">Share Fractal</button>
+    </div>
+  </div>
+  <div id="voiceSelect">
+    Voice: <select id="voiceDropdown"></select>
+  </div>
+  <div id="settingsPanel">
+    <h3>Settings</h3>
+    <label>Username: <input type="text" id="usernameInput" placeholder="Enter username"></label>
+    <label>Language: <select id="languageSelect"></select></label>
+    <label>Meditation Speed: <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1"></label>
+    <label>Fractal Color Theme: 
+      <select id="colorTheme">
+        <option value="vivid">Vivid</option>
+        <option value="pastel">Pastel</option>
+        <option value="neon">Neon</option>
+      </select>
+    </label>
+    <label>Ambient Music: <input type="checkbox" id="ambientMusicToggle" checked></label>
+    <label>Transition Sounds: <input type="checkbox" id="transitionSoundsToggle" checked></label>
+    <button id="saveSettings">Save</button>
+  </div>
+  <div id="feedbackPanel">
+    <h3>Meditation Feedback</h3>
+    <label>Rating: 
+      <select id="feedbackRating">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Terrible</option>
+      </select>
+    </label>
+    <label>Comments: <textarea id="feedbackComments" rows="4" placeholder="Share your experience..."></textarea></label>
+    <button id="submitFeedback">Submit</button>
+    <button id="closeFeedback">Close</button>
+  </div>
   <textarea id="messages" readonly>
 Welcome to the Virtual Fractal Sanctuary!
-Click the floating bubbles to pop them and experience a burst of light with ripples!
+Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided journey.
   </textarea>
   <input id="input" placeholder="Share your thoughts…" />
 
@@ -39,71 +126,540 @@ Click the floating bubbles to pop them and experience a burst of light with ripp
 
   <script>
   // — Scene & renderer —
-  const scene    = new THREE.Scene();
-  const camera   = new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
-  const renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setSize(innerWidth,innerHeight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(innerWidth, innerHeight);
   renderer.xr.enabled = true;
   document.body.appendChild(renderer.domElement);
 
+  // — Tranquil Background —
+  const skyGradientTexture = new THREE.CanvasTexture(generateSkyGradient());
+  function generateSkyGradient() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, 0, 512);
+    gradient.addColorStop(0, '#1e3c72');
+    gradient.addColorStop(1, '#2a5298');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 100; i++) {
+      context.fillStyle = 'rgba(255, 255, 255, ' + (Math.random() * 0.5 + 0.5) + ')';
+      context.beginPath();
+      context.arc(Math.random() * 512, Math.random() * 512, Math.random() * 1.5, 0, Math.PI * 2);
+      context.fill();
+    }
+    return canvas;
+  }
+  scene.background = skyGradientTexture;
+
+  // Ocean Ripples (Tiny Water Bubbles)
+  const rippleParticles = [];
+  function createOceanRipples() {
+    rippleParticles.forEach(r => scene.remove(r.mesh));
+    rippleParticles.length = 0;
+    for (let i = 0; i < 3; i++) {
+      const geo = new THREE.BufferGeometry();
+      const verts = [];
+      const cols = [];
+      for (let j = 0; j < 100; j++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 50 + 30;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const z = (Math.random() - 0.5) * 5;
+        verts.push(x, y, z);
+        const col = new THREE.Color(0x87ceeb);
+        cols.push(col.r, col.g, col.b);
+      }
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+      const mat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true, opacity: 0.6 });
+      const ripple = new THREE.Points(geo, mat);
+      scene.add(ripple);
+      rippleParticles.push({ mesh: ripple, phase: Math.random() * Math.PI * 2 });
+    }
+  }
+  createOceanRipples();
+
+  // Fog Effect
+  scene.fog = new THREE.FogExp2(0x1e3c72, 0.02);
+
+  // — Ambient Interaction Particles with Trails —
+  const interactionParticles = [];
+  function createInteractionParticles(position) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [];
+    const cols = [];
+    const velocities = [];
+    for (let i = 0; i < 30; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 2;
+      const x = position.x + Math.cos(angle) * radius;
+      const y = position.y + Math.sin(angle) * radius;
+      const z = position.z + (Math.random() - 0.5) * 2;
+      verts.push(x, y, z);
+      const hue = Math.random() * 360;
+      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      cols.push(col.r, col.g, col.b);
+      velocities.push(
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1
+      );
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('velocity', new THREE.Float32BufferAttribute(velocities, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.2, vertexColors: true, transparent: true });
+    const particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+    interactionParticles.push({ mesh: particles, opacity: 1 });
+  }
+
   // — Controls & VRButton —
-  const controls = new THREE.OrbitControls(camera,renderer.domElement);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  document.getElementById('vrButton').addEventListener('click',()=>{
+  document.getElementById('vrButton').addEventListener('click', () => {
     document.body.appendChild(THREE.VRButton.createButton(renderer));
   });
   camera.position.z = 20;
 
-  // — Fractal generation —
-  let fractal, cReal=-0.8, cImag=0.156, fractalScale=1;
-  function generateFractal(){
+  // — Dynamic Lighting —
+  const light = new THREE.PointLight(0xffffff, 1, 50);
+  light.position.set(10, 10, 10);
+  scene.add(light);
+
+  // — Enhanced Fractal Cube with Ripples, Waves, and Visuals —
+  let fractal, fractalOverlay, cReal = -0.8, cImag = 0.156, fractalScale = 1;
+  let fractalPulse = 1;
+  let fractalZoom = 1;
+  let colorTheme = 'vivid';
+  let hueShift = 0;
+  let fractalRotationX = 0, fractalRotationY = 0;
+  let isDragging = false;
+  let previousMousePosition = { x: 0, y: 0 };
+
+  function generateFractal(density) {
     const geo = new THREE.BufferGeometry();
-    const verts = [], cols = [];
-    const N = 100;
-    for(let x=-N; x<N; x++){
-      for(let y=-N; y<N; y++){
-        let zr=(x/N)*4-2, zi=(y/N)*4-2, i=0;
-        for(; i<50; i++){
-          const r2=zr*zr, i2=zi*zi;
-          if(r2+i2>4) break;
-          const tmp = r2 - i2 + cReal;
-          zi = 2*zr*zi + cImag;
-          zr = tmp;
-        }
-        if(i<50){
-          const z=(i/50)*10;
-          verts.push(x/10,y/10,z);
-          const hue = ((i/50)*360 + performance.now()*0.01)%360;
-          const col = new THREE.Color(`hsl(${hue},100%,50%)`);
-          cols.push(col.r,col.g,col.b);
+    const verts = [], cols = [], offsets = [];
+    const N = 30;
+    const baseHue = (density - 1) * 30;
+    for (let x = -N; x < N; x++) {
+      for (let y = -N; y < N; y++) {
+        for (let z = -N; z < N; z++) {
+          let zr = (x / N) * 2 / fractalZoom;
+          let zi = (y / N) * 2 / fractalZoom;
+          let zc = (z / N) * 2 / fractalZoom;
+          let i = 0;
+          for (; i < 50; i++) {
+            const r2 = zr * zr, i2 = zi * zi, c2 = zc * zc;
+            if (r2 + i2 + c2 > 4) break;
+            const newZr = r2 - i2 - c2 + cReal;
+            const newZi = 2 * zr * zi + cImag;
+            zc = 2 * zr * zc + (cImag * 0.5);
+            zr = newZr;
+            zi = newZi;
+          }
+          if (i < 50) {
+            verts.push(x / 5, y / 5, z / 5);
+            const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
+            let col;
+            if (colorTheme === 'vivid') {
+              col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+            } else if (colorTheme === 'pastel') {
+              col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+            } else if (colorTheme === 'neon') {
+              col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+            }
+            cols.push(col.r, col.g, col.b);
+            offsets.push(Math.random() * Math.PI * 2);
+          }
         }
       }
     }
-    if(!verts.length){
-      verts.push(0,0,0); cols.push(1,1,1);
+    if (!verts.length) {
+      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0);
     }
-    geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-    geo.setAttribute('color',   new THREE.Float32BufferAttribute(cols,3));
-    return new THREE.Points(geo,new THREE.PointsMaterial({
-      size:0.1*fractalScale, vertexColors:true
-    }));
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
+    const material = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute float offset;
+        varying vec3 vColor;
+        uniform float time;
+        void main() {
+          vColor = color;
+          vec3 pos = position;
+          float wave = sin(time + offset) * 0.2;
+          pos.x += wave;
+          pos.y += wave;
+          pos.z += wave;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = 5.0 * (1.0 + sin(time + offset) * 0.5);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 0.8);
+        }
+      `,
+      uniforms: {
+        time: { value: 0 }
+      },
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+    const points = new THREE.Points(geo, material);
+    points.position.set(0, 0, 0);
+    return points;
   }
+
+  function generateFractalOverlay(density) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [], cols = [], offsets = [];
+    const N = 40;
+    const baseHue = (density - 1) * 30 + 180;
+    for (let x = -N; x < N; x++) {
+      for (let y = -N; y < N; y++) {
+        for (let z = -N; z < N; z++) {
+          let zr = (x / N) * 2 / fractalZoom;
+          let zi = (y / N) * 2 / fractalZoom;
+          let zc = (z / N) * 2 / fractalZoom;
+          let i = 0;
+          for (; i < 50; i++) {
+            const r2 = zr * zr, i2 = zi * zi, c2 = zc * zc;
+            if (r2 + i2 + c2 > 4) break;
+            const newZr = r2 - i2 - c2 + cReal;
+            const newZi = 2 * zr * zi + cImag;
+            zc = 2 * zr * zc + (cImag * 0.5);
+            zr = newZr;
+            zi = newZi;
+          }
+          if (i < 50) {
+            const dist = Math.sqrt(x * x + y * y + z * z);
+            if (dist < 20) {
+              verts.push(x / 3, y / 3, z / 3);
+              const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
+              let col;
+              if (colorTheme === 'vivid') {
+                col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+              } else if (colorTheme === 'pastel') {
+                col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+              } else if (colorTheme === 'neon') {
+                col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+              }
+              cols.push(col.r, col.g, col.b);
+              offsets.push(Math.random() * Math.PI * 2);
+            }
+          }
+        }
+      }
+    }
+    if (!verts.length) {
+      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0);
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
+    const material = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute float offset;
+        varying vec3 vColor;
+        uniform float time;
+        void main() {
+          vColor = color;
+          vec3 pos = position;
+          float wave = sin(time + offset) * 0.3;
+          pos.x += wave * 0.5;
+          pos.y += wave * 0.5;
+          pos.z += wave * 0.5;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = 4.0 * (1.0 + sin(time + offset) * 0.8);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 0.7);
+        }
+      `,
+      uniforms: {
+        time: { value: 0 }
+      },
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+    const points = new THREE.Points(geo, material);
+    points.position.set(0, 0, 0);
+    return points;
+  }
+
+  let lastColorUpdate = 0;
+  function updateFractalColors(timestamp) {
+    if (timestamp - lastColorUpdate < 100) return;
+    lastColorUpdate = timestamp;
+    hueShift += 1;
+    const baseHueMain = (currentDensity - 1) * 30;
+    const baseHueOverlay = (currentDensity - 1) * 30 + 180;
+
+    const positionsMain = fractal.geometry.attributes.position.array;
+    const colorsMain = fractal.geometry.attributes.color.array;
+    for (let i = 0; i < positionsMain.length / 3; i++) {
+      const iteration = (positionsMain[i * 3 + 2] / 10) * 50;
+      const hue = (baseHueMain + (iteration / 50) * 360 + hueShift) % 360;
+      let col;
+      if (colorTheme === 'vivid') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      } else if (colorTheme === 'pastel') {
+        col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+      } else if (colorTheme === 'neon') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+      } else {
+        col = new THREE.Color(1, 1, 1);
+      }
+      colorsMain[i * 3] = col.r;
+      colorsMain[i * 3 + 1] = col.g;
+      colorsMain[i * 3 + 2] = col.b;
+    }
+    fractal.geometry.attributes.color.needsUpdate = true;
+
+    const positionsOverlay = fractalOverlay.geometry.attributes.position.array;
+    const colorsOverlay = fractalOverlay.geometry.attributes.color.array;
+    for (let i = 0; i < positionsOverlay.length / 3; i++) {
+      const iteration = (positionsOverlay[i * 3 + 2] / 5) * 50;
+      const hue = (baseHueOverlay + (iteration / 50) * 360 + hueShift) % 360;
+      let col;
+      if (colorTheme === 'vivid') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      } else if (colorTheme === 'pastel') {
+        col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+      } else if (colorTheme === 'neon') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+      } else {
+        col = new THREE.Color(1, 1, 1);
+      }
+      colorsOverlay[i * 3] = col.r;
+      colorsOverlay[i * 3 + 1] = col.g;
+      colorsOverlay[i * 3 + 2] = col.b;
+    }
+    fractalOverlay.geometry.attributes.color.needsUpdate = true;
+  }
+
+  function animateFractalParameters(timestamp) {
+    cReal += Math.sin(timestamp * 0.0001) * 0.001;
+    cImag += Math.cos(timestamp * 0.0001) * 0.001;
+    if (fractal && Math.random() < 0.01) {
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+    }
+  }
+
+  function createGlowEffect() {
+    const geo = new THREE.SphereGeometry(10, 32, 32);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.1,
+      blending: THREE.AdditiveBlending
+    });
+    const glow = new THREE.Mesh(geo, material);
+    glow.position.set(0, 0, 0);
+    return glow;
+  }
+
+  function createDensityCompleteEffect() {
+    const geo = new THREE.BufferGeometry();
+    const verts = [];
+    const cols = [];
+    for (let i = 0; i < 100; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 5;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const z = (Math.random() - 0.5) * 5;
+      verts.push(x, y, z);
+      const hue = Math.random() * 360;
+      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      cols.push(col.r, col.g, col.b);
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true });
+    const particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+    let opacity = 1;
+    const fade = setInterval(() => {
+      opacity -= 0.02;
+      particles.material.opacity = opacity;
+      if (opacity <= 0) {
+        scene.remove(particles);
+        clearInterval(fade);
+      }
+    }, 50);
+    new Tone.Synth().toDestination().triggerAttackRelease("C5", "2n");
+  }
+
+  // — Enhanced Weather (Rain and Snow) —
+  let weatherParticles = [];
+  let weatherType = 'none';
+  function createWeather() {
+    weatherParticles.forEach(p => scene.remove(p.mesh));
+    weatherParticles.length = 0;
+    if (weatherType === 'none') return;
+    for (let i = 0; i < 200; i++) {
+      const geo = new THREE.BufferGeometry();
+      const verts = [];
+      const cols = [];
+      const x = (Math.random() - 0.5) * 50;
+      const y = Math.random() * 50;
+      const z = (Math.random() - 0.5) * 50;
+      verts.push(x, y, z);
+      const col = weatherType === 'rain' ? new THREE.Color(0x87ceeb) : new THREE.Color(0xffffff);
+      cols.push(col.r, col.g, col.b);
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+      const mat = new THREE.PointsMaterial({ 
+        size: weatherType === 'rain' ? 0.1 : 0.2, 
+        vertexColors: true, 
+        transparent: true, 
+        opacity: 0.8 
+      });
+      const particle = new THREE.Points(geo, mat);
+      scene.add(particle);
+      weatherParticles.push({ 
+        mesh: particle, 
+        velocity: weatherType === 'rain' ? -0.5 : -0.3, 
+        sway: Math.random() * 0.1 
+      });
+    }
+  }
+
+  // — DOM Elements —
+  const optionsButton = document.getElementById('optionsButton');
+  const optionsDropdown = document.getElementById('optionsDropdown');
+  const voiceDropdown = document.getElementById('voiceDropdown');
+  const languageSelect = document.getElementById('languageSelect');
+  const speedSlider = document.getElementById('speedSlider');
+  const colorThemeSelect = document.getElementById('colorTheme');
+  const ambientMusicToggle = document.getElementById('ambientMusicToggle');
+  const transitionSoundsToggle = document.getElementById('transitionSoundsToggle');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const settingsButton = document.getElementById('settingsButton');
+  const saveSettings = document.getElementById('saveSettings');
+  const usernameInput = document.getElementById('usernameInput');
+  const profileText = document.getElementById('profile');
+  const dimensionTxt = document.getElementById('dimension');
+  const progressText = document.getElementById('progress');
+  const progressFill = document.getElementById('progressFill');
+  const messages = document.getElementById('messages');
+  const zoomInButton = document.getElementById('zoomInButton');
+  const zoomOutButton = document.getElementById('zoomOutButton');
+  const feedbackButton = document.getElementById('feedbackButton');
+  const feedbackPanel = document.getElementById('feedbackPanel');
+  const feedbackRating = document.getElementById('feedbackRating');
+  const feedbackComments = document.getElementById('feedbackComments');
+  const submitFeedback = document.getElementById('submitFeedback');
+  const closeFeedback = document.getElementById('closeFeedback');
+  const saveProfileButton = document.getElementById('saveProfileButton');
+  const loadProfileButton = document.getElementById('loadProfileButton');
+  const shareFractalButton = document.getElementById('shareFractalButton');
+  const weatherDropdown = document.getElementById('weatherDropdown');
+  const fractalDropdown = document.getElementById('fractalDropdown');
+  const fpsDisplay = document.getElementById('fps');
+
+  // — Dropdown Menu Functionality —
+  optionsButton.addEventListener('click', () => {
+    const isVisible = optionsDropdown.style.display === 'flex';
+    optionsDropdown.style.display = isVisible ? 'none' : 'flex';
+    optionsButton.textContent = isVisible ? 'Options ▼' : 'Options ▲';
+  });
+
+  // — Load user settings from localStorage —
+  const savedSettings = JSON.parse(localStorage.getItem('fractalSanctuarySettings')) || {};
+  let meditationSpeed = 1;
+  let enableAmbientMusic = true;
+  let enableTransitionSounds = true;
+  let username = '';
+  if (savedSettings.language) languageSelect.value = savedSettings.language;
+  if (savedSettings.meditationSpeed) {
+    meditationSpeed = savedSettings.meditationSpeed;
+    speedSlider.value = savedSettings.meditationSpeed;
+  }
+  if (savedSettings.colorTheme) {
+    colorTheme = savedSettings.colorTheme;
+    colorThemeSelect.value = savedSettings.colorTheme;
+  }
+  if (savedSettings.enableAmbientMusic !== undefined) {
+    enableAmbientMusic = savedSettings.enableAmbientMusic;
+    ambientMusicToggle.checked = savedSettings.enableAmbientMusic;
+  }
+  if (savedSettings.enableTransitionSounds !== undefined) {
+    enableTransitionSounds = savedSettings.enableTransitionSounds;
+    transitionSoundsToggle.checked = savedSettings.enableTransitionSounds;
+  }
+
+  // — Profile & stage logic —
+  let userProfile = { currentDensity: 1, currentDimension: 1, highestStage: 0 };
+  localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile));
+  let currentDensity = userProfile.currentDensity;
+  let currentDimension = userProfile.currentDimension;
+
+  let isMeditating = false;
+  let isFunMode = false;
+  let stageTimeout = null;
+  let meditationIdx = 0;
+  let lastDensity = 1;
+
+  // — Voice and Language Selection —
+  let voices = [];
+  function populateVoices() {
+    voices = speechSynthesis.getVoices();
+    const uniqueLangs = [...new Set(voices.map(voice => voice.lang))];
+    languageSelect.innerHTML = uniqueLangs.map(lang => 
+      `<option value="${lang}">${lang}</option>`
+    ).join('');
+    updateVoiceDropdown();
+  }
+  function updateVoiceDropdown() {
+    const selectedLang = languageSelect.value;
+    voiceDropdown.innerHTML = voices
+      .filter(voice => voice.lang === selectedLang)
+      .map((voice, index) => 
+        `<option value="${voices.indexOf(voice)}">${voice.name} (${voice.lang})</option>`
+      ).join('');
+  }
+  speechSynthesis.onvoiceschanged = populateVoices;
+  populateVoices();
+  languageSelect.addEventListener('change', updateVoiceDropdown);
 
   // — Bubbles & enhanced pop effect with ripple —
   const bubbles = [];
-  const bubbleColors = [0x00aaff, 0x00ffaa, 0xaa00ff, 0xffaa00, 0xff00aa]; // Blue, Green, Purple, Gold, Magenta
-  function spawnBubbles(){
-    for(let i=0;i<10;i++){
-      const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+  function spawnBubbles() {
+    const bubbleCount = isFunMode ? 20 : 10;
+    for (let i = 0; i < bubbleCount; i++) {
+      const hue = isFunMode ? (currentDensity - 1) * 30 + Math.random() * 60 : Math.random() * 360;
+      const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      const size = isFunMode ? (Math.random() * 0.4 + 0.2) : 0.3;
       const b = new THREE.Mesh(
-        new THREE.SphereGeometry(0.3,16,16),
-        new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.7})
+        new THREE.SphereGeometry(size, 16, 16),
+        new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.7 })
       );
-      b.position.set((Math.random()-0.5)*20,(Math.random()-0.5)*20,(Math.random()-0.5)*20);
+      b.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20);
       b.userData.vel = new THREE.Vector3(
-        (Math.random()-0.5)*0.1,
-        (Math.random()-0.5)*0.1,
-        (Math.random()-0.5)*0.1
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1
       );
       scene.add(b);
       bubbles.push(b);
@@ -111,26 +667,96 @@ Click the floating bubbles to pop them and experience a burst of light with ripp
   }
   spawnBubbles();
 
-  function createBurstEffect(pos){
-    // Light flash
-    const light = new THREE.PointLight(0xffffff,1,10);
-    light.position.copy(pos); scene.add(light);
-    let intensity=1;
-    const fade = setInterval(()=>{
-      intensity -= 0.05; light.intensity=intensity;
-      if(intensity<=0){ scene.remove(light); clearInterval(fade); }
-    },50);
+  // — Audio Setup (Soundscapes) —
+  const waterRippleSynth = new Tone.Synth({
+    oscillator: { type: "sine" },
+    envelope: { attack: 0.5, decay: 1, sustain: 0.5, release: 2 }
+  }).toDestination();
+  let waterRippleLoop = null;
 
-    // Spiral effect
+  const ambientSynth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "sine" },
+    envelope: { attack: 1, decay: 1, sustain: 0.5, release: 2 }
+  }).toDestination();
+  let ambientLoop = null;
+
+  const transitionSynth = new Tone.Synth({
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.5, decay: 1, sustain: 0, release: 1 }
+  }).toDestination();
+
+  const soundscapeSynth = new Tone.Synth({
+    oscillator: { type: "sawtooth" },
+    envelope: { attack: 2, decay: 1, sustain: 0.3, release: 3 }
+  }).toDestination();
+  let soundscapeLoop = null;
+
+  function startAmbientMusic(density) {
+    if (!enableAmbientMusic) return;
+    if (ambientLoop) ambientLoop.stop();
+    if (soundscapeLoop) soundscapeLoop.stop();
+    ambientLoop = new Tone.Loop((time) => {
+      const note = 220 + (density - 1) * 20;
+      ambientSynth.triggerAttackRelease(note, "2n", time);
+    }, "4n").start(0);
+    soundscapeLoop = new Tone.Loop((time) => {
+      const note = 110 + (currentDimension - 1) * 10;
+      soundscapeSynth.triggerAttackRelease(note, "4n", time);
+    }, "8n").start(0);
+    Tone.Transport.start();
+  }
+
+  function stopAmbientMusic() {
+    if (ambientLoop) {
+      ambientLoop.stop();
+      ambientLoop = null;
+    }
+    if (soundscapeLoop) {
+      soundscapeLoop.stop();
+      soundscapeLoop = null;
+    }
+    Tone.Transport.stop();
+  }
+
+  function startWaterRippleSound() {
+    waterRippleLoop = new Tone.Loop((time) => {
+      waterRippleSynth.triggerAttackRelease("C4", "8n", time);
+    }, "2n").start(0);
+    Tone.Transport.start();
+  }
+
+  function stopWaterRippleSound() {
+    if (waterRippleLoop) {
+      waterRippleLoop.stop();
+      waterRippleLoop = null;
+    }
+    Tone.Transport.stop();
+  }
+
+  function playTransitionSound() {
+    if (enableTransitionSounds) {
+      transitionSynth.triggerAttackRelease("G4", "8n");
+    }
+  }
+
+  function createBurstEffect(pos, isFunMode) {
+    const light = new THREE.PointLight(0xffffff, 1, 10);
+    light.position.copy(pos); scene.add(light);
+    let intensity = 1;
+    const fade = setInterval(() => {
+      intensity -= 0.05; light.intensity = intensity;
+      if (intensity <= 0) { scene.remove(light); clearInterval(fade); }
+    }, 50);
+
     const spiralGeo = new THREE.BufferGeometry();
     const spiralVerts = [];
     const spiralCols = [];
-    for (let i = 0; i < 100; i++) {
-      const angle = (i / 100) * Math.PI * 4;
-      const radius = (i / 100) * 2;
+    for (let i = 0; i < 50; i++) {
+      const angle = (i / 50) * Math.PI * 4;
+      const radius = (i / 50) * 2;
       const x = pos.x + Math.cos(angle) * radius;
       const y = pos.y + Math.sin(angle) * radius;
-      const z = pos.z + (i / 100) * 2;
+      const z = pos.z + (i / 50) * 2;
       spiralVerts.push(x, y, z);
       const hue = (i * 3) % 360;
       const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
@@ -151,11 +777,10 @@ Click the floating bubbles to pop them and experience a burst of light with ripp
       }
     }, 50);
 
-    // Firework effect
     const fireworkGeo = new THREE.BufferGeometry();
     const fireworkVerts = [];
     const fireworkCols = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 30; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 2;
       const x = pos.x + Math.cos(angle) * radius;
@@ -181,48 +806,54 @@ Click the floating bubbles to pop them and experience a burst of light with ripp
       }
     }, 50);
 
-    // Ripple effect (new)
-    const rippleGeo = new THREE.BufferGeometry();
-    const rippleVerts = [];
-    const rippleCols = [];
-    for (let i = 0; i < 60; i++) { // 60 particles in a circle
-      const angle = (i / 60) * Math.PI * 2;
-      const radius = 0.5; // Starting radius
-      const x = pos.x + Math.cos(angle) * radius;
-      const y = pos.y + Math.sin(angle) * radius;
-      const z = pos.z;
-      rippleVerts.push(x, y, z);
-      const hue = (i * 6) % 360;
-      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
-      rippleCols.push(col.r, col.g, col.b);
-    }
-    rippleGeo.setAttribute('position', new THREE.Float32BufferAttribute(rippleVerts, 3));
-    rippleGeo.setAttribute('color', new THREE.Float32BufferAttribute(rippleCols, 3));
-    const rippleMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true });
-    const ripple = new THREE.Points(rippleGeo, rippleMat);
-    scene.add(ripple);
-    let rippleScale = 1;
-    let rippleOpacity = 1;
-    const rippleFade = setInterval(() => {
-      rippleScale += 0.1; // Expand the ripple
-      ripple.position.set(pos.x, pos.y, pos.z); // Keep centered
-      ripple.scale.set(rippleScale, rippleScale, 1); // Scale in XY plane
-      rippleOpacity -= 0.05;
-      ripple.material.opacity = rippleOpacity;
-      if (rippleOpacity <= 0) {
-        scene.remove(ripple);
-        clearInterval(rippleFade);
+    if (isFunMode) {
+      const rippleGeo = new THREE.BufferGeometry();
+      const rippleVerts = [];
+      const rippleCols = [];
+      for (let i = 0; i < 30; i++) {
+        const angle = (i / 30) * Math.PI * 2;
+        const radius = 0.5;
+        const x = pos.x + Math.cos(angle) * radius;
+        const y = pos.y + Math.sin(angle) * radius;
+        const z = pos.z;
+        rippleVerts.push(x, y, z);
+        const hue = (i * 6) % 360;
+        const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+        rippleCols.push(col.r, col.g, col.b);
       }
-    }, 50);
+      rippleGeo.setAttribute('position', new THREE.Float32BufferAttribute(rippleVerts, 3));
+      rippleGeo.setAttribute('color', new THREE.Float32BufferAttribute(rippleCols, 3));
+      const rippleMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true });
+      const ripple = new THREE.Points(rippleGeo, rippleMat);
+      scene.add(ripple);
+      let rippleScale = 1;
+      let rippleOpacity = 1;
+      const rippleFade = setInterval(() => {
+        rippleScale += 0.1;
+        ripple.position.set(pos.x, pos.y, pos.z);
+        ripple.scale.set(rippleScale, rippleScale, 1);
+        rippleOpacity -= 0.05;
+        ripple.material.opacity = rippleOpacity;
+        if (rippleOpacity <= 0) {
+          scene.remove(ripple);
+          clearInterval(rippleFade);
+        }
+      }, 50);
 
-    // Pop sound
-    new Tone.Synth().toDestination().triggerAttackRelease("C6","16n");
+      fractalPulse = 1.2;
+      new Tone.Synth().toDestination().triggerAttackRelease("E6", "16n");
+    }
+
+    createInteractionParticles(pos);
+    new Tone.Synth().toDestination().triggerAttackRelease("C6", "16n");
   }
 
   // — Densities & Dimensions data —
   const densities = [];
+  const meditationNarrations = [];
   for (let D = 1; D <= 12; D++) {
-    const arr = [];
+    const densityArr = [];
+    const narrationArr = [];
     const narrationThemes = [
       "Peace", "Balance", "Chaos", "Awareness", "Imagination", "Compassion", "Insight", "Möbius", "Spiral of Life"
     ];
@@ -240,157 +871,655 @@ Click the floating bubbles to pop them and experience a burst of light with ripp
       "Eternal Source",
       "Pure Consciousness"
     ];
+    const meditationThemes = [
+      { dimension: '1D', chapter: 'Chapter 1 – The Binary Code of Creation: 0 and 1', theme: 'PEACE & the VOID', chakra: 'Root (I NEED)', text: `We enter Density ${D}: 1D – Peace & the Void (Chapter 1). Feel the feminine Void (0) and masculine Vector (1) unite. Root yourself in stillness; I NEED the silent potential.` },
+      { dimension: '2D', chapter: 'Chapter 2 – The Birth of Duality: Known & Unknown', theme: 'LOVE', chakra: 'Sacral (I WANT)', text: `Now in 2D: Love – Known & Unknown (Chapter 2). Witness the first ripples of duality, the sacral dance of desire. I WANT to embrace both what is seen and what remains hidden.` },
+      { dimension: '3D', chapter: 'Chapter 3 – Light, Harmony, and the Emergence of Form', theme: 'HARMONY', chakra: 'Solar (I DESIRE)', text: `In 3D: Harmony (Chapter 3). Feel light and form merging into balance. I DESIRE the radiant unity of opposites in harmony.` },
+      { dimension: '4D', chapter: 'Chapter 4 – Time, Cycles, and the Illusion of Separation', theme: 'BALANCE', chakra: 'Crown (I THINK)', text: `Now 4D: Balance & Time (Chapter 4). Observe the day–night cycle, the crown of thought and stillness. I THINK in rhythms that weave unity from separation.` },
+      { dimension: '5D', chapter: 'Chapter 5 – The Third Eye, Imagination, and the Fall from Grace', theme: 'HOPE', chakra: '3rd Eye (I SEE)', text: `In 5D: Hope & Imagination (Chapter 5). Open your third eye—see beyond the fall from grace. I SEE the spark of hope guiding me back to source.` },
+      { dimension: '6D', chapter: 'Chapter 6 – Compassion, Completion, and the Trinity of Connection', theme: 'COMPASSION', chakra: 'Throat (I SPEAK)', text: `Now 6D: Compassion (Chapter 6). Speak the trinity of motion, stillness, and creation. I SPEAK in kindness, bridging all divides.` },
+      { dimension: '7D', chapter: 'Chapter 7 – Truth, Quantum Entanglement, and the Conquest of Death', theme: 'TRUTH', chakra: 'Heart (I AM)', text: `In 7D: Truth (Chapter 7). Feel the entangled unity of life and death. I AM the eternal witness beyond illusion.` },
+      { dimension: '8D', chapter: 'Chapter 8 – Completion, Infinity, and the Spiral of Cycles', theme: 'COMPLETION', chakra: '(I AM COMPLETE)', text: `Now 8D: Completion (Chapter 8). Witness the spiral of infinite cycles. I AM COMPLETE in every ending and new beginning.` },
+      { dimension: '9D', chapter: 'Chapter 9 – The Spiral of Life, Unity, and the Return to the Source', theme: 'UNITY', chakra: '(I AM UNIFIED)', text: `In 9D: Unity (Chapter 9). Merge into the spiral of life returning to source. I AM UNIFIED with all that ever was and will be.` }
+    ];
     for (let d = 1; d <= 9; d++) {
       const narration = `Welcome to Density ${D}, Dimension ${d}: ${narrationThemes[d - 1]} within the ${densityThemes[D - 1]}. Feel the ${narrationThemes[d - 1].toLowerCase()} as you ascend into this layer of consciousness.`;
-      arr.push({
+      densityArr.push({
         name: `${D}D${d}`,
         cReal: -0.8 + (D - 1) * 0.1 + (d - 1) * 0.02,
         cImag: 0.156 + (D - 1) * 0.05 + (d - 1) * 0.01,
         scale: 1 + D * 0.1 + d * 0.05,
         narration: narration
       });
+      narrationArr.push({
+        density: D,
+        dimension: `${d}D`,
+        chapter: meditationThemes[d - 1].chapter,
+        theme: meditationThemes[d - 1].theme,
+        chakra: meditationThemes[d - 1].chakra,
+        text: meditationThemes[d - 1].text.replace(`Density ${D}`, `Density ${D}, Dimension ${d}D`),
+        fullNarration: `${meditationThemes[d - 1].text.replace(`Density ${D}`, `Density ${D}, Dimension ${d}D`)} Chakra: ${meditationThemes[d - 1].chakra}.`
+      });
     }
-    densities.push(arr);
+    densities.push(densityArr);
+    meditationNarrations.push(narrationArr);
   }
-  console.log(`Densities initialized: ${densities.length} densities, each with ${densities[0]?.length || 0} dimensions`);
 
-  // — Profile & stage logic (start at D1D1) —
-  let userProfile = { currentDensity: 1, currentDimension: 1, highestStage: 0 }; // Always start at D1D1
-  localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile)); // Reset storage
-  let currentDensity   = userProfile.currentDensity;
-  let currentDimension = userProfile.currentDimension;
-  const profileText  = document.getElementById('profile');
-  const dimensionTxt = document.getElementById('dimension');
-  const messages     = document.getElementById('messages');
-
-  function updateProfile(){
-    const idx=(userProfile.currentDensity-1)*9+userProfile.currentDimension;
-    userProfile.highestStage=Math.max(userProfile.highestStage,idx);
-    profileText.textContent=`Profile: ${userProfile.highestStage}/108 stages reached`;
-    localStorage.setItem('fractalSanctuaryProfile',JSON.stringify(userProfile));
+  function updateProfile() {
+    const idx = (userProfile.currentDensity - 1) * 9 + userProfile.currentDimension;
+    userProfile.highestStage = Math.max(userProfile.highestStage, idx);
+    profileText.textContent = `Profile: ${userProfile.highestStage}/108 stages reached`;
+    progressText.textContent = `Progress: ${idx}/108 stages`;
+    progressFill.style.width = `${(idx / 108) * 100}%`;
+    localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile));
   }
   updateProfile();
 
-  function updateStage(){
-    if(!densities.length) return;
-    const D = THREE.MathUtils.clamp(currentDensity-1,0,densities.length-1);
+  function updateStage() {
+    if (!isMeditating) return;
+    if (!densities.length) return;
+    const D = THREE.MathUtils.clamp(currentDensity - 1, 0, densities.length - 1);
     const dims = densities[D];
-    const d = THREE.MathUtils.clamp(currentDimension-1,0,dims.length-1);
+    const d = THREE.MathUtils.clamp(currentDimension - 1, 0, dims.length - 1);
     const stage = dims[d];
 
-    // set UI & fractal params
-    dimensionTxt.textContent=`Density ${currentDensity}, Dimension ${currentDimension}`;
-    cReal=stage.cReal; cImag=stage.cImag; fractalScale=stage.scale;
+    dimensionTxt.textContent = `Density ${currentDensity}, Dimension ${currentDimension}`;
+    cReal = stage.cReal; cImag = stage.cImag; fractalScale = stage.scale;
 
-    // replace fractal
-    if(fractal) scene.remove(fractal);
-    fractal = generateFractal();
+    if (fractal) scene.remove(fractal);
+    if (fractalOverlay) scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
     scene.add(fractal);
+    scene.add(fractalOverlay);
+    fractalPulse = 1.2;
+    fractalZoom = 1;
 
-    // narration & chat
-    messages.value+=`Entering ${stage.name}: ${stage.narration}\n`;
-    messages.scrollTop=messages.scrollHeight;
-    speechSynthesis.speak(new SpeechSynthesisUtterance(stage.narration));
+    const glow = createGlowEffect();
+    scene.add(glow);
+    let glowOpacity = 0.1;
+    const glowFade = setInterval(() => {
+      glowOpacity -= 0.005;
+      glow.material.opacity = glowOpacity;
+      if (glowOpacity <= 0) {
+        scene.remove(glow);
+        clearInterval(glowFade);
+      }
+    }, 50);
 
-    // respawn bubbles
-    bubbles.forEach(b=>scene.remove(b));
-    bubbles.length=0;
+    messages.value += `Entering ${stage.name}: ${stage.narration}\n`;
+    messages.scrollTop = messages.scrollHeight;
+
+    if (!isFunMode) {
+      const meditationNarration = meditationNarrations[D][d];
+      const utterance = new SpeechSynthesisUtterance(meditationNarration.fullNarration);
+      utterance.rate = 0.8;
+      const selectedVoice = voices[voiceDropdown.value];
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.speak(utterance);
+
+      setTimeout(() => {
+        const breathingUtterance = new SpeechSynthesisUtterance("Take a deep inhale and exhale between dimensions. Breathe in for 4 seconds. Hold for 2 seconds. Breathe out for 4 seconds.");
+        breathingUtterance.rate = 0.8;
+        if (selectedVoice) breathingUtterance.voice = selectedVoice;
+        speechSynthesis.speak(breathingUtterance);
+      }, 7000);
+
+      startAmbientMusic(currentDensity);
+      playTransitionSound();
+    } else {
+      const utterance = new SpeechSynthesisUtterance(stage.narration);
+      utterance.rate = 0.8;
+      const selectedVoice = voices[voiceDropdown.value];
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.speak(utterance);
+    }
+
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
     spawnBubbles();
 
-    // save profile
-    userProfile.currentDensity   = currentDensity;
+    userProfile.currentDensity = currentDensity;
     userProfile.currentDimension = currentDimension;
     updateProfile();
 
-    // next stage
-    currentDimension++;
-    if(currentDimension>9){
-      currentDimension=1;
-      currentDensity++;
-      if(currentDensity>12) currentDensity=1;
+    if (currentDimension === 1 && lastDensity !== currentDensity && meditationIdx > 0) {
+      messages.value += `Congratulations! You've completed Density ${lastDensity}.\n`;
+      messages.scrollTop = messages.scrollHeight;
+      createDensityCompleteEffect();
     }
-    setTimeout(updateStage,15000);
+    lastDensity = currentDensity;
+
+    meditationIdx++;
+    if (meditationIdx < 108) {
+      currentDimension++;
+      if (currentDimension > 9) {
+        currentDimension = 1;
+        currentDensity++;
+        if (currentDensity > 12) currentDensity = 1;
+      }
+    } else {
+      isMeditating = false;
+      stopAmbientMusic();
+      messages.value += 'Meditation complete. Reflect on your journey.\n';
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+
+    if (isMeditating) {
+      stageTimeout = setTimeout(updateStage, 16000 / meditationSpeed);
+    }
   }
 
-  // — Initial fractal & start —
-  fractal = generateFractal();
-  scene.add(fractal);
-  updateStage();
+  // — Settings Panel with User Profiles —
+  settingsButton.addEventListener('click', () => {
+    settingsPanel.style.display = 'block';
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
 
-  // — Raycaster for bubble pop —
+  saveSettings.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    meditationSpeed = parseFloat(speedSlider.value);
+    colorTheme = colorThemeSelect.value;
+    enableAmbientMusic = ambientMusicToggle.checked;
+    enableTransitionSounds = transitionSoundsToggle.checked;
+    if (!enableAmbientMusic) stopAmbientMusic();
+    if (fractal) {
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+    }
+    const settings = {
+      username: username,
+      language: languageSelect.value,
+      meditationSpeed: meditationSpeed,
+      colorTheme: colorTheme,
+      enableAmbientMusic: enableAmbientMusic,
+      enableTransitionSounds: enableTransitionSounds
+    };
+    localStorage.setItem('fractalSanctuarySettings', JSON.stringify(settings));
+    settingsPanel.style.display = 'none';
+  });
+
+  saveProfileButton.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    if (!username) {
+      messages.value += "Please enter a username in Settings to save your profile.\n";
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+    const profileData = {
+      username: username,
+      meditationSpeed: meditationSpeed,
+      colorTheme: colorTheme,
+      enableAmbientMusic: enableAmbientMusic,
+      enableTransitionSounds: enableTransitionSounds,
+      language: languageSelect.value
+    };
+    const savedProfiles = JSON.parse(localStorage.getItem('fractalSanctuaryProfiles')) || {};
+    savedProfiles[username] = profileData;
+    localStorage.setItem('fractalSanctuaryProfiles', JSON.stringify(savedProfiles));
+    messages.value += `Profile saved for ${username}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  loadProfileButton.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    if (!username) {
+      messages.value += "Please enter a username in Settings to load your profile.\n";
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+    const savedProfiles = JSON.parse(localStorage.getItem('fractalSanctuaryProfiles')) || {};
+    const profileData = savedProfiles[username];
+    if (!profileData) {
+      messages.value += `No profile found for ${username}.\n`;
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+    meditationSpeed = profileData.meditationSpeed || 1;
+    colorTheme = profileData.colorTheme || 'vivid';
+    enableAmbientMusic = profileData.enableAmbientMusic !== undefined ? profileData.enableAmbientMusic : true;
+    enableTransitionSounds = profileData.enableTransitionSounds !== undefined ? profileData.enableTransitionSounds : true;
+    languageSelect.value = profileData.language || languageSelect.value;
+    speedSlider.value = meditationSpeed;
+    colorThemeSelect.value = colorTheme;
+    ambientMusicToggle.checked = enableAmbientMusic;
+    transitionSoundsToggle.checked = enableTransitionSounds;
+    if (!enableAmbientMusic) stopAmbientMusic();
+    if (fractal) {
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+    }
+    messages.value += `Profile loaded for ${username}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — Zoom Controls —
+  zoomInButton.addEventListener('click', () => {
+    fractalZoom = Math.max(0.5, fractalZoom - 0.1);
+    scene.remove(fractal);
+    scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    messages.value += `Zoomed in to ${fractalZoom.toFixed(1)}x\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  zoomOutButton.addEventListener('click', () => {
+    fractalZoom = Math.min(2.0, fractalZoom + 0.1);
+    scene.remove(fractal);
+    scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    messages.value += `Zoomed out to ${fractalZoom.toFixed(1)}x\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — Feedback Form with Analytics —
+  feedbackButton.addEventListener('click', () => {
+    feedbackPanel.style.display = 'block';
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  submitFeedback.addEventListener('click', () => {
+    const rating = feedbackRating.value;
+    const comments = feedbackComments.value.trim();
+    messages.value += `Feedback submitted: Rating ${rating}/5, Comments: ${comments || 'None'}\n`;
+    messages.scrollTop = messages.scrollHeight;
+    const feedback = { rating: parseInt(rating), comments, timestamp: Date.now() };
+    const savedFeedback = JSON.parse(localStorage.getItem('fractalSanctuaryFeedback')) || [];
+    savedFeedback.push(feedback);
+    localStorage.setItem('fractalSanctuaryFeedback', JSON.stringify(savedFeedback));
+    feedbackComments.value = '';
+    feedbackPanel.style.display = 'none';
+  });
+
+  closeFeedback.addEventListener('click', () => {
+    feedbackPanel.style.display = 'none';
+  });
+
+  // — Community Features: Share Fractal —
+  shareFractalButton.addEventListener('click', () => {
+    const params = new URLSearchParams({
+      cReal: cReal.toFixed(4),
+      cImag: cImag.toFixed(4),
+      fractalZoom: fractalZoom.toFixed(2),
+      colorTheme: colorTheme,
+      currentDensity: currentDensity
+    });
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      messages.value += `Shareable URL copied to clipboard: ${shareUrl}\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // Load shared fractal parameters from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('cReal')) {
+    cReal = parseFloat(urlParams.get('cReal'));
+    cImag = parseFloat(urlParams.get('cImag'));
+    fractalZoom = parseFloat(urlParams.get('fractalZoom'));
+    colorTheme = urlParams.get('colorTheme') || 'vivid';
+    currentDensity = parseInt(urlParams.get('currentDensity')) || 1;
+    messages.value += "Loaded shared fractal parameters from URL.\n";
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // — Weather Control —
+  weatherDropdown.addEventListener('change', () => {
+    weatherType = weatherDropdown.value;
+    createWeather();
+    messages.value += `Weather set to: ${weatherType}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+  });
+
+  // — Fractal Control —
+  fractalDropdown.addEventListener('change', () => {
+    const fractalType = fractalDropdown.value;
+    if (fractalType === 'julia') {
+      cReal = -0.8;
+      cImag = 0.156;
+    } else if (fractalType === 'mandelbrot') {
+      cReal = -0.5;
+      cImag = 0;
+    } else {
+      cReal = -0.8;
+      cImag = 0.156;
+    }
+    scene.remove(fractal);
+    scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    messages.value += `Fractal type set to: ${fractalType}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+  });
+
+  // — Button Controls —
+  document.getElementById('startButton').addEventListener('click', () => {
+    if (!isMeditating) {
+      isMeditating = true;
+      meditationIdx = 0;
+      currentDensity = 1;
+      currentDimension = 1;
+      if (isFunMode) {
+        messages.value += 'Starting meditation in Fun Mode.\n';
+      } else {
+        messages.value += 'Starting meditation in Meditation Mode.\n';
+      }
+      messages.scrollTop = messages.scrollHeight;
+      updateStage();
+    }
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('stopButton').addEventListener('click', () => {
+    if (isMeditating) {
+      isMeditating = false;
+      clearTimeout(stageTimeout);
+      speechSynthesis.cancel();
+      stopAmbientMusic();
+      messages.value += 'Meditation stopped.\n';
+      messages.scrollTop = messages.scrollHeight;
+    }
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('resetButton').addEventListener('click', () => {
+    isMeditating = false;
+    clearTimeout(stageTimeout);
+    speechSynthesis.cancel();
+    stopAmbientMusic();
+    currentDensity = 1;
+    currentDimension = 1;
+    meditationIdx = 0;
+    lastDensity = 1;
+    userProfile = { currentDensity: 1, currentDimension: 1, highestStage: 0 };
+    localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile));
+    updateProfile();
+    if (fractal) scene.remove(fractal);
+    if (fractalOverlay) scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    createOceanRipples();
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+    messages.value += 'Meditation reset to Density 1, Dimension 1.\n';
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('funModeButton').addEventListener('click', () => {
+    isFunMode = true;
+    startWaterRippleSound();
+    stopAmbientMusic();
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+    if (fractal) fractal.position.set(0, 0, 0);
+    if (fractalOverlay) fractalOverlay.position.set(0, 0, 0);
+    messages.value += 'Fun Mode activated! Pop bubbles to see fireworks and hear water ripples.\n';
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('meditationModeButton').addEventListener('click', () => {
+    isFunMode = false;
+    stopWaterRippleSound();
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+    messages.value += 'Meditation Mode activated! Start the guided meditation.\n';
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — Initial fractal —
+  fractal = generateFractal(currentDensity);
+  fractalOverlay = generateFractalOverlay(currentDensity);
+  scene.add(fractal);
+  scene.add(fractalOverlay);
+
+  // — Raycaster for bubble pop and fractal interaction —
   const raycaster = new THREE.Raycaster();
-  const mouse     = new THREE.Vector2();
-  function popBubbles(){
-    raycaster.setFromCamera(mouse,camera);
+  const mouse = new THREE.Vector2();
+  function popBubbles() {
+    raycaster.setFromCamera(mouse, camera);
     const hits = raycaster.intersectObjects(bubbles);
-    if(hits.length){
+    if (hits.length) {
       const b = hits[0].object;
       const pos = b.position.clone();
       scene.remove(b);
-      bubbles.splice(bubbles.indexOf(b),1);
-      createBurstEffect(pos);
-      messages.value+="Bubble popped! ✨\n";
-      messages.scrollTop=messages.scrollHeight;
-      // spawn 1 replacement
+      bubbles.splice(bubbles.indexOf(b), 1);
+      createBurstEffect(pos, isFunMode);
+      messages.value += "Bubble popped! ✨\n";
+      messages.scrollTop = messages.scrollHeight;
       spawnBubbles();
     }
   }
 
-  // desktop click
-  window.addEventListener('click',e=>{
-    if(!renderer.xr.isPresenting){
-      mouse.x=(e.clientX/innerWidth)*2-1;
-      mouse.y=-(e.clientY/innerHeight)*2+1;
+  function interactWithFractal() {
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects([fractal, fractalOverlay]);
+    if (hits.length && !isFunMode) {
+      cReal += (Math.random() - 0.5) * 0.1;
+      cImag += (Math.random() - 0.5) * 0.1;
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+      messages.value += "Fractal parameters adjusted! New shape generated.\n";
+      messages.scrollTop = messages.scrollHeight;
+    }
+  }
+
+  // — Advanced Interactions: Drag to Rotate Fractal —
+  window.addEventListener('mousedown', e => {
+    if (!renderer.xr.isPresenting) {
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects([fractal, fractalOverlay]);
+      if (hits.length && !isFunMode) {
+        isDragging = true;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+        controls.enabled = false;
+      }
+    }
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (isDragging) {
+      const deltaX = e.clientX - previousMousePosition.x;
+      const deltaY = e.clientY - previousMousePosition.y;
+      fractalRotationY += deltaX * 0.01;
+      fractalRotationX += deltaY * 0.01;
+      fractal.rotation.x = fractalRotationX;
+      fractal.rotation.y = fractalRotationY;
+      fractalOverlay.rotation.x = fractalRotationX;
+      fractalOverlay.rotation.y = fractalRotationY;
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    controls.enabled = true;
+  });
+
+  window.addEventListener('click', e => {
+    if (!renderer.xr.isPresenting) {
+      mouse.x = (e.clientX / innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
       popBubbles();
+      if (!isDragging) interactWithFractal();
+      const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
+      const dir = vector.sub(camera.position).normalize();
+      const distance = -camera.position.z / dir.z;
+      const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+      createInteractionParticles(pos);
     }
   });
 
-  // VR select
-  renderer.xr.getController(0).addEventListener('select',popBubbles);
-  renderer.xr.getController(1).addEventListener('select',popBubbles);
+  renderer.xr.getController(0).addEventListener('select', popBubbles);
+  renderer.xr.getController(1).addEventListener('select', popBubbles);
 
-  // — Chat input —
-  document.getElementById('input').addEventListener('keypress',e=>{
-    if(e.key==='Enter'&&e.target.value.trim()){
-      messages.value+=`You: ${e.target.value}\n`;
-      messages.scrollTop=messages.scrollHeight;
-      setTimeout(()=>{
-        messages.value+="Community: Thanks for sharing!\n";
-        messages.scrollTop=messages.scrollHeight;
-      },500);
-      e.target.value='';
+  document.getElementById('input').addEventListener('keypress', e => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      messages.value += `You: ${e.target.value}\n`;
+      messages.scrollTop = messages.scrollHeight;
+      setTimeout(() => {
+        messages.value += "Community: Thanks for sharing!\n";
+        messages.scrollTop = messages.scrollHeight;
+      }, 500);
+      e.target.value = '';
     }
   });
 
-  // — Save fractal screenshot —
-  document.getElementById('saveFractal').addEventListener('click',()=>{
-    const link=document.createElement('a');
-    link.download=`fractal-${currentDensity}D${currentDimension}.png`;
-    link.href=renderer.domElement.toDataURL();
+  document.getElementById('saveFractal').addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = `fractal-${currentDensity}D${currentDimension}.png`;
+    link.href = renderer.domElement.toDataURL();
     link.click();
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
   });
+
+  // — FPS Counter —
+  let lastFrameTime = 0;
+  let frameCount = 0;
+  let fps = 0;
+  function updateFPS(timestamp) {
+    frameCount++;
+    if (timestamp - lastFrameTime >= 1000) {
+      fps = frameCount;
+      frameCount = 0;
+      lastFrameTime = timestamp;
+      fpsDisplay.textContent = `FPS: ${fps}`;
+    }
+  }
 
   // — Animation loop —
-  function animate(){
-    renderer.setAnimationLoop(()=>{
-      if(fractal) fractal.rotation.z += 0.001;
-      bubbles.forEach(b=>{
+  function animate(timestamp) {
+    renderer.setAnimationLoop(() => {
+      updateFPS(timestamp);
+      updateFractalColors(timestamp);
+      if (!isFunMode) {
+        animateFractalParameters(timestamp);
+      }
+      if (fractal) {
+        if (isFunMode) {
+          fractal.position.set(0, 0, 0);
+          fractalOverlay.position.set(0, 0, 0);
+          fractal.rotation.x += 0.005;
+          fractal.rotation.y += 0.005;
+          fractalOverlay.rotation.x += 0.005;
+          fractalOverlay.rotation.y += 0.005;
+        } else {
+          fractal.rotation.x += 0.001;
+          fractal.rotation.y += 0.001;
+          fractalOverlay.rotation.x += 0.001;
+          fractalOverlay.rotation.y += 0.001;
+        }
+        if (fractalPulse > 1) {
+          fractalPulse -= 0.02;
+          fractal.scale.set(fractalPulse, fractalPulse, fractalPulse);
+          fractalOverlay.scale.set(fractalPulse, fractalPulse, fractalPulse);
+        }
+        fractal.material.uniforms.time.value = timestamp * 0.001;
+        fractalOverlay.material.uniforms.time.value = timestamp * 0.001;
+      }
+      const time = Date.now() * 0.001;
+      light.position.x = Math.sin(time) * 15;
+      light.position.y = Math.cos(time) * 15;
+      light.position.z = Math.sin(time) * 15;
+      bubbles.forEach(b => {
         b.position.add(b.userData.vel);
-        ['x','y','z'].forEach(ax=>{
-          if(Math.abs(b.position[ax])>20) b.userData.vel[ax]*=-1;
+        ['x', 'y', 'z'].forEach(ax => {
+          if (Math.abs(b.position[ax]) > 20) b.userData.vel[ax] *= -1;
         });
       });
+      rippleParticles.forEach(r => {
+        r.phase += 0.02;
+        const positions = r.mesh.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+          const angle = Math.atan2(positions[i + 1], positions[i]);
+          const radius = Math.sqrt(positions[i] * positions[i] + positions[i + 1] * positions[i + 1]);
+          positions[i + 2] = Math.sin(r.phase + angle) * 1;
+        }
+        r.mesh.geometry.attributes.position.needsUpdate = true;
+      });
+      interactionParticles.forEach(p => {
+        const positions = p.mesh.geometry.attributes.position.array;
+        const velocities = p.mesh.geometry.attributes.velocity.array;
+        for (let i = 0; i < positions.length / 3; i++) {
+          positions[i * 3] += velocities[i * 3];
+          positions[i * 3 + 1] += velocities[i * 3 + 1];
+          positions[i * 3 + 2] += velocities[i * 3 + 2];
+        }
+        p.mesh.geometry.attributes.position.needsUpdate = true;
+        p.opacity -= 0.02;
+        p.mesh.material.opacity = p.opacity;
+        if (p.opacity <= 0) {
+          scene.remove(p.mesh);
+          interactionParticles.splice(interactionParticles.indexOf(p), 1);
+        }
+      });
+      if (weatherType !== 'none') {
+        weatherParticles.forEach(p => {
+          p.mesh.position.y += p.velocity;
+          p.mesh.position.x += Math.sin(time + p.sway) * p.sway;
+          if (p.mesh.position.y < -50) {
+            p.mesh.position.y = 50;
+            p.mesh.position.x = (Math.random() - 0.5) * 50;
+            p.mesh.position.z = (Math.random() - 0.5) * 50;
+          }
+        });
+      }
       controls.update();
-      renderer.render(scene,camera);
+      renderer.render(scene, camera);
     });
   }
-  animate();
+  animate(0);
 
-  // — Resize —
-  window.addEventListener('resize',()=>{
-    camera.aspect=innerWidth/innerHeight;
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth,innerHeight);
+    renderer.setSize(innerWidth, innerHeight);
   });
   </script>
 </body>
