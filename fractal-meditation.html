@@ -319,8 +319,29 @@
         this.terrain.position.set(0, 0, 0);
         this.scene.add(this.terrain);
 
-        // Audio (Simulated with state changes)
-        this.audioState = 'silent';
+        // Initialize Audio
+        this.oceanSound = new Audio('audio/ocean-waves.mp3');
+        this.oceanSound.loop = true;
+        this.oceanSound.volume = 0.5; // Adjust volume as needed
+
+        this.rainSound = new Audio('audio/beautiful-rain.mp3');
+        this.rainSound.loop = true;
+        this.rainSound.volume = 0.5;
+
+        this.waterDropSound = new Audio('audio/water-drop.mp3');
+        this.waterDropSound.volume = 0.3;
+
+        this.jungleBirdsSound = new Audio('audio/jungle-birds.mp3');
+        this.jungleBirdsSound.loop = true;
+        this.jungleBirdsSound.volume = 0.4; // Not too loud
+
+        this.breezeSound = new Audio('audio/gentle-breeze.mp3');
+        this.breezeSound.loop = true;
+        this.breezeSound.volume = 0.3; // Gentle breeze
+
+        this.lightRainSound = new Audio('audio/light-rain.mp3');
+        this.lightRainSound.loop = true;
+        this.lightRainSound.volume = 0.2; // Very light rain
 
         // Initialize
         this.setup();
@@ -330,6 +351,19 @@
         this.spawnEnergyPoints();
         this.setupEventListeners();
         this.animate();
+      }
+
+      stopAllSounds() {
+        this.oceanSound.pause();
+        this.oceanSound.currentTime = 0;
+        this.rainSound.pause();
+        this.rainSound.currentTime = 0;
+        this.jungleBirdsSound.pause();
+        this.jungleBirdsSound.currentTime = 0;
+        this.breezeSound.pause();
+        this.breezeSound.currentTime = 0;
+        this.lightRainSound.pause();
+        this.lightRainSound.currentTime = 0;
       }
 
       setupEventListeners() {
@@ -356,7 +390,10 @@
           this.rehabMode = false;
           this.fractalMaterial.uniforms.calmMode.value = this.calmMode;
           this.fractalMaterial.uniforms.mindfulnessMode.value = false;
-          this.audioState = this.calmMode ? 'calm_ambient' : 'silent';
+          this.stopAllSounds();
+          if (this.calmMode) {
+            this.oceanSound.play();
+          }
           this.guide.visible = false;
           this.updateMode();
           this.showTooltip(this.calmMode ? "Calm Mode Activated: Relax and Explore" : "Calm Mode Deactivated");
@@ -368,7 +405,12 @@
           this.rehabMode = false;
           this.fractalMaterial.uniforms.calmMode.value = this.calmMode;
           this.fractalMaterial.uniforms.mindfulnessMode.value = this.mindfulnessMode;
-          this.audioState = this.mindfulnessMode ? 'ocean_waves' : 'silent';
+          this.stopAllSounds();
+          if (this.mindfulnessMode) {
+            this.jungleBirdsSound.play();
+            this.breezeSound.play();
+            this.lightRainSound.play();
+          }
           this.guide.visible = this.mindfulnessMode;
           this.updateMode();
           if (this.mindfulnessMode) {
@@ -384,7 +426,10 @@
           this.mindfulnessMode = false;
           this.fractalMaterial.uniforms.calmMode.value = false;
           this.fractalMaterial.uniforms.mindfulnessMode.value = false;
-          this.audioState = this.rehabMode ? 'gentle_chimes' : 'silent';
+          this.stopAllSounds();
+          if (this.rehabMode) {
+            this.rainSound.play();
+          }
           this.guide.visible = this.rehabMode;
           this.updateMode();
           if (this.rehabMode) {
@@ -486,6 +531,8 @@
           if (bubble.life <= 0) {
             this.scene.remove(bubble);
             this.bubbles.splice(i, 1);
+            // Play water drop sound when bubble pops
+            this.waterDropSound.play();
           }
         }
       }
