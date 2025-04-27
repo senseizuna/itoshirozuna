@@ -937,14 +937,14 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   // Gentle Rain Sound
   const rainSynth = new Tone.NoiseSynth({
     noise: { type: "white" },
-    envelope: { attack: 1, decay: 0.2, sustain: 0.5, release: 2 }
+    envelope: { attack: 1, decay: 0.2, sustain: 0.2, release: 2 } // Reduced sustain for a gentler sound
   });
   const rainFilter = new Tone.Filter({
     type: "lowpass",
-    frequency: 1000,
+    frequency: 500, // Lowered frequency for a softer sound
     Q: 1
   }).toDestination();
-  const rainVolume = new Tone.Volume(-20).toDestination(); // Lower volume to avoid overpowering narration
+  const rainVolume = new Tone.Volume(-40).toDestination(); // Lowered volume significantly
   rainSynth.connect(rainFilter);
   rainFilter.connect(rainVolume);
   let rainLoop = null;
@@ -978,7 +978,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   function startWaterRippleSound() {
     if (waterRippleLoop) waterRippleLoop.stop();
     waterRippleLoop = new Tone.Loop((time) => {
-      waterRippleSynth.triggerAttackRelease("G3", "8n", time); // Lowered from C4 to G3 for a softer tone
+      waterRippleSynth.triggerAttackRelease("G3", "8n", time);
     }, "2n").start(0);
     Tone.Transport.start();
   }
@@ -995,7 +995,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     oscillator: { type: "sine" },
     envelope: { attack: 1, decay: 1, sustain: 0.5, release: 2 }
   }).toDestination();
-  let ambientLOOP = null;
+  let ambientLoop = null; // Fixed variable name
 
   const transitionSynth = new Tone.Synth({
     oscillator: { type: "triangle" },
@@ -1587,7 +1587,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     isFunMode = true;
     startWaterRippleSound();
     stopAmbientMusic();
-    stopGentleRainSound(); // Stop
     stopGentleRainSound(); // Stop rain in Fun Mode to focus on water ripple sounds
     bubbles.forEach(b => scene.remove(b));
     bubbles.length = 0;
@@ -1616,7 +1615,8 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   // — Initial fractal —
   fractal = generateFractal(currentDensity);
   fractalOverlay = generateFractalOverlay(currentDensity);
-  scene.add(fractal);
+  scene
+  .add(fractal);
   scene.add(fractalOverlay);
 
   // — Raycaster for bubble pop and fractal interaction —
