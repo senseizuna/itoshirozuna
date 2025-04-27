@@ -73,10 +73,13 @@
       text-align: center;
       color: #fff; 
       font-family: Arial;
-      background: rgba(0, 0, 0, 0.5);
+      background: none;
       padding: 10px;
       border-radius: 10px;
       z-index: 2;
+    }
+    #controls p, #controls button {
+      text-shadow: 0 0 5px #000;
     }
     button { 
       margin: 5px; 
@@ -93,7 +96,7 @@
     }
     #tooltip {
       position: absolute; 
-      top: 60px; /* Adjusted to account for header */
+      top: 60px; 
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.8);
@@ -141,7 +144,7 @@
     <div class="nav-center">
       <h1>Fractal Meditation</h1>
     </div>
-    <div class="nav-right"></div> <!-- Empty for spacing, can be used for future links -->
+    <div class="nav-right"></div>
   </nav>
   <button id="vrButton">Enter VR</button>
   <div id="controls">
@@ -220,7 +223,7 @@
         this.stressLevel = 50;
         this.targetStressLevel = 50;
         this.keys = {};
-        this.sphereRadius = 500; // Initial radius of the fractal sphere
+        this.sphereRadius = 500;
 
         // Player
         this.player = new THREE.Vector3(0, 0, 0);
@@ -262,7 +265,7 @@
               vNormal = normal;
               vec3 newPosition = position;
               if (mindfulnessMode) {
-                float scale = 1.0 + 0.1 * sin(time * 0.5); // Breathing effect
+                float scale = 1.0 + 0.1 * sin(time * 0.5);
                 newPosition *= scale;
               }
               gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
@@ -301,7 +304,7 @@
               vec3 color = calmMode ? vec3(0.4, 0.7, 1.0) : vec3(hue, 0.6 + 0.2 * sin(time), 0.5);
               if (mindfulnessMode) {
                 float ripple = sin(length(vPosition) * 0.02 - time * 2.0) * 0.1;
-                color += vec3(0.0, 0.1, 0.2) * ripple; // Water ripple effect
+                color += vec3(0.0, 0.1, 0.2) * ripple;
               }
               vec3 lightDir = normalize(vec3(-1.0, -1.0, -1.0));
               float diff = max(dot(vNormal, lightDir), 0.0) * lightIntensity;
@@ -315,19 +318,6 @@
         this.terrain = new THREE.Mesh(new THREE.SphereGeometry(this.sphereRadius, 128, 128), this.fractalMaterial);
         this.terrain.position.set(0, 0, 0);
         this.scene.add(this.terrain);
-
-        // 3D UI in VR
-        const uiGeo = new THREE.PlaneGeometry(100, 50);
-        const uiCanvas = document.createElement('canvas');
-        uiCanvas.width = 512;
-        uiCanvas.height = 256;
-        this.uiContext = uiCanvas.getContext('2d');
-        this.uiTexture = new THREE.CanvasTexture(uiCanvas);
-        const uiMat = new THREE.MeshBasicMaterial({ map: this.uiTexture, transparent: true });
-        this.uiPlane = new THREE.Mesh(uiGeo, uiMat);
-        this.uiPlane.position.set(0, -20, -50);
-        this.scene.add(this.uiPlane);
-        this.updateVRUI();
 
         // Audio (Simulated with state changes)
         this.audioState = 'silent';
@@ -417,7 +407,7 @@
       }
 
       onMouseClick() {
-        if (this.renderer.xr.getSession()) return; // Disable mouse clicks in VR
+        if (this.renderer.xr.getSession()) return;
         this.raycasterMouse.setFromCamera(this.mouse, this.camera);
         const intersects = this.raycasterMouse.intersectObjects(this.energyPoints.map(p => p.mesh));
         if (intersects.length > 0) {
@@ -467,7 +457,7 @@
         for (let i = 0; i < 5; i++) {
           setTimeout(() => {
             this.spawnBubble(position);
-          }, Math.random() * 3000 + 1000); // Random delay between 1-4 seconds
+          }, Math.random() * 3000 + 1000);
         }
       }
 
@@ -657,27 +647,12 @@
       updateMode() {
         const modeText = this.calmMode ? "Calm Mode" : this.mindfulnessMode ? "Mindfulness Mode" : this.rehabMode ? "Rehab Mode" : "Exploration";
         document.getElementById('mode').innerHTML = modeText;
-        this.updateVRUI();
-      }
-
-      updateVRUI() {
-        this.uiContext.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        this.uiContext.fillRect(0, 0, 512, 256);
-        this.uiContext.fillStyle = '#fff';
-        this.uiContext.font = '24px Arial';
-        this.uiContext.textAlign = 'center';
-        this.uiContext.fillText(`Mode: ${this.calmMode ? "Calm Mode" : this.mindfulnessMode ? "Mindfulness Mode" : this.rehabMode ? "Rehab Mode" : "Exploration"}`, 256, 50);
-        this.uiContext.fillText(`Heart Rate: ${Math.round(this.heartRate)} BPM`, 256, 100);
-        this.uiContext.fillText(`Stress Level: ${Math.round(this.stressLevel)}%`, 256, 150);
-        this.uiContext.fillText(`Energy Points: ${this.energyPointsCollected}`, 256, 200);
-        this.uiTexture.needsUpdate = true;
       }
 
       updateUI() {
         document.getElementById('heartRate').innerHTML = Math.round(this.heartRate);
         document.getElementById('stressLevel').innerHTML = Math.round(this.stressLevel);
         document.getElementById('energyPoints').innerHTML = this.energyPointsCollected;
-        this.updateVRUI();
       }
 
       showTooltip(message) {
