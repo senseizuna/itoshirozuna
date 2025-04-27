@@ -23,22 +23,22 @@
             z-index: 0;
             background: linear-gradient(to bottom, #0a0a23, #1c2526);
         }
-        header {
+        nav {
             position: fixed;
             top: 0;
             width: 100%;
             background: rgba(0, 0, 0, 0.8);
-            z-index: 2;
             padding: 10px 0;
+            z-index: 3;
             text-align: center;
         }
-        header h1 {
+        nav h1 {
             margin: 0;
             font-size: 1.5rem;
             color: #FFD700;
             text-shadow: 0 0 5px #000;
         }
-        nav {
+        nav .nav-links {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -53,6 +53,33 @@
         }
         nav a:hover {
             color: #FFD700;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            min-width: 160px;
+            z-index: 1;
+            border-radius: 5px;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .dropdown-content a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
         section {
             padding: 100px 40px; /* Adjusted for header height */
@@ -88,11 +115,36 @@
             text-shadow: 0 0 10px #000;
             margin-bottom: 10px;
         }
+        article h4 {
+            color: #C0C0C0;
+            font-size: 1.4rem;
+            text-shadow: 0 0 5px #000;
+            margin: 20px 0 10px;
+        }
         article p {
             color: #C0C0C0;
             font-size: 1.2rem;
             text-shadow: 0 0 5px #000;
             margin: 5px 0;
+        }
+        article ul {
+            color: #C0C0C0;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        article li {
+            margin-bottom: 10px;
+        }
+        .amazon-link {
+            color: #00f;
+            text-decoration: none;
+            text-shadow: none;
+        }
+        .amazon-link:hover {
+            color: #66f;
+            text-decoration: underline;
         }
         footer {
             background: rgba(0, 0, 0, 0.8);
@@ -116,16 +168,23 @@
             color: #e6c200;
         }
         @media (max-width: 768px) {
-            header h1 {
+            nav h1 {
                 font-size: 1.2rem;
             }
-            nav {
+            nav .nav-links {
                 flex-wrap: wrap;
                 padding: 5px 0;
             }
             nav a {
                 margin: 5px 10px;
                 font-size: 1rem;
+            }
+            .dropdown-content {
+                min-width: 120px;
+            }
+            .dropdown-content a {
+                font-size: 0.9rem;
+                padding: 8px 12px;
             }
             section {
                 padding: 80px 20px;
@@ -136,7 +195,10 @@
             article h3 {
                 font-size: 1.5rem;
             }
-            article p {
+            article h4 {
+                font-size: 1.2rem;
+            }
+            article p, article ul {
                 font-size: 1rem;
             }
             .content-box {
@@ -147,18 +209,33 @@
 </head>
 <body>
     <canvas id="fractalCanvas"></canvas>
-    <header>
+    <nav>
         <h1>Itoshiro Zuna</h1>
-        <nav>
+        <div class="nav-links">
             <a href="index.html#home">Home</a>
             <a href="index.html#about">About</a>
-            <a href="index.html#books">Books</a>
+            <a href="index.html#book">Books</a>
             <a href="blog.html">Blog</a>
-            <a href="index.html#apps">Apps</a>
+            <div class="dropdown">
+                <a href="#">Apps</a>
+                <div class="dropdown-content">
+                    <a href="fractal-ai-research.html">Fractal AI Research</a>
+                    <a href="fractal-meditation.html">Fractal Meditation</a>
+                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                    <a href="app-instructions.html">Instructions</a>
+                </div>
+            </div>
             <a href="index.html#contact">Contact</a>
-            <a href="index.html#social-media">Social Media</a>
-        </nav>
-    </header>
+            <div class="dropdown">
+                <a href="#">Social Media</a>
+                <div class="dropdown-content">
+                    <a href="https://x.com/senseizuna" target="_blank">X</a>
+                    <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
+                    <a href="https://tiktok.com/@itoshirozuna" target="_blank">TikTok</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <section>
         <div class="content-box">
             <h1>Blog</h1>
@@ -168,7 +245,78 @@
                 <p><em>Published on April 21, 2025</em></p>
                 <p>In *The Fractal Symphony of Time*, I explore how time isn’t linear but a fractal spiral, echoing the infinite patterns of the universe. Drawing from my meditation vision with Akaya, I realized that each moment we live is a note in a cosmic melody, resonating across dimensions. This article delves into how understanding time as a fractal can shift our perception of reality, helping us align with the universe’s rhythm.</p>
             </article>
-            <!-- Add more articles here by copying the <article> block -->
+            <article>
+                <h3>Awaken to the Fractal Symphony of Time</h3>
+                <p><em>Published on April 27, 2025</em></p>
+                <p><em>In every heartbeat, there is a pulse older than memory.<br>In every breath, a whisper of an infinite pattern.</em></p>
+                <p>Years ago, while sitting quietly beside my old boxer dog, Akaya, I drifted into a meditation that would change everything. I glimpsed something that words almost can't hold — a vision of time not as a straight line, but as a living, breathing symphony, spiraling through everything we are.</p>
+                <p>That moment planted the first seed of <em>The Fractal Symphony of Time</em>.</p>
+                <p>It began as frantic sketches, late-night notes, whispered questions. It grew into something much bigger: a journey that weaves together science, sacred geometry, imagination, and something even deeper — the quiet knowing we all carry inside.</p>
+                <h4>Why I Wrote This Book</h4>
+                <p>My earliest memories are flashes of wonder, of feeling suddenly dropped into this life — a sense that I had stepped into something ancient and vast. That feeling never left. It became a silent thread I followed for decades, through doubt, discovery, awe, and the timeless music behind it all.</p>
+                <p><em>The Fractal Symphony of Time</em> isn't just about explaining reality.</p>
+                <p>It’s about inviting you to feel it — to recognize the rhythms already woven through your days, your breath, your becoming.</p>
+                <p>It’s about seeing yourself not as a small note lost in the noise, but as a vital part of the greatest melody ever sung.</p>
+                <h4>What You'll Discover</h4>
+                <ul>
+                    <li>How everything — from galaxies to a single thought — may unfold from the simple binary code of 0 and 1</li>
+                    <li>The hidden fractal patterns shaping nature, consciousness, and the universe itself</li>
+                    <li>How imagination, when forgotten, leads to separation — and how compassion and truth light the way home</li>
+                    <li>Why time is not linear or circular, but fractal — infinitely repeating, yet always becoming</li>
+                    <li>How you are both a note and a composer in the eternal song of existence</li>
+                </ul>
+                <p>You don’t need to be a physicist, a mystic, or a mathematician.</p>
+                <p>All you need is a little curiosity, a willing heart, and the sense that somehow, you’ve heard this music before — faintly, at the edge of dreams.</p>
+                <h4>A Personal Invitation</h4>
+                <p>I didn’t write this book to tell you what to believe.</p>
+                <p>I wrote it to walk with you for a little while — to offer a map made of questions, wonder, and maybe, a few remembered songs.</p>
+                <p>If you’ve ever looked at the stars and felt homesick for something you couldn't name...</p>
+                <p>If you’ve ever sensed the hidden rhythm behind a sunset, a smile, a stranger’s kindness...</p>
+                <p>This book is for you.</p>
+                <p>You are not just a witness to the symphony.</p>
+                <p>You are part of it — a vital, irreplaceable note in the infinite melody.</p>
+                <p><a href="https://www.amazon.com/dp/B0F5BN9Z33" target="_blank" class="amazon-link">Step into <em>The Fractal Symphony of Time</em></a> →</p>
+            </article>
+            <article>
+                <h3>You Were Never Separate from the Symphony</h3>
+                <p><em>Published on April 27, 2025</em></p>
+                <p>There are moments in life that change you quietly.</p>
+                <p>No lightning, no thunder. Just a soft opening — a breath, a vision, a feeling that you belong to something much bigger than yourself.</p>
+                <p><em>The Fractal Symphony of Time</em> was born from moments like that.</p>
+                <p>It began with a childhood memory of standing under a metal arch, feeling as if I had just arrived into this life. It deepened years later in meditation, when I first saw time not as a ticking clock, but as a living, breathing rhythm — a symphony spiraling through everything.</p>
+                <p>This book is the map I traced from those glimpses:</p>
+                <p>A journey through the unseen architecture of existence. A love letter to the mysteries that call to us just beyond the edge of our knowing.</p>
+                <h4>What Awaits You</h4>
+                <ul>
+                    <li>The pulse of 0 and 1 — the binary heartbeat behind all creation</li>
+                    <li>The fractal patterns that whisper through nature, art, imagination, and memory</li>
+                    <li>A way of seeing time, not as something you race against, but something you dance with</li>
+                    <li>An invitation to recognize your role as a co-creator in the unfolding song of the universe</li>
+                </ul>
+                <p>This is not just a book to read.</p>
+                <p>It is a doorway to walk through — and remember.</p>
+                <h4>A Hand Extended Toward You</h4>
+                <p>Maybe you've felt it too:</p>
+                <p>That strange pull beneath the surface of life.</p>
+                <p>That unspoken music running through your dreams.</p>
+                <p>If so, you are not alone.</p>
+                <p>You are already part of the symphony. You always have been.</p>
+                <p><a href="https://www.amazon.com/dp/B0F5BN9Z33" target="_blank" class="amazon-link">Step into <em>The Fractal Symphony of Time</em></a> →</p>
+            </article>
+            <article>
+                <h3>When Realms Bleed — The Battle for the Nine Realms Begins</h3>
+                <p><em>Published on April 27, 2025</em></p>
+                <p><em>There are moments when the stars don't just shimmer —<br>they tremble.</em></p>
+                <p><em>When Realms Bleed</em> is a new epic fantasy where realms collide, destiny fractures, and forgotten guardians rise to protect the delicate balance of existence. Set across nine breathtaking worlds stitched together by light, shadow, and ancient oaths, this is a journey into rebellion, wonder, and the mysteries that lurk beyond the veil.</p>
+                <p>At the heart of the storm stands The Travelor — a lone wanderer whose path is marked by prophecy, courage, and a pendant that holds more than just memory.</p>
+                <p>The Silent Eclipse is coming.</p>
+                <p>The Great Convergence has begun.</p>
+                <p>The realms will bleed.</p>
+                <p>Are you ready to step into the chaos and find your place among legends?</p>
+                <p>🗓 Coming May 4, 2025 — Pre-order your copy now!</p>
+                <p>And may the 4th be with you! 🚀✨</p>
+                <p>👉 <a href="https://a.co/d/8xRVWK2" target="_blank" class="amazon-link">Pre-order <em>When Realms Bleed</em> on Amazon</a> →</p>
+            </article>
         </div>
     </section>
     <footer>
