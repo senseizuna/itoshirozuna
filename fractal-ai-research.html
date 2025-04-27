@@ -20,12 +20,45 @@
       width: 100%;
       height: 100%;
     }
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 0;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.2rem;
+      text-shadow: 0 0 5px #000;
+    }
+    nav a:hover {
+      color: #FFD700;
+    }
+    .nav-left {
+      margin-left: 20px;
+    }
+    .nav-center {
+      flex-grow: 1;
+      text-align: center;
+    }
+    .nav-center h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #FFD700;
+      text-shadow: 0 0 5px #000;
+    }
     #controls {
       position: absolute;
-      top: 10px;
+      top: 60px; /* Adjusted to account for the header height */
       right: 10px;
       width: 150px;
-      max-height: 80vh;
+      max-height: calc(80vh - 60px);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -38,14 +71,62 @@
       border-radius: 8px;
       z-index: 1;
     }
-    button { margin: 3px 0; padding: 3px 6px; width: 100%; font-size: 12px; }
-    p { margin: 3px 0; text-align: center; }
-    label { margin: 3px 0; display: block; }
-    input[type="range"], input[type="checkbox"] { vertical-align: middle; }
-    input[type="range"] { width: 100%; }
+    button { 
+      margin: 3px 0; 
+      padding: 3px 6px; 
+      width: 100%; 
+      font-size: 12px; 
+      color: #FFD700;
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid #FFD700;
+    }
+    button:hover {
+      background: rgba(255, 215, 0, 0.3);
+    }
+    p { 
+      margin: 3px 0; 
+      text-align: center; 
+    }
+    label { 
+      margin: 3px 0; 
+      display: block; 
+    }
+    input[type="range"], input[type="checkbox"] { 
+      vertical-align: middle; 
+    }
+    input[type="range"] { 
+      width: 100%; 
+    }
+    @media (max-width: 768px) {
+      nav a {
+        font-size: 1rem;
+      }
+      .nav-center h1 {
+        font-size: 1.2rem;
+      }
+      #controls {
+        width: 120px;
+        font-size: 10px;
+        padding: 5px;
+        top: 50px;
+      }
+      button {
+        font-size: 10px;
+        padding: 2px 4px;
+      }
+    }
   </style>
 </head>
 <body>
+  <nav>
+    <div class="nav-left">
+      <a href="index.html">Home</a>
+    </div>
+    <div class="nav-center">
+      <h1>Fractal AI Research</h1>
+    </div>
+    <div class="nav-right"></div> <!-- Empty for spacing, can be used for future links -->
+  </nav>
   <div id="controls">
     <p>Energy Points Collected: <span id="energyPoints">0</span></p>
     <p>Total Reward: <span id="totalReward">0</span></p>
@@ -59,6 +140,7 @@
     <button id="startAI">Start AI Training</button>
     <button id="stopAI">Stop AI Training</button>
     <button id="resetEnv">Reset Environment</button>
+    <button id="fullscreenButton">Full Screen</button>
     <button id="downloadLog">Download Log</button>
   </div>
   <script>
@@ -298,7 +380,7 @@
 
       spawnEnergyPoints() {
         this.energyPoints = [];
-        const numPoints = 50;
+        const numPoints = window.innerWidth < 768 ? 30 : 50;
         for (let i = 0; i < numPoints; i++) {
           let pos;
           let attempts = 0;
@@ -501,6 +583,33 @@
           this.downloadLog();
         });
 
+        document.getElementById('fullscreenButton').addEventListener('click', () => {
+          const element = document.documentElement;
+          if (!document.fullscreenElement) {
+            if (element.requestFullscreen) {
+              element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { // Firefox
+              element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+              element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE/Edge
+              element.msRequestFullscreen();
+            }
+            console.log("Entered full-screen mode.");
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+              document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
+              document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+              document.msExitFullscreen();
+            }
+            console.log("Exited full-screen mode.");
+          }
+        });
+
         window.addEventListener('resize', () => this.onWindowResize());
       }
 
@@ -526,7 +635,6 @@
         let reward = 0;
         this.stepsSinceLastPoint++;
 
-        // Log distances to energy points
         const closestPoint = this.energyPoints.length > 0
           ? this.energyPoints.reduce((closest, point) =>
               this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
@@ -541,12 +649,11 @@
           reward -= 0.1;
         }
 
-        // Collect energy points
         let collected = false;
         for (let i = this.energyPoints.length - 1; i >= 0; i--) {
           const point = this.energyPoints[i];
           const distance = this.player.distanceTo(point.pos);
-          if (distance < 20) { // Increased collection radius
+          if (distance < 20) {
             console.log(`Collected energy point at (${point.pos.x}, ${point.pos.y}, ${point.pos.z}), distance: ${distance}`);
             this.createFirework(point.pos);
             this.scene.remove(point.mesh);
@@ -563,7 +670,6 @@
           }
         }
 
-        // Fallback: Force collection if no points collected after 20 steps
         if (!collected && this.stepsSinceLastPoint > 20 && closestPoint) {
           console.log("Forcing collection of closest energy point due to timeout");
           const index = this.energyPoints.findIndex(point => point === closestPoint);
@@ -581,7 +687,6 @@
           }
         }
 
-        // Penalty for proximity to obstacles
         for (const obstacle of this.obstacles) {
           const distance = this.player.distanceTo(obstacle.pos);
           const threshold = obstacle.type === 'barrier' ? 30 : 20;
@@ -593,7 +698,6 @@
           }
         }
 
-        // Avoidance reward
         const now = Date.now();
         if (now - this.lastAvoidanceRewardTime >= 2000) {
           let hasCollision = false;
@@ -612,7 +716,6 @@
           this.lastAvoidanceRewardTime = now;
         }
 
-        // End episode if no points collected for a while
         if (this.stepsSinceLastPoint > 50) {
           console.log("Ending episode due to timeout");
           reward -= 10;
@@ -689,6 +792,7 @@
           console.warn("AI step network error, picking random action:", err);
           action = Math.floor(Math.random() * this.actions.length);
           qValues = Array(this.actions.length).fill(0);
+          alert("Failed to connect to AI server. Using random actions.");
         }
 
         console.log("aiStep: Applying action...");
