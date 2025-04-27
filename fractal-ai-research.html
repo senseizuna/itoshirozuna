@@ -53,9 +53,12 @@
       color: #FFD700;
       text-shadow: 0 0 5px #000;
     }
+    .nav-right {
+      margin-right: 20px;
+    }
     #controls {
       position: absolute;
-      top: 60px; /* Adjusted to account for the header height */
+      top: 60px;
       right: 10px;
       width: 150px;
       max-height: calc(80vh - 60px);
@@ -125,7 +128,8 @@
     <div class="nav-center">
       <h1>Fractal AI Research</h1>
     </div>
-    <div class="nav-right"></div> <!-- Empty for spacing, can be used for future links -->
+    <div class="nav-right">
+    </div>
   </nav>
   <div id="controls">
     <p>Energy Points Collected: <span id="energyPoints">0</span></p>
@@ -137,11 +141,11 @@
     <label>Fractal Power: <input type="range" id="fractalPower" min="6" max="10" step="0.1" value="8"></label>
     <label>Chasers: <input type="checkbox" id="chasers" checked></label>
     <label>Barriers: <input type="checkbox" id="barriers" checked></label>
+    <button id="fullscreenButton">Full Screen</button>
+    <button id="downloadLog">Download Log</button>
     <button id="startAI">Start AI Training</button>
     <button id="stopAI">Stop AI Training</button>
     <button id="resetEnv">Reset Environment</button>
-    <button id="fullscreenButton">Full Screen</button>
-    <button id="downloadLog">Download Log</button>
   </div>
   <script>
     // CONFIG
@@ -149,7 +153,6 @@
     const CHUNK_SIZE = 32;
     const FRACTAL_SCALE = 2.0;
     const FRACTAL_POWER = 8.0;
-    const API_URL = 'http://localhost:5000';
 
     class FractalverseAI {
       constructor() {
@@ -160,7 +163,6 @@
         this.renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(this.renderer.domElement);
 
-        // Camera and Controls
         this.camera.position.set(0, 0, 300);
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enablePan = true;
@@ -168,14 +170,12 @@
         this.controls.target.set(0, 0, 0);
         this.controls.update();
 
-        // Lighting
         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(this.ambientLight);
         this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         this.directionalLight.position.set(-1, -1, -1).normalize();
         this.scene.add(this.directionalLight);
 
-        // State
         this.time = 0;
         this.energyPoints = [];
         this.obstacles = [];
@@ -195,23 +195,9 @@
         this.trainingLog = [];
         this.lastAvoidanceRewardTime = 0;
 
-        // Player (Agent)
-        this.player = new THREE.Vector3(0, 0, 0);
-        const playerGeo = new THREE.SphereGeometry(5, 32, 32);
-        const playerMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-        this.playerMesh = new THREE.Mesh(playerGeo, playerMat);
-        this.playerMesh.position.copy(this.player);
-        this.scene.add(this.playerMesh);
-
-        // Path Visualization (Heightmap Influence)
-        this.pathPoints = [];
-        this.pathGeometry = new THREE.BufferGeometry();
-        this.pathMaterial = new THREE.PointsMaterial({ size: 2, vertexColors: true });
-        this.path = new THREE.Points(this.pathGeometry, this.pathMaterial);
-        this.scene.add(this.path);
-
-        // Q-Value Visualization
-        this.qArrows = [];
+        this.qTable = new Map();
+        this.learningRate = 0.1;
+        this.discountFactor = 0.95;
         this.actions = [
           new THREE.Vector3(5, 0, 0),
           new THREE.Vector3(-5, 0, 0),
@@ -220,9 +206,23 @@
           new THREE.Vector3(0, 0, 5),
           new THREE.Vector3(0, 0, -5)
         ];
+
+        this.player = new THREE.Vector3(0, 0, 0);
+        const playerGeo = new THREE.SphereGeometry(5, 32, 32);
+        const playerMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+        this.playerMesh = new THREE.Mesh(playerGeo, playerMat);
+        this.playerMesh.position.copy(this.player);
+        this.scene.add(this.playerMesh);
+
+        this.pathPoints = [];
+        this.pathGeometry = new THREE.BufferGeometry();
+        this.pathMaterial = new THREE.PointsMaterial({ size: 2, vertexColors: true });
+        this.path = new THREE.Points(this.pathGeometry, this.pathMaterial);
+        this.scene.add(this.path);
+
+        this.qArrows = [];
         this.setupQArrows();
 
-        // Fractal Material with Heightmap
         this.fractalMaterial = new THREE.ShaderMaterial({
           side: THREE.BackSide,
           uniforms: {
@@ -274,12 +274,10 @@
           `
         });
 
-        // Fractal Terrain (Large sphere for skybox)
         this.terrain = new THREE.Mesh(new THREE.SphereGeometry(500, 128, 128), this.fractalMaterial);
         this.terrain.position.set(0, 0, 0);
         this.scene.add(this.terrain);
 
-        // Initialize
         this.setup();
       }
 
@@ -588,22 +586,22 @@
           if (!document.fullscreenElement) {
             if (element.requestFullscreen) {
               element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) { // Firefox
+            } else if (element.mozRequestFullScreen) {
               element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+            } else if (element.webkitRequestFullscreen) {
               element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { // IE/Edge
+            } else if (element.msRequestFullscreen) {
               element.msRequestFullscreen();
             }
             console.log("Entered full-screen mode.");
           } else {
             if (document.exitFullscreen) {
               document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) { // Firefox
+            } else if (document.mozCancelFullScreen) {
               document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
+            } else if (document.webkitExitFullscreen) {
               document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { // IE/Edge
+            } else if (document.msExitFullscreen) {
               document.msExitFullscreen();
             }
             console.log("Exited full-screen mode.");
@@ -611,6 +609,13 @@
         });
 
         window.addEventListener('resize', () => this.onWindowResize());
+      }
+
+      stateToKey(state) {
+        const playerPos = state.playerPos.map(x => Math.round(x / 10) * 10);
+        const pointPos = state.closestPointPos.map(x => Math.round(x / 10) * 10);
+        const obstaclePos = state.closestObstaclePos.map(x => Math.round(x / 10) * 10);
+        return `${playerPos.join(',')}|${pointPos.join(',')}|${obstaclePos.join(',')}`;
       }
 
       getState() {
@@ -748,60 +753,57 @@
         console.log(`PlayerMesh updated to (${this.playerMesh.position.x}, ${this.playerMesh.position.y}, ${this.playerMesh.position.z})`);
       }
 
-      async aiStep() {
+      aiStep() {
         if (!this.aiTraining) return;
 
-        let action, qValues;
-        let state = this.getState();
-        try {
-          console.log("aiStep: Sending state to backend:", state);
-          const predictRes = await fetch(`${API_URL}/predict`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ state })
-          });
-          if (!predictRes.ok) throw new Error(predictRes.statusText);
-          const predictData = await predictRes.json();
-          console.log("aiStep: Received from backend:", predictData);
-          ({ action, qValues, explorationRate: this.explorationRate } = predictData);
+        const state = this.getState();
+        const stateKey = this.stateToKey(state);
 
-          console.log("aiStep: Calculating reward...");
-          const reward = await this.getReward();
-          console.log("aiStep: Reward calculated:", reward);
-          const nextState = this.getState();
-          this.trainingLog.push({
-            episode: this.episodeCount,
-            step: this.stepsSinceLastPoint,
-            state,
-            action,
-            reward,
-            nextState,
-            totalReward: this.totalReward,
-            explorationRate: this.explorationRate
-          });
-
-          console.log("aiStep: Sending training data to backend...");
-          const trainRes = await fetch(`${API_URL}/train`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ state, action, reward, nextState })
-          });
-          if (!trainRes.ok) throw new Error(trainRes.statusText);
-          console.log("aiStep: Training response:", await trainRes.json());
-        } catch (err) {
-          console.warn("AI step network error, picking random action:", err);
-          action = Math.floor(Math.random() * this.actions.length);
-          qValues = Array(this.actions.length).fill(0);
-          alert("Failed to connect to AI server. Using random actions.");
+        if (!this.qTable.has(stateKey)) {
+          this.qTable.set(stateKey, Array(this.actions.length).fill(0));
         }
 
-        console.log("aiStep: Applying action...");
+        const qValues = this.qTable.get(stateKey);
+
+        let action;
+        if (Math.random() < this.explorationRate) {
+          action = Math.floor(Math.random() * this.actions.length);
+        } else {
+          action = qValues.indexOf(Math.max(...qValues));
+        }
+
         this.takeAction(action);
-        console.log("aiStep: Updating Q-arrows...");
+
+        const reward = this.getReward();
+        const nextState = this.getState();
+        const nextStateKey = this.stateToKey(nextState);
+
+        if (!this.qTable.has(nextStateKey)) {
+          this.qTable.set(nextStateKey, Array(this.actions.length).fill(0));
+        }
+
+        const currentQ = qValues[action];
+        const nextQValues = this.qTable.get(nextStateKey);
+        const maxNextQ = Math.max(...nextQValues);
+        const newQ = currentQ + this.learningRate * (reward + this.discountFactor * maxNextQ - currentQ);
+        qValues[action] = newQ;
+        this.qTable.set(stateKey, qValues);
+
+        this.explorationRate = Math.max(this.minExplorationRate, this.explorationRate * this.explorationDecay);
+
+        this.trainingLog.push({
+          episode: this.episodeCount,
+          step: this.stepsSinceLastPoint,
+          state,
+          action,
+          reward,
+          nextState,
+          totalReward: this.totalReward,
+          explorationRate: this.explorationRate
+        });
+
         this.updateQArrows(qValues);
-        console.log("aiStep: Updating path visualization...");
         this.updatePathVisualization();
-        console.log("aiStep: Step complete");
       }
 
       endEpisode() {
