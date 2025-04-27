@@ -2,886 +2,619 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fractalverse 3D AI Research Adaptation Enhanced</title>
+  <title>Fractal AI Research</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    /* reset & body */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body,html { width:100%; height:100%; overflow:hidden; background:#000; font-family:sans-serif; }
+
+    /* top nav */
+    nav {
+      position:fixed; top:0; left:0; right:0; height:48px;
+      background:rgba(0,0,0,0.85); display:flex; align-items:center; padding:0 16px;
+      z-index:10;
+    }
+    nav a { color:#fff; text-decoration:none; font-size:1rem; }
+    nav .title { margin:0 auto; color:#FFD700; font-size:1.4rem; }
+
+    /* controls panel */
+    #controls {
+      position:fixed; top:56px; right:8px; width:200px;
+      background:rgba(0,0,0,0.6); padding:10px; border-radius:6px;
+      color:#fff; font-size:0.9rem; max-height:calc(100vh-64px); overflow-y:auto;
+      z-index:9;
+    }
+    #controls p { margin:6px 0; }
+    #controls label { display:block; margin:8px 0; }
+    #controls input[type=range] { width:100%; }
+    #controls input[type=checkbox] { margin-right:6px; }
+    #controls button {
+      width:100%; margin:6px 0; padding:6px;
+      background:transparent; border:2px solid #FFD700;
+      color:#FFD700; cursor:pointer;
+    }
+    #controls button:hover { background:rgba(255,215,0,0.2); }
+  </style>
+  <!-- Three.js + OrbitControls -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      background: #000;
-    }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px 0;
-      z-index: 3;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.2rem;
-      text-shadow: 0 0 5px #000;
-    }
-    nav a:hover {
-      color: #FFD700;
-    }
-    .nav-left {
-      margin-left: 20px;
-    }
-    .nav-center {
-      flex-grow: 1;
-      text-align: center;
-    }
-    .nav-center h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: #FFD700;
-      text-shadow: 0 0 5px #000;
-    }
-    .nav-right {
-      margin-right: 20px;
-    }
-    #controls {
-      position: absolute;
-      top: 60px;
-      right: 10px;
-      width: 150px;
-      max-height: calc(80vh - 60px);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #fff;
-      font-family: Arial;
-      font-size: 12px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 8px;
-      border-radius: 8px;
-      z-index: 1;
-    }
-    button { 
-      margin: 3px 0; 
-      padding: 3px 6px; 
-      width: 100%; 
-      font-size: 12px; 
-      color: #FFD700;
-      background: rgba(255, 215, 0, 0.1);
-      border: 1px solid #FFD700;
-    }
-    button:hover {
-      background: rgba(255, 215, 0, 0.3);
-    }
-    p { 
-      margin: 3px 0; 
-      text-align: center; 
-    }
-    label { 
-      margin: 3px 0; 
-      display: block; 
-    }
-    input[type="range"], input[type="checkbox"] { 
-      vertical-align: middle; 
-    }
-    input[type="range"] { 
-      width: 100%; 
-    }
-    @media (max-width: 768px) {
-      nav a {
-        font-size: 1rem;
-      }
-      .nav-center h1 {
-        font-size: 1.2rem;
-      }
-      #controls {
-        width: 120px;
-        font-size: 10px;
-        padding: 5px;
-        top: 50px;
-      }
-      button {
-        font-size: 10px;
-        padding: 2px 4px;
-      }
-    }
-  </style>
 </head>
 <body>
   <nav>
-    <div class="nav-left">
-      <a href="index.html">Home</a>
-    </div>
-    <div class="nav-center">
-      <h1>Fractal AI Research</h1>
-    </div>
-    <div class="nav-right">
-    </div>
+    <a href="index.html">Home</a>
+    <div class="title">Fractal AI Research</div>
   </nav>
+
   <div id="controls">
-    <p>Energy Points Collected: <span id="energyPoints">0</span></p>
+    <p>Energy Collected: <span id="energyPoints">0</span></p>
     <p>Total Reward: <span id="totalReward">0</span></p>
-    <p>Average Reward: <span id="avgReward">0</span></p>
-    <p>Exploration Rate: <span id="explorationRate">0.1</span></p>
+    <p>Avg Reward: <span id="avgReward">0</span></p>
+    <p>Exploration: <span id="explorationRate">0.1</span></p>
     <p>Episode: <span id="episodeCount">0</span></p>
-    <label>Fractal Scale: <input type="range" id="fractalScale" min="1" max="3" step="0.1" value="2"></label>
-    <label>Fractal Power: <input type="range" id="fractalPower" min="6" max="10" step="0.1" value="8"></label>
-    <label>Chasers: <input type="checkbox" id="chasers" checked></label>
-    <label>Barriers: <input type="checkbox" id="barriers" checked></label>
-    <button id="fullscreenButton">Full Screen</button>
+    <label>Fractal Scale<br>
+      <input type="range" id="fractalScale" min="1" max="3" step="0.1" value="2">
+    </label>
+    <label>Fractal Power<br>
+      <input type="range" id="fractalPower" min="6" max="10" step="0.1" value="8">
+    </label>
+    <label><input type="checkbox" id="chasers" checked>Chasers</label>
+    <label><input type="checkbox" id="barriers" checked>Barriers</label>
+    <button id="fullscreenBtn">Full Screen</button>
     <button id="downloadLog">Download Log</button>
     <button id="startAI">Start AI Training</button>
     <button id="stopAI">Stop AI Training</button>
     <button id="resetEnv">Reset Environment</button>
   </div>
+
   <script>
-    // CONFIG
-    const BLOCK = 20;
-    const CHUNK_SIZE = 32;
-    const FRACTAL_SCALE = 2.0;
-    const FRACTAL_POWER = 8.0;
+  // ─── CONFIG ───
+  const PATH_SIZE   = 400;
+  const HILBERT_ORDER = 4;
+  const PLAYER_SPEED = 5;
 
-    class FractalverseAI {
-      constructor() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(this.renderer.domElement);
+  class FractalApp {
+    constructor(){
+      this._initThree();
+      this._initState();
+      this._initPlayer();
+      this._initPathVis();
+      this._initQArrows();
+      this._initSky();
+      this._bindUI();
+      this._spawnEnergy();
+      this._spawnObstacles();
+      this._generatePath();
+      this._animate();
+    }
 
-        this.camera.position.set(0, 0, 300);
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enablePan = true;
-        this.controls.enableZoom = true;
-        this.controls.target.set(0, 0, 0);
-        this.controls.update();
+    // ─── Three.js Setup ───
+    _initThree(){
+      this.scene    = new THREE.Scene();
+      this.camera   = new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,2000);
+      this.renderer = new THREE.WebGLRenderer({antialias:true});
+      this.renderer.setSize(innerWidth,innerHeight);
+      document.body.appendChild(this.renderer.domElement);
 
-        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        this.scene.add(this.ambientLight);
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        this.directionalLight.position.set(-1, -1, -1).normalize();
-        this.scene.add(this.directionalLight);
+      this.controls3d = new THREE.OrbitControls(this.camera,this.renderer.domElement);
+      this.camera.position.set(0,0,600);
+      this.controls3d.update();
 
-        this.time = 0;
-        this.energyPoints = [];
-        this.obstacles = [];
-        this.particles = [];
-        this.energyPointsCollected = 0;
-        this.totalReward = 0;
-        this.aiTraining = false;
-        this.fractalScale = FRACTAL_SCALE;
-        this.fractalPower = FRACTAL_POWER;
-        this.episodeCount = 0;
-        this.episodeRewards = [];
-        this.avgReward = 0;
-        this.explorationRate = 0.1;
-        this.explorationDecay = 0.995;
-        this.minExplorationRate = 0.01;
-        this.stepsSinceLastPoint = 0;
-        this.trainingLog = [];
-        this.lastAvoidanceRewardTime = 0;
+      this.scene.add(new THREE.AmbientLight(0xffffff,0.5));
+      let dir = new THREE.DirectionalLight(0xffffff,1);
+      dir.position.set(-1,-1,-1).normalize();
+      this.scene.add(dir);
 
-        this.qTable = new Map();
-        this.learningRate = 0.1;
-        this.discountFactor = 0.95;
-        this.actions = [
-          new THREE.Vector3(5, 0, 0),
-          new THREE.Vector3(-5, 0, 0),
-          new THREE.Vector3(0, 5, 0),
-          new THREE.Vector3(0, -5, 0),
-          new THREE.Vector3(0, 0, 5),
-          new THREE.Vector3(0, 0, -5)
-        ];
+      window.addEventListener('resize',()=>this._onResize());
+    }
 
-        this.player = new THREE.Vector3(0, 0, 0);
-        const playerGeo = new THREE.SphereGeometry(5, 32, 32);
-        const playerMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-        this.playerMesh = new THREE.Mesh(playerGeo, playerMat);
-        this.playerMesh.position.copy(this.player);
-        this.scene.add(this.playerMesh);
+    // ─── App State ───
+    _initState(){
+      this.time          = 0;
+      this.fractalScale  = 2;
+      this.fractalPower  = 8;
+      this.pathPoints    = [];
+      this.energyPoints  = [];
+      this.obstacles     = [];
+      this.energyCollected = 0;
+      this.totalReward     = 0;
+      this.episodeCount    = 0;
+      this.episodeRewards  = [];
+      this.avgReward       = 0;
+      this.explorationRate = 0.1;
+      this.explorationDecay= 0.995;
+      this.minExplorationRate = 0.01;
+      this.steps          = 0;
+      this.trainingLog    = [];
+      this.aiTraining     = false;
+      this.lastAvoid      = 0;
+      this.fractalStep    = 0;
 
-        this.pathPoints = [];
-        this.pathGeometry = new THREE.BufferGeometry();
-        this.pathMaterial = new THREE.PointsMaterial({ size: 2, vertexColors: true });
-        this.path = new THREE.Points(this.pathGeometry, this.pathMaterial);
-        this.scene.add(this.path);
+      // Discrete action vectors
+      this.actions = [
+        new THREE.Vector3( PLAYER_SPEED, 0, 0),
+        new THREE.Vector3(-PLAYER_SPEED, 0, 0),
+        new THREE.Vector3(0,  PLAYER_SPEED, 0),
+        new THREE.Vector3(0, -PLAYER_SPEED, 0),
+        new THREE.Vector3(0, 0,  PLAYER_SPEED),
+        new THREE.Vector3(0, 0, -PLAYER_SPEED)
+      ];
 
-        this.qArrows = [];
-        this.setupQArrows();
+      this.qTable       = new Map();
+      this.alpha        = 0.1;   // learning rate
+      this.gamma        = 0.95;  // discount factor
+    }
 
-        this.fractalMaterial = new THREE.ShaderMaterial({
-          side: THREE.BackSide,
-          uniforms: {
-            time: { value: 0 },
-            scale: { value: this.fractalScale },
-            power: { value: this.fractalPower }
-          },
-          vertexShader: `
-            varying vec3 vPosition;
-            varying vec3 vNormal;
-            void main() {
-              vPosition = position;
-              vNormal = normal;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-          `,
-          fragmentShader: `
-            uniform float time;
-            uniform float scale;
-            uniform float power;
-            varying vec3 vPosition;
-            varying vec3 vNormal;
-            float mandelbulb(vec3 pos) {
-              vec3 z = pos;
-              float dr = 1.0;
-              float r = 0.0;
-              for (int i = 0; i < 10; i++) {
-                r = length(z);
-                if (r > 2.0) break;
-                float theta = acos(z.z / r) * power;
-                float phi = atan(z.y, z.x) * power;
-                float zr = pow(r, power);
-                dr = pow(r, power - 1.0) * power * dr + 1.0;
-                z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
-                z += pos;
-              }
-              return 0.5 * log(r) * r / dr;
-            }
-            void main() {
-              vec3 pos = vPosition / scale;
-              float d = mandelbulb(pos);
-              float hue = 0.8 + 0.2 * sin(d * 10.0 + time);
-              vec3 color = vec3(hue, 0.6 + 0.2 * sin(time), 0.5);
-              vec3 lightDir = normalize(vec3(-1.0, -1.0, -1.0));
-              float diff = max(dot(vNormal, lightDir), 0.0);
-              color = color * (0.5 + 0.5 * diff);
-              gl_FragColor = vec4(color, 1.0);
-            }
-          `
-        });
+    // ─── Player ───
+    _initPlayer(){
+      let geo = new THREE.SphereGeometry(5,16,16),
+          mat = new THREE.MeshLambertMaterial({color:0xffff00});
+      this.playerMesh = new THREE.Mesh(geo,mat);
+      this.scene.add(this.playerMesh);
+      this.player = new THREE.Vector3(0,0,0);
+    }
 
-        this.terrain = new THREE.Mesh(new THREE.SphereGeometry(500, 128, 128), this.fractalMaterial);
-        this.terrain.position.set(0, 0, 0);
-        this.scene.add(this.terrain);
+    // ─── Path Visualization ───
+    _initPathVis(){
+      this.pathGeo = new THREE.BufferGeometry();
+      this.pathMat = new THREE.PointsMaterial({size:2,vertexColors:true});
+      this.pathPTS = new THREE.Points(this.pathGeo,this.pathMat);
+      this.scene.add(this.pathPTS);
+    }
 
-        this.setup();
-      }
-
-      setup() {
-        this.spawnEnergyPoints();
-        this.spawnObstacles();
-        this.setupEventListeners();
-        this.animate();
-      }
-
-      setupQArrows() {
-        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-        this.actions.forEach((action, i) => {
-          const arrow = new THREE.ArrowHelper(
-            action.clone().normalize(),
-            this.player,
-            10,
-            colors[i],
-            5,
-            2
-          );
-          this.scene.add(arrow);
-          this.qArrows.push(arrow);
-        });
-      }
-
-      updateQArrows(qValues) {
-        const maxQ = Math.max(...qValues);
-        const minQ = Math.min(...qValues);
-        const range = maxQ - minQ || 1;
-        this.qArrows.forEach((arrow, i) => {
-          const qValue = qValues[i];
-          const normalized = (qValue - minQ) / range;
-          arrow.setLength(10 + normalized * 10);
-          arrow.position.copy(this.player);
-        });
-      }
-
-      getHeightAtPosition(pos) {
-        const normalizedPos = pos.clone().divideScalar(this.fractalScale);
-        let z = normalizedPos.clone();
-        let dr = 1.0;
-        let r = 0.0;
-        for (let i = 0; i < 10; i++) {
-          r = z.length();
-          if (r > 2.0) break;
-          const theta = Math.acos(z.z / r) * this.fractalPower;
-          const phi = Math.atan2(z.y, z.x) * this.fractalPower;
-          const zr = Math.pow(r, this.fractalPower);
-          dr = Math.pow(r, this.fractalPower - 1.0) * this.fractalPower * dr + 1.0;
-          z = new THREE.Vector3(
-            Math.sin(theta) * Math.cos(phi),
-            Math.sin(theta) * Math.sin(phi),
-            Math.cos(theta)
-          ).multiplyScalar(zr).add(normalizedPos);
-        }
-        return (0.5 * Math.log(r) * r / dr) * 10;
-      }
-
-      updatePathVisualization() {
-        this.pathPoints.push(this.player.clone());
-        if (this.pathPoints.length > 1000) this.pathPoints.shift();
-
-        const positions = [];
-        const colors = [];
-        this.pathPoints.forEach(point => {
-          const height = this.getHeightAtPosition(point);
-          positions.push(point.x, point.y, point.z);
-          const color = new THREE.Color().setHSL(height / 20, 0.7, 0.5);
-          colors.push(color.r, color.g, color.b);
-        });
-
-        this.pathGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        this.pathGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        this.pathGeometry.attributes.position.needsUpdate = true;
-        this.pathGeometry.attributes.color.needsUpdate = true;
-      }
-
-      mandelbulbDistance(pos) {
-        let z = pos.clone();
-        let dr = 1.0;
-        let r = 0.0;
-        for (let i = 0; i < 10; i++) {
-          r = z.length();
-          if (r > 2.0) break;
-          const theta = Math.acos(z.z / r) * this.fractalPower;
-          const phi = Math.atan2(z.y, z.x) * this.fractalPower;
-          const zr = Math.pow(r, this.fractalPower);
-          dr = Math.pow(r, this.fractalPower - 1.0) * this.fractalPower * dr + 1.0;
-          z = new THREE.Vector3(
-            Math.sin(theta) * Math.cos(phi),
-            Math.sin(theta) * Math.sin(phi),
-            Math.cos(theta)
-          ).multiplyScalar(zr).add(pos);
-        }
-        return 0.5 * Math.log(r) * r / dr;
-      }
-
-      spawnEnergyPoints() {
-        this.energyPoints = [];
-        const numPoints = window.innerWidth < 768 ? 30 : 50;
-        for (let i = 0; i < numPoints; i++) {
-          let pos;
-          let attempts = 0;
-          const maxAttempts = 100;
-          do {
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
-            const radius = 400 * Math.cbrt(Math.random());
-            pos = new THREE.Vector3(
-              radius * Math.sin(phi) * Math.cos(theta),
-              radius * Math.sin(phi) * Math.sin(theta),
-              radius * Math.cos(phi)
-            );
-            const scaledPos = pos.clone().divideScalar(this.fractalScale);
-            const d = this.mandelbulbDistance(scaledPos);
-            attempts++;
-            if (attempts >= maxAttempts) {
-              pos.set(
-                (Math.random() - 0.5) * 400,
-                (Math.random() - 0.5) * 400,
-                (Math.random() - 0.5) * 400
-              );
-              break;
-            }
-          } while (Math.abs(this.mandelbulbDistance(pos.clone().divideScalar(this.fractalScale))) > 0.1);
-
-          const geo = new THREE.SphereGeometry(3, 16, 16);
-          const mat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.position.copy(pos);
-          this.scene.add(mesh);
-          const velocity = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.5
-          );
-          this.energyPoints.push({ pos, mesh, velocity });
-        }
-      }
-
-      spawnObstacles() {
-        this.obstacles = [];
-        const enableChasers = document.getElementById('chasers').checked;
-        const enableBarriers = document.getElementById('barriers').checked;
-
-        if (enableChasers) {
-          for (let i = 0; i < 2; i++) {
-            const x = (Math.random() - 0.5) * 400;
-            const y = (Math.random() - 0.5) * 400;
-            const z = (Math.random() - 0.5) * 400;
-            const geo = new THREE.BoxGeometry(8, 8, 8);
-            const mat = new THREE.MeshLambertMaterial({ color: 0xff4500 });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z);
-            this.scene.add(mesh);
-            this.obstacles.push({ pos: new THREE.Vector3(x, y, z), mesh, type: 'chaser' });
-          }
-        }
-
-        if (enableBarriers) {
-          for (let i = 0; i < 2; i++) {
-            const x = (Math.random() - 0.5) * 400;
-            const y = (Math.random() - 0.5) * 400;
-            const z = (Math.random() - 0.5) * 400;
-            const geo = new THREE.BoxGeometry(20, 20, 20);
-            const mat = new THREE.MeshLambertMaterial({ color: 0x808080 });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z);
-            this.scene.add(mesh);
-            this.obstacles.push({ pos: new THREE.Vector3(x, y, z), mesh, type: 'barrier' });
-          }
-        }
-      }
-
-      createFirework(position) {
-        const particleCount = 30;
-        const positions = [];
-        const velocities = [];
-        const colors = [];
-        const sizes = [];
-
-        for (let i = 0; i < particleCount; i++) {
-          positions.push(position.x, position.y, position.z);
-          const velocity = new THREE.Vector3(
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10
-          );
-          velocities.push(velocity);
-          const color = new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
-          colors.push(color.r, color.g, color.b);
-          sizes.push(2 + Math.random() * 2);
-        }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
-
-        const material = new THREE.PointsMaterial({
-          size: 2,
-          vertexColors: true,
-          transparent: true,
-          opacity: 1
-        });
-
-        const particleSystem = new THREE.Points(geometry, material);
-        this.scene.add(particleSystem);
-        this.particles.push({ system: particleSystem, velocities, lifetime: 1.0 });
-      }
-
-      updateParticles(delta) {
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          const particle = this.particles[i];
-          particle.lifetime -= delta;
-          if (particle.lifetime <= 0) {
-            this.scene.remove(particle.system);
-            this.particles.splice(i, 1);
-            continue;
-          }
-
-          const positions = particle.system.geometry.attributes.position.array;
-          for (let j = 0; j < positions.length; j += 3) {
-            positions[j] += particle.velocities[j / 3].x * delta;
-            positions[j + 1] += particle.velocities[j / 3].y * delta;
-            positions[j + 2] += particle.velocities[j / 3].z * delta;
-          }
-          particle.system.geometry.attributes.position.needsUpdate = true;
-          particle.system.material.opacity = particle.lifetime;
-        }
-      }
-
-      updateDynamicElements() {
-        this.energyPoints.forEach(point => {
-          point.pos.add(point.velocity);
-          point.mesh.position.copy(point.pos);
-          if (Math.abs(point.pos.x) > 400) point.velocity.x *= -1;
-          if (Math.abs(point.pos.y) > 400) point.velocity.y *= -1;
-          if (Math.abs(point.pos.z) > 400) point.velocity.z *= -1;
-        });
-
-        this.obstacles.forEach(obstacle => {
-          if (obstacle.type === 'chaser') {
-            const direction = this.player.clone().sub(obstacle.pos).normalize();
-            obstacle.pos.add(direction.multiplyScalar(1.0));
-            obstacle.mesh.position.copy(obstacle.pos);
-            obstacle.mesh.rotation.x += 0.02;
-            obstacle.mesh.rotation.y += 0.02;
-          } else if (obstacle.type === 'barrier') {
-            obstacle.mesh.rotation.x += 0.01;
-            obstacle.mesh.rotation.y += 0.01;
-          }
-          if (Math.abs(obstacle.pos.x) > 400) obstacle.pos.x = Math.sign(obstacle.pos.x) * 400;
-          if (Math.abs(obstacle.pos.y) > 400) obstacle.pos.y = Math.sign(obstacle.pos.y) * 400;
-          if (Math.abs(obstacle.pos.z) > 400) obstacle.pos.z = Math.sign(obstacle.pos.z) * 400;
-        });
-      }
-
-      setupEventListeners() {
-        document.getElementById('startAI').addEventListener('click', () => {
-          console.log("Starting AI training...");
-          this.aiTraining = true;
-          this.aiTrainingInterval = setInterval(() => {
-            console.log("Interval tick: Running aiStep...");
-            this.aiStep();
-          }, 100);
-        });
-
-        document.getElementById('stopAI').addEventListener('click', () => {
-          console.log("Stopping AI training...");
-          this.aiTraining = false;
-          clearInterval(this.aiTrainingInterval);
-        });
-
-        document.getElementById('resetEnv').addEventListener('click', () => {
-          this.resetEnvironment();
-        });
-
-        document.getElementById('fractalScale').addEventListener('input', (e) => {
-          this.fractalScale = parseFloat(e.target.value);
-          this.fractalMaterial.uniforms.scale.value = this.fractalScale;
-        });
-
-        document.getElementById('fractalPower').addEventListener('input', (e) => {
-          this.fractalPower = parseFloat(e.target.value);
-          this.fractalMaterial.uniforms.power.value = this.fractalPower;
-        });
-
-        document.getElementById('chasers').addEventListener('change', () => {
-          this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
-          this.spawnObstacles();
-        });
-
-        document.getElementById('barriers').addEventListener('change', () => {
-          this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
-          this.spawnObstacles();
-        });
-
-        document.getElementById('downloadLog').addEventListener('click', () => {
-          this.downloadLog();
-        });
-
-        document.getElementById('fullscreenButton').addEventListener('click', () => {
-          const element = document.documentElement;
-          if (!document.fullscreenElement) {
-            if (element.requestFullscreen) {
-              element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) {
-              element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) {
-              element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) {
-              element.msRequestFullscreen();
-            }
-            console.log("Entered full-screen mode.");
-          } else {
-            if (document.exitFullscreen) {
-              document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-              document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) {
-              document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-              document.msExitFullscreen();
-            }
-            console.log("Exited full-screen mode.");
-          }
-        });
-
-        window.addEventListener('resize', () => this.onWindowResize());
-      }
-
-      stateToKey(state) {
-        const playerPos = state.playerPos.map(x => Math.round(x / 10) * 10);
-        const pointPos = state.closestPointPos.map(x => Math.round(x / 10) * 10);
-        const obstaclePos = state.closestObstaclePos.map(x => Math.round(x / 10) * 10);
-        return `${playerPos.join(',')}|${pointPos.join(',')}|${obstaclePos.join(',')}`;
-      }
-
-      getState() {
-        const closestPoint = this.energyPoints.length > 0
-          ? this.energyPoints.reduce((closest, point) =>
-              this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
-            )
-          : { pos: new THREE.Vector3(0, 0, 0) };
-        const closestObstacle = this.obstacles.length > 0
-          ? this.obstacles.reduce((closest, obstacle) =>
-              this.player.distanceTo(obstacle.pos) < this.player.distanceTo(closest.pos) ? obstacle : closest
-            )
-          : { pos: new THREE.Vector3(0, 0, 0) };
-        return {
-          playerPos: [this.player.x, this.player.y, this.player.z],
-          closestPointPos: [closestPoint.pos.x, closestPoint.pos.y, closestPoint.pos.z],
-          closestObstaclePos: [closestObstacle.pos.x, closestObstacle.pos.y, closestObstacle.pos.z]
-        };
-      }
-
-      getReward() {
-        let reward = 0;
-        this.stepsSinceLastPoint++;
-
-        const closestPoint = this.energyPoints.length > 0
-          ? this.energyPoints.reduce((closest, point) =>
-              this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
-            )
-          : null;
-        if (closestPoint) {
-          const distance = this.player.distanceTo(closestPoint.pos);
-          console.log(`Distance to closest energy point: ${distance}`);
-          reward += (400 - distance) * 0.0005;
-        } else {
-          console.log("No energy points available");
-          reward -= 0.1;
-        }
-
-        let collected = false;
-        for (let i = this.energyPoints.length - 1; i >= 0; i--) {
-          const point = this.energyPoints[i];
-          const distance = this.player.distanceTo(point.pos);
-          if (distance < 20) {
-            console.log(`Collected energy point at (${point.pos.x}, ${point.pos.y}, ${point.pos.z}), distance: ${distance}`);
-            this.createFirework(point.pos);
-            this.scene.remove(point.mesh);
-            this.energyPoints.splice(i, 1);
-            this.energyPointsCollected++;
-            this.totalReward += 10;
-            reward += 10;
-            this.stepsSinceLastPoint = 0;
-            collected = true;
-            if (this.energyPoints.length === 0) {
-              this.spawnEnergyPoints();
-            }
-            break;
-          }
-        }
-
-        if (!collected && this.stepsSinceLastPoint > 20 && closestPoint) {
-          console.log("Forcing collection of closest energy point due to timeout");
-          const index = this.energyPoints.findIndex(point => point === closestPoint);
-          if (index !== -1) {
-            this.createFirework(closestPoint.pos);
-            this.scene.remove(closestPoint.mesh);
-            this.energyPoints.splice(index, 1);
-            this.energyPointsCollected++;
-            this.totalReward += 10;
-            reward += 10;
-            this.stepsSinceLastPoint = 0;
-            if (this.energyPoints.length === 0) {
-              this.spawnEnergyPoints();
-            }
-          }
-        }
-
-        for (const obstacle of this.obstacles) {
-          const distance = this.player.distanceTo(obstacle.pos);
-          const threshold = obstacle.type === 'barrier' ? 30 : 20;
-          if (distance < threshold) {
-            console.log(`Penalty from ${obstacle.type} at distance ${distance}`);
-            reward -= 5;
-            this.totalReward -= 5;
-            break;
-          }
-        }
-
-        const now = Date.now();
-        if (now - this.lastAvoidanceRewardTime >= 2000) {
-          let hasCollision = false;
-          for (const obstacle of this.obstacles) {
-            const threshold = obstacle.type === 'barrier' ? 30 : 20;
-            if (this.player.distanceTo(obstacle.pos) < threshold) {
-              hasCollision = true;
-              break;
-            }
-          }
-          if (!hasCollision) {
-            reward += 0.5;
-            this.totalReward += 0.5;
-            console.log("Avoidance reward applied");
-          }
-          this.lastAvoidanceRewardTime = now;
-        }
-
-        if (this.stepsSinceLastPoint > 50) {
-          console.log("Ending episode due to timeout");
-          reward -= 10;
-          this.endEpisode();
-        }
-
-        console.log(`Reward calculated: ${reward}, Total Reward: ${this.totalReward}, Energy Points Collected: ${this.energyPointsCollected}`);
-        this.updateUI();
-        return reward;
-      }
-
-      takeAction(actionIndex) {
-        console.log(`Taking action ${actionIndex}...`);
-        if (actionIndex < 0 || actionIndex >= this.actions.length) {
-          console.error(`Invalid action index: ${actionIndex}`);
-          actionIndex = 0;
-        }
-        const action = this.actions[actionIndex];
-        this.player.add(action);
-        this.player.clamp(
-          new THREE.Vector3(-400, -400, -400),
-          new THREE.Vector3(400, 400, 400)
+    // ─── Q-value Arrows ───
+    _initQArrows(){
+      const cols = [0xff0000,0x00ff00,0x0000ff,0xffff00,0xff00ff,0x00ffff];
+      this.qArrows = [];
+      this.actions.forEach((a,i)=>{
+        let arrow = new THREE.ArrowHelper(
+          a.clone().normalize(),
+          this.player,
+          10,
+          cols[i],
+          5,2
         );
-        console.log(`Player position set to (${this.player.x}, ${this.player.y}, ${this.player.z})`);
-      }
+        this.scene.add(arrow);
+        this.qArrows.push(arrow);
+      });
+    }
 
-      updatePlayer() {
-        this.playerMesh.position.copy(this.player);
-        this.renderer.render(this.scene, this.camera);
-        console.log(`PlayerMesh updated to (${this.playerMesh.position.x}, ${this.playerMesh.position.y}, ${this.playerMesh.position.z})`);
-      }
+    // ─── Mandelbulb Skybox ───
+    _initSky(){
+      this.skyMat = new THREE.ShaderMaterial({
+        side:THREE.BackSide,
+        uniforms:{
+          time: {value:0},
+          scale:{value:this.fractalScale},
+          power:{value:this.fractalPower}
+        },
+        vertexShader:`
+          varying vec3 vP,vN;
+          void main(){
+            vP = position;
+            vN = normal;
+            gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.);
+          }`,
+        fragmentShader:`
+          uniform float time,scale,power;
+          varying vec3 vP,vN;
+          float mandelbulb(vec3 pos){
+            vec3 z=pos; float dr=1.,r=0.;
+            for(int i=0;i<10;i++){
+              r=length(z); if(r>2.) break;
+              float theta=acos(z.z/r)*power;
+              float phi=atan(z.y,z.x)*power;
+              float zr=pow(r,power);
+              dr=pow(r,power-1.)*power*dr+1.;
+              z=zr*vec3(
+                sin(theta)*cos(phi),
+                sin(theta)*sin(phi),
+                cos(theta)
+              )+pos;
+            }
+            return 0.5*log(r)*r/dr;
+          }
+          void main(){
+            vec3 p = vP/scale;
+            float d = mandelbulb(p);
+            float h = 0.8 + 0.2*sin(d*10. + time);
+            vec3 col = vec3(h,0.6+0.2*sin(time),0.5);
+            vec3 L = normalize(vec3(-1.,-1.,-1.));
+            col *= 0.5 + 0.5*max(dot(vN,L),0.0);
+            gl_FragColor = vec4(col,1.);
+          }`
+      });
+      let sky = new THREE.Mesh(
+        new THREE.SphereGeometry(500,64,64),
+        this.skyMat
+      );
+      this.scene.add(sky);
+    }
 
-      aiStep() {
-        if (!this.aiTraining) return;
-
-        const state = this.getState();
-        const stateKey = this.stateToKey(state);
-
-        if (!this.qTable.has(stateKey)) {
-          this.qTable.set(stateKey, Array(this.actions.length).fill(0));
-        }
-
-        const qValues = this.qTable.get(stateKey);
-
-        let action;
-        if (Math.random() < this.explorationRate) {
-          action = Math.floor(Math.random() * this.actions.length);
-        } else {
-          action = qValues.indexOf(Math.max(...qValues));
-        }
-
-        this.takeAction(action);
-
-        const reward = this.getReward();
-        const nextState = this.getState();
-        const nextStateKey = this.stateToKey(nextState);
-
-        if (!this.qTable.has(nextStateKey)) {
-          this.qTable.set(nextStateKey, Array(this.actions.length).fill(0));
-        }
-
-        const currentQ = qValues[action];
-        const nextQValues = this.qTable.get(nextStateKey);
-        const maxNextQ = Math.max(...nextQValues);
-        const newQ = currentQ + this.learningRate * (reward + this.discountFactor * maxNextQ - currentQ);
-        qValues[action] = newQ;
-        this.qTable.set(stateKey, qValues);
-
-        this.explorationRate = Math.max(this.minExplorationRate, this.explorationRate * this.explorationDecay);
-
-        this.trainingLog.push({
-          episode: this.episodeCount,
-          step: this.stepsSinceLastPoint,
-          state,
-          action,
-          reward,
-          nextState,
-          totalReward: this.totalReward,
-          explorationRate: this.explorationRate
+    // ─── UI Hooks ───
+    _bindUI(){
+      document.getElementById('fractalScale')
+        .addEventListener('input', e=>{
+          this.fractalScale = +e.target.value;
+          this.skyMat.uniforms.scale.value = this.fractalScale;
+          this._generatePath();
         });
+      document.getElementById('fractalPower')
+        .addEventListener('input', e=>{
+          this.fractalPower = +e.target.value;
+          this.skyMat.uniforms.power.value = this.fractalPower;
+          this._generatePath();
+        });
+      ['chasers','barriers'].forEach(id=>
+        document.getElementById(id)
+          .addEventListener('change', ()=>this._spawnObstacles())
+      );
+      document.getElementById('startAI')
+        .addEventListener('click', ()=>this._startAI());
+      document.getElementById('stopAI')
+        .addEventListener('click', ()=>this._stopAI());
+      document.getElementById('resetEnv')
+        .addEventListener('click', ()=>this._endEpisode());
+      document.getElementById('downloadLog')
+        .addEventListener('click', ()=>this._downloadLog());
+      document.getElementById('fullscreenBtn')
+        .addEventListener('click', ()=>this._toggleFull());
+    }
 
-        this.updateQArrows(qValues);
-        this.updatePathVisualization();
-      }
-
-      endEpisode() {
-        console.log(`Ending episode ${this.episodeCount}, total reward: ${this.totalReward}`);
-        this.episodeCount++;
-        this.episodeRewards.push(this.totalReward);
-        if (this.episodeRewards.length > 100) {
-          this.episodeRewards.shift();
+    // ─── Hilbert→Fractal Path ───
+    _generatePath(){
+      this.fractalPath=[];
+      const M = PATH_SIZE,
+            step = M / Math.pow(2, HILBERT_ORDER);
+      const recurse = (lvl, pos)=>{
+        if(lvl===0){
+          this.fractalPath.push(pos.clone());
+          return;
         }
-        this.avgReward = this.episodeRewards.length > 0
-          ? this.episodeRewards.reduce((a, b) => a + b, 0) / this.episodeRewards.length
-          : 0;
-        this.stepsSinceLastPoint = 0;
-        this.resetEnvironment();
-        this.updateUI();
-        console.log(`New episode ${this.episodeCount} started, avg reward: ${this.avgReward}`);
-      }
+        const offs = [
+          [0,0,0],[0,0,1],[0,1,1],[0,1,0],
+          [1,1,0],[1,1,1],[1,0,1],[1,0,0]
+        ], s = step/2;
+        offs.forEach(o=>{
+          let off = new THREE.Vector3(o[0]*step,o[1]*step,o[2]*step)
+                        .addScalar(-s);
+          recurse(lvl-1, pos.clone().add(off));
+        });
+      };
+      recurse(HILBERT_ORDER, new THREE.Vector3(-M/2,-M/2,-M/2));
+    }
 
-      resetEnvironment() {
-        this.player.set(0, 0, 0);
-        this.playerMesh.position.copy(this.player);
-        this.energyPointsCollected = 0;
-        this.totalReward = 0;
-        this.stepsSinceLastPoint = 0;
-        this.pathPoints = [];
-        this.energyPoints.forEach(point => this.scene.remove(point.mesh));
-        this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
-        this.particles.forEach(particle => this.scene.remove(particle.system));
-        this.particles = [];
-        this.spawnEnergyPoints();
-        this.spawnObstacles();
-        this.updateUI();
-      }
-
-      downloadLog() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.trainingLog, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute('href', dataStr);
-        downloadAnchor.setAttribute('download', 'training_log.json');
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-      }
-
-      updateUI() {
-        console.log(`Updating UI: Energy Points: ${this.energyPointsCollected}, Total Reward: ${this.totalReward}, Avg Reward: ${this.avgReward}, Episode: ${this.episodeCount}`);
-        document.getElementById('energyPoints').innerHTML = this.energyPointsCollected;
-        document.getElementById('totalReward').innerHTML = this.totalReward.toFixed(2);
-        document.getElementById('avgReward').innerHTML = this.avgReward.toFixed(2);
-        document.getElementById('explorationRate').innerHTML = this.explorationRate.toFixed(3);
-        document.getElementById('episodeCount').innerHTML = this.episodeCount;
-      }
-
-      animate() {
-        let lastTime = 0;
-        const animateLoop = (currentTime) => {
-          requestAnimationFrame(animateLoop);
-          const delta = (currentTime - lastTime) / 1000;
-          lastTime = currentTime;
-
-          this.time += 0.02;
-          this.fractalMaterial.uniforms.time.value = this.time;
-          this.updateDynamicElements();
-          this.updateParticles(delta);
-          this.updatePlayer();
-          this.renderer.render(this.scene, this.camera);
-        };
-        requestAnimationFrame(animateLoop);
-      }
-
-      onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    // ─── Spawn Energy Points ───
+    _spawnEnergy(){
+      this.energyPoints.forEach(e=>this.scene.remove(e.mesh));
+      this.energyPoints = [];
+      for(let i=0;i<50;i++){
+        let pos,trial=0;
+        do {
+          const θ = Math.random()*2*Math.PI,
+                φ = Math.acos(2*Math.random()-1),
+                r = PATH_SIZE * Math.cbrt(Math.random());
+          pos = new THREE.Vector3(
+            r*Math.sin(φ)*Math.cos(θ),
+            r*Math.sin(φ)*Math.sin(θ),
+            r*Math.cos(φ)
+          );
+          trial++;
+          if(trial>100) break;
+        } while(
+          Math.abs(this._mandelDE(pos.clone().divideScalar(this.fractalScale)))>0.1
+        );
+        let mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(3,8,8),
+          new THREE.MeshLambertMaterial({color:0xffff00})
+        );
+        mesh.position.copy(pos);
+        this.scene.add(mesh);
+        this.energyPoints.push({
+          pos, mesh,
+          vel: new THREE.Vector3().random().multiplyScalar(0.5)
+        });
       }
     }
 
-    const game = new FractalverseAI();
+    // ─── Spawn Obstacles ───
+    _spawnObstacles(){
+      this.obstacles.forEach(o=>this.scene.remove(o.mesh));
+      this.obstacles = [];
+      if(document.getElementById('chasers').checked){
+        for(let i=0;i<2;i++) this._mkBox(8,0xff4500,'chaser');
+      }
+      if(document.getElementById('barriers').checked){
+        for(let i=0;i<2;i++) this._mkBox(20,0x808080,'barrier');
+      }
+    }
+    _mkBox(size,color,type){
+      let x=(Math.random()-0.5)*PATH_SIZE*2,
+          y=(Math.random()-0.5)*PATH_SIZE*2,
+          z=(Math.random()-0.5)*PATH_SIZE*2;
+      let mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(size,size,size),
+        new THREE.MeshLambertMaterial({color})
+      );
+      mesh.position.set(x,y,z);
+      this.scene.add(mesh);
+      this.obstacles.push({pos:mesh.position,mesh,type});
+    }
+
+    // ─── Distance Estimate for Reward ───
+    _mandelDE(pos){
+      let z=pos.clone(), dr=1, r=0;
+      for(let i=0;i<10;i++){
+        r=z.length(); if(r>2) break;
+        let theta = Math.acos(z.z/r)*this.fractalPower,
+            phi   = Math.atan2(z.y,z.x)*this.fractalPower,
+            zr    = Math.pow(r,this.fractalPower);
+        dr = Math.pow(r,this.fractalPower-1)*this.fractalPower*dr + 1;
+        z = new THREE.Vector3(
+          Math.sin(theta)*Math.cos(phi),
+          Math.sin(theta)*Math.sin(phi),
+          Math.cos(theta)
+        ).multiplyScalar(zr).add(pos);
+      }
+      return 0.5*Math.log(r)*r/dr;
+    }
+
+    // ─── Reward Calculation ───
+    async _getReward(){
+      let rew = 0;
+      // collect & distance reward
+      if(this.energyPoints.length){
+        let close = this.energyPoints.reduce((a,b)=>
+                       this.player.distanceTo(a.pos) < this.player.distanceTo(b.pos)? a:b
+                    );
+        let d = this.player.distanceTo(close.pos);
+        rew += (PATH_SIZE - d)*0.0005;
+        if(d < 20){
+          this._collect(close);
+          rew += 10;
+          this.totalReward += 10;
+        }
+      } else {
+        // no points at all
+        rew -= 0.1;
+      }
+
+      // path‐following penalty
+      let target = this.fractalPath[this.fractalStep % this.fractalPath.length];
+      rew -= this.player.distanceTo(target) * 0.1;
+
+      // height reward
+      rew += this._mandelDE(this.player.clone().divideScalar(this.fractalScale)) * 0.1;
+
+      // obstacle penalty
+      for(let o of this.obstacles){
+        let d = this.player.distanceTo(o.pos),
+            th = o.type==='barrier'?30:20;
+        if(d < th){
+          rew -= 5;
+          this.totalReward -= 5;
+          break;
+        }
+      }
+
+      // avoidance bonus every 2s
+      let now = Date.now();
+      if(now - this.lastAvoid > 2000){
+        let collided = this.obstacles.some(o=>
+          this.player.distanceTo(o.pos) < (o.type==='barrier'?30:20)
+        );
+        if(!collided){
+          rew += 0.5;
+          this.totalReward += 0.5;
+        }
+        this.lastAvoid = now;
+      }
+
+      // **NO AUTO‐RESET HERE** 
+
+      // update UI
+      this._updateUI();
+      return rew;
+    }
+
+    _collect(pt){
+      this.scene.remove(pt.mesh);
+      this.energyPoints = this.energyPoints.filter(e=>e!==pt);
+      this.energyCollected++;
+      if(!this.energyPoints.length){
+        // respawn new wave
+        this._spawnEnergy();
+      }
+    }
+
+    // ─── Q‐Learning Step ───
+    async _aiStep(){
+      if(!this.aiTraining) return;
+      let state = this._getState(),
+          key   = this._stateKey(state);
+      if(!this.qTable.has(key))
+        this.qTable.set(key, Array(this.actions.length).fill(0));
+
+      let qv = this.qTable.get(key),
+          explore = Math.random() < this.explorationRate,
+          action  = explore
+                    ? Math.floor(Math.random()*this.actions.length)
+                    : qv.indexOf(Math.max(...qv));
+
+      // execute
+      this._takeAction(action);
+
+      // reward
+      let reward = await this._getReward(),
+          state2 = this._getState(),
+          key2   = this._stateKey(state2);
+
+      if(!this.qTable.has(key2))
+        this.qTable.set(key2, Array(this.actions.length).fill(0));
+
+      let maxQNext = Math.max(...this.qTable.get(key2));
+      qv[action] += this.alpha * (reward + this.gamma*maxQNext - qv[action]);
+
+      // decay exploration
+      this.explorationRate = Math.max(this.minExplorationRate,
+                                      this.explorationRate * this.explorationDecay);
+
+      // store
+      this.trainingLog.push({state,action,reward,state2});
+
+      // visualize
+      this._updateQArrows(qv);
+      this._updatePathVis();
+    }
+
+    // ─── State Binning ───
+    _getState(){
+      let pp = [this.player.x,this.player.y,this.player.z]
+               .map(v=>Math.round(v/20)*20);
+      let ep = [0,0,0], op=[0,0,0];
+      if(this.energyPoints.length){
+        let c = this.energyPoints.reduce((a,b)=>
+                  this.player.distanceTo(a.pos)<this.player.distanceTo(b.pos)?a:b
+                );
+        ep = [c.pos.x,c.pos.y,c.pos.z].map(v=>Math.round(v/20)*20);
+      }
+      if(this.obstacles.length){
+        let c = this.obstacles.reduce((a,b)=>
+                  this.player.distanceTo(a.pos)<this.player.distanceTo(b.pos)?a:b
+                );
+        op = [c.pos.x,c.pos.y,c.pos.z].map(v=>Math.round(v/20)*20);
+      }
+      return {pp,ep,op};
+    }
+    _stateKey(s){
+      return s.pp.join(',')+'|'+s.ep.join(',')+'|'+s.op.join(',');
+    }
+
+    // ─── Move Agent ───
+    _takeAction(i){
+      let mv = this.actions[i];
+      this.player.add(mv).clamp(
+        new THREE.Vector3(-PATH_SIZE,-PATH_SIZE,-PATH_SIZE),
+        new THREE.Vector3( PATH_SIZE, PATH_SIZE, PATH_SIZE)
+      );
+    }
+
+    // ─── Episode Control ───
+    _startAI(){
+      if(this.aiTraining) return;
+      this.aiTraining = true;
+      this._aiInterval = setInterval(()=>this._aiStep(),100);
+    }
+    _stopAI(){
+      this.aiTraining = false;
+      clearInterval(this._aiInterval);
+    }
+    _endEpisode(){
+      this._stopAI();
+      this.episodeCount++;
+      this.episodeRewards.push(this.totalReward);
+      if(this.episodeRewards.length>50) this.episodeRewards.shift();
+      this.avgReward = this.episodeRewards.reduce((a,b)=>a+b,0)/this.episodeRewards.length;
+      // reset positions + stats
+      this.player.set(0,0,0);
+      this.energyCollected=0;
+      this.totalReward=0;
+      this._spawnEnergy();
+      this._spawnObstacles();
+      this.fractalStep=0;
+      this.trainingLog.length=0;
+      this.explorationRate=0.1;
+      this._updateUI();
+    }
+
+    // ─── Download Log ───
+    _downloadLog(){
+      let data = JSON.stringify(this.trainingLog,null,2),
+          a = document.createElement('a');
+      a.href = 'data:text/json,'+encodeURIComponent(data);
+      a.download = 'training_log.json';
+      a.click();
+    }
+
+    // ─── Arrow & Path Updates ───
+    _updateQArrows(qv){
+      let mx=Math.max(...qv), mn=Math.min(...qv), rg=mx-mn||1;
+      this.qArrows.forEach((arr,i)=>{
+        let norm=(qv[i]-mn)/rg;
+        arr.setLength(10 + 10*norm);
+        arr.position.copy(this.player);
+      });
+    }
+    _updatePathVis(){
+      this.pathPoints.push(this.player.clone());
+      if(this.pathPoints.length>800) this.pathPoints.shift();
+      let posArr=[], colArr=[];
+      this.pathPoints.forEach(p=>{
+        posArr.push(p.x,p.y,p.z);
+        let h = this._mandelDE(p.clone().divideScalar(this.fractalScale))/10 + 0.5;
+        let c = new THREE.Color().setHSL(h,0.7,0.5);
+        colArr.push(c.r,c.g,c.b);
+      });
+      this.pathGeo.setAttribute(
+        'position', new THREE.Float32BufferAttribute(posArr,3)
+      );
+      this.pathGeo.setAttribute(
+        'color', new THREE.Float32BufferAttribute(colArr,3)
+      );
+    }
+
+    // ─── UI Refresh ───
+    _updateUI(){
+      document.getElementById('energyPoints').innerText    = this.energyCollected;
+      document.getElementById('totalReward').innerText     = this.totalReward.toFixed(1);
+      document.getElementById('avgReward').innerText       = this.avgReward.toFixed(2);
+      document.getElementById('explorationRate').innerText = this.explorationRate.toFixed(2);
+      document.getElementById('episodeCount').innerText    = this.episodeCount;
+    }
+
+    // ─── Render Loop ───
+    _animate(){
+      requestAnimationFrame(()=>this._animate());
+      this.skyMat.uniforms.time.value = (performance.now()/1000);
+      // move points & obstacles
+      this.energyPoints.forEach(e=>{
+        e.pos.add(e.vel);
+        if(Math.abs(e.pos.x)>PATH_SIZE) e.vel.x *= -1;
+        if(Math.abs(e.pos.y)>PATH_SIZE) e.vel.y *= -1;
+        if(Math.abs(e.pos.z)>PATH_SIZE) e.vel.z *= -1;
+        e.mesh.position.copy(e.pos);
+      });
+      this.obstacles.forEach(o=>{
+        if(o.type==='chaser'){
+          let dir = this.player.clone().sub(o.pos).normalize();
+          o.pos.add(dir.multiplyScalar(1));
+        }
+        o.mesh.position.copy(o.pos);
+      });
+      // update visuals
+      this.playerMesh.position.copy(this.player);
+      this._updatePathVis();
+      this.renderer.render(this.scene,this.camera);
+    }
+
+    // ─── Resize Handler ───
+    _onResize(){
+      this.camera.aspect = innerWidth/innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(innerWidth,innerHeight);
+    }
+
+    // ─── Fullscreen Toggle ───
+    _toggleFull(){
+      if(!document.fullscreenElement)
+        document.documentElement.requestFullscreen().catch(()=>{});
+      else
+        document.exitFullscreen();
+    }
+  }
+
+  // Launch the app
+  window.addEventListener('DOMContentLoaded',()=>new FractalApp());
   </script>
 </body>
 </html>
