@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Instructions for using Itoshiro Zuna's fractal apps: Fractal AI Research, Fractal Meditation, and Virtual Fractal Sanctuary.">
+    <title>Itoshiro Zuna | App Instructions</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(to bottom, #0a0a23, #1c2526);
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 0;
+            z-index: 3;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
+        }
+        nav a:hover {
+            color: #FFD700;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            min-width: 160px;
+            z-index: 1;
+            border-radius: 5px;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .dropdown-content a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        section {
+            padding: 80px 40px 40px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        section h2 {
+            color: #FFD700;
+            text-shadow: 0 0 10px #000;
+        }
+        section h3 {
+            color: #FFD700;
+            text-shadow: 0 0 10px #000;
+        }
+        section p {
+            color: #C0C0C0;
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: 0 0 5px #000;
+        }
+        section .content-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            nav a { margin: 0 10px; font-size: 1rem; }
+            section { padding: 60px 20px 20px 20px; }
+            .dropdown-content { min-width: 120px; }
+            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fractalCanvas"></canvas>
+    <nav>
+        <a href="index.html">Back to Home</a>
+        <div class="dropdown">
+            <a href="#">Apps</a>
+            <div class="dropdown-content">
+                <a href="fractal-ai-research.html">Fractal AI Research</a>
+                <a href="fractal-meditation.html">Fractal Meditation</a>
+                <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                <a href="app-instructions.html">Instructions</a>
+            </div>
+        </div>
+    </nav>
+    <section id="instructions">
+        <div class="content-box">
+            <h2>App Instructions</h2>
+            <p>Learn how to use the apps, what they do, and how they can enhance your experience.</p>
+            <div style="text-align: left; padding: 20px;">
+                <h3>Fractal AI Research</h3>
+                <p><strong>How It Works:</strong> Launch the app in your browser, click "Start AI Training" to begin the simulation, and use the controls to adjust fractal scale, power, and obstacles like chasers and barriers. The AI navigates a 3D fractal environment to collect energy points.</p>
+                <p><strong>What It Does:</strong> This app simulates an AI exploring a 3D fractal space using reinforcement learning, visualizing its path and interactions with dynamic elements like energy points and obstacles.</p>
+                <p><strong>What It Can Be Used For:</strong> Ideal for researchers, students, or enthusiasts interested in AI, fractals, or 3D simulations. Use it to study reinforcement learning, fractal geometry, or to create visually stunning AI-driven art.</p>
+                
+                <h3>Fractal Meditation</h3>
+                <p><strong>How It Works:</strong> Open the app in your browser, select a meditation mode (e.g., guided or ambient), and immerse yourself in a dynamic fractal visualization with soothing audio. Adjust settings like color and speed to personalize your experience.</p>
+                <p><strong>What It Does:</strong> Generates an interactive fractal visualization paired with calming sounds to guide users into a meditative state, promoting relaxation and mindfulness.</p>
+                <p><strong>What It Can Be Used For:</strong> Perfect for meditation, stress relief, or enhancing focus. Use it during mindfulness practices, yoga sessions, or as a calming visual aid for relaxation.</p>
+                
+                <h3>Virtual Fractal Sanctuary</h3>
+                <p><strong>How It Works:</strong> Access the app in your browser, navigate the 3D fractal environment using mouse or touch controls, and interact with elements like portals and energy nodes to explore different fractal landscapes.</p>
+                <p><strong>What It Does:</strong> Creates an immersive 3D fractal world where users can explore, interact, and customize their surroundings, offering a virtual escape into a metaphysical sanctuary.</p>
+                <p><strong>What It Can Be Used For:</strong> Great for creative inspiration, relaxation, or virtual exploration. Use it to spark imagination, as a creative writing prompt, or as a digital space for mental respite.</p>
+            </div>
+        </div>
+    </section>
+    <script>
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let time = 0;
+        const colors = [
+            'rgba(0, 255, 0, 0.5)',    // Green
+            'rgba(255, 215, 0, 0.5)',  // Gold
+            'rgba(192, 192, 192, 0.5)' // Silver
+        ];
+
+        function drawFlowerOfLife(x, y, radius, depth) {
+            if (depth <= 0) return;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = colors[depth % colors.length];
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            const offset = radius * Math.sin(time + depth) * 0.5;
+            const newRadius = radius * 0.5;
+            const positions = [
+                [x + (radius + offset), y],
+                [x - (radius + offset), y],
+                [x + (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
+                [x + (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)],
+                [x - (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
+                [x - (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)]
+            ];
+
+            for (const [px, py] of positions) {
+                drawFlowerOfLife(px, py, newRadius, depth - 1);
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 35, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const gridSize = 150;
+            for (let x = 0; x < canvas.width + gridSize; x += gridSize) {
+                for (let y = 0; y < canvas.height + gridSize; y += gridSize) {
+                    drawFlowerOfLife(x, y, 50, 3);
+                }
+            }
+
+            time += 0.02;
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
