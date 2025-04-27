@@ -2,23 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fractalverse 3D AI Research Adaptation Enhanced</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Fractal Sanctuary v7</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      background: #000;
+    html, body { 
+      margin: 0; 
+      padding: 0; 
+      width: 100%; 
+      height: 100vh; 
+      overflow: hidden; 
+      background: #0a0a23; 
     }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
+    canvas { 
+      display: block; 
     }
     nav {
       position: fixed;
@@ -56,49 +52,194 @@
     .nav-right {
       margin-right: 20px;
     }
-    #controls {
-      position: absolute;
-      top: 60px;
-      right: 10px;
-      width: 150px;
-      max-height: calc(80vh - 60px);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #fff;
-      font-family: Arial;
-      font-size: 12px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 8px;
-      border-radius: 8px;
-      z-index: 1;
+    #info {
+      position: absolute; 
+      top: 60px; 
+      left: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
     }
-    button { 
-      margin: 3px 0; 
-      padding: 3px 6px; 
+    #fps {
+      position: absolute; 
+      top: 60px; 
+      right: 50px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #dimension {
+      position: absolute; 
+      top: 90px; 
+      left: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #profile {
+      position: absolute; 
+      top: 120px; 
+      left: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #progress {
+      position: absolute; 
+      top: 150px; 
+      left: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #messages {
+      position: absolute; 
+      bottom: 10px; 
+      left: 10px; 
+      width: 240px; 
+      height: 120px;
+      background: rgba(0, 0, 0, 0.5); 
+      color: #fff; 
+      padding: 5px; 
+      overflow-y: auto;
+      font: 12px sans-serif; 
+      white-space: pre-wrap;
+    }
+    #input {
+      position: absolute; 
+      bottom: 140px; 
+      left: 10px; 
+      width: 232px; 
+      padding: 5px; 
+      font: 12px sans-serif;
+    }
+    #voiceSelect {
+      position: absolute; 
+      bottom: 10px; 
+      right: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #progressBar {
+      position: absolute; 
+      top: 170px; 
+      left: 10px; 
+      width: 200px; 
+      height: 10px; 
+      background: #333; 
+      border: 1px solid #fff;
+    }
+    #progressFill {
+      width: 0%; 
+      height: 100%; 
+      background: #00ff00;
+    }
+    #settingsPanel {
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      width: 300px; 
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.8); 
+      color: #fff; 
+      font: 14px sans-serif; 
+      display: none; 
+      border: 1px solid #fff;
+    }
+    #settingsPanel label {
+      display: block; 
+      margin: 5px 0;
+    }
+    #settingsPanel select, #settingsPanel input[type="range"], #settingsPanel input[type="text"] {
       width: 100%; 
-      font-size: 12px; 
+      margin: 5px 0;
+    }
+    #settingsPanel button {
+      margin-top: 10px;
       color: #FFD700;
       background: rgba(255, 215, 0, 0.1);
       border: 1px solid #FFD700;
+      padding: 5px;
+      width: 100%;
     }
-    button:hover {
+    #settingsPanel button:hover {
       background: rgba(255, 215, 0, 0.3);
     }
-    p { 
-      margin: 3px 0; 
-      text-align: center; 
+    #feedbackPanel {
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      width: 300px; 
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.8); 
+      color: #fff; 
+      font: 14px sans-serif; 
+      display: none; 
+      border: 1px solid #fff;
     }
-    label { 
-      margin: 3px 0; 
+    #feedbackPanel label {
       display: block; 
+      margin: 5px 0;
     }
-    input[type="range"], input[type="checkbox"] { 
-      vertical-align: middle; 
-    }
-    input[type="range"] { 
+    #feedbackPanel select, #feedbackPanel textarea {
       width: 100%; 
+      margin: 5px 0;
+    }
+    #feedbackPanel button {
+      margin-top: 10px;
+      color: #FFD700;
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid #FFD700;
+      padding: 5px;
+      width: 100%;
+    }
+    #feedbackPanel button:hover {
+      background: rgba(255, 215, 0, 0.3);
+    }
+    #fractalTab {
+      position: absolute; 
+      top: 60px; 
+      right: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #weatherSelect {
+      position: absolute; 
+      top: 90px; 
+      right: 10px; 
+      color: #fff; 
+      font: 14px sans-serif;
+    }
+    #optionsMenu {
+      position: absolute; 
+      top: 120px; 
+      right: 10px;
+    }
+    #optionsButton {
+      padding: 5px; 
+      background: #444; 
+      color: #fff; 
+      border: none; 
+      cursor: pointer;
+    }
+    #optionsDropdown {
+      position: absolute; 
+      top: 30px; 
+      right: 0; 
+      background: #333; 
+      border: 1px solid #fff; 
+      padding: 5px;
+      display: none; 
+      flex-direction: column; 
+      gap: 5px; 
+      height: 200px; 
+      overflow-y: auto;
+    }
+    #optionsDropdown button {
+      padding: 5px; 
+      background: #444; 
+      color: #fff; 
+      border: none; 
+      cursor: pointer; 
+      width: 150px; 
+      text-align: left;
     }
     @media (max-width: 768px) {
       nav a {
@@ -107,15 +248,35 @@
       .nav-center h1 {
         font-size: 1.2rem;
       }
-      #controls {
-        width: 120px;
-        font-size: 10px;
-        padding: 5px;
-        top: 50px;
+      #info, #fps, #dimension, #profile, #progress, #fractalTab, #weatherSelect, #voiceSelect {
+        font-size: 12px;
       }
-      button {
+      #messages, #input {
         font-size: 10px;
-        padding: 2px 4px;
+        width: 200px;
+      }
+      #input {
+        width: 190px;
+      }
+      #progressBar {
+        width: 150px;
+      }
+      #settingsPanel, #feedbackPanel {
+        width: 250px;
+        font-size: 12px;
+      }
+      #optionsMenu {
+        top: 110px;
+      }
+      #optionsButton {
+        font-size: 12px;
+      }
+      #optionsDropdown {
+        width: 120px;
+      }
+      #optionsDropdown button {
+        width: 100%;
+        font-size: 12px;
       }
     }
   </style>
@@ -126,762 +287,1545 @@
       <a href="index.html">Home</a>
     </div>
     <div class="nav-center">
-      <h1>Fractal AI Research</h1>
+      <h1>Fractal Sanctuary</h1>
     </div>
     <div class="nav-right">
     </div>
   </nav>
-  <div id="controls">
-    <p>Energy Points Collected: <span id="energyPoints">0</span></p>
-    <p>Total Reward: <span id="totalReward">0</span></p>
-    <p>Average Reward: <span id="avgReward">0</span></p>
-    <p>Exploration Rate: <span id="explorationRate">0.1</span></p>
-    <p>Episode: <span id="episodeCount">0</span></p>
-    <label>Fractal Scale: <input type="range" id="fractalScale" min="1" max="3" step="0.1" value="2"></label>
-    <label>Fractal Power: <input type="range" id="fractalPower" min="6" max="10" step="0.1" value="8"></label>
-    <label>Chasers: <input type="checkbox" id="chasers" checked></label>
-    <label>Barriers: <input type="checkbox" id="barriers" checked></label>
-    <button id="fullscreenButton">Full Screen</button>
-    <button id="downloadLog">Download Log</button>
-    <button id="startAI">Start AI Training</button>
-    <button id="stopAI">Stop AI Training</button>
-    <button id="resetEnv">Reset Environment</button>
+  <div id="info">Virtual Fractal Sanctuary v7 – Choose a mode to begin</div>
+  <div id="fps">FPS: 0</div>
+  <div id="dimension">Density 1, Dimension 1</div>
+  <div id="profile">Profile: 0/108 stages reached</div>
+  <div id="progress">Progress: 0/108 stages</div>
+  <div id="progressBar"><div id="progressFill"></div></div>
+  <div id="fractalTab">
+    Fractal: <select id="fractalDropdown">
+      <option value="default">Default</option>
+      <option value="julia">Julia</option>
+      <option value="mandelbrot">Mandelbrot</option>
+    </select>
   </div>
+  <div id="weatherSelect">
+    Weather: <select id="weatherDropdown">
+      <option value="none">None</option>
+      <option value="rain">Rain</option>
+      <option value="snow">Snow</option>
+    </select>
+  </div>
+  <div id="optionsMenu">
+    <button id="optionsButton">Options ▼</button>
+    <div id="optionsDropdown">
+      <button id="vrButton">Enter VR</button>
+      <button id="saveFractal">Save Image</button>
+      <button id="startButton">Start Meditation</button>
+      <button id="stopButton">Stop Meditation</button>
+      <button id="resetButton">Reset Meditation</button>
+      <button id="funModeButton">Fun Mode</button>
+      <button id="meditationModeButton">Meditation Mode</button>
+      <button id="settingsButton">Settings</button>
+      <button id="zoomInButton">Zoom In</button>
+      <button id="zoomOutButton">Zoom Out</button>
+      <button id="feedbackButton">Feedback</button>
+      <button id="saveProfileButton">Save Profile</button>
+      <button id="loadProfileButton">Load Profile</button>
+      <button id="shareFractalButton">Share Fractal</button>
+    </div>
+  </div>
+  <div id="voiceSelect">
+    Voice: <select id="voiceDropdown"></select>
+  </div>
+  <div id="settingsPanel">
+    <h3>Settings</h3>
+    <label>Username: <input type="text" id="usernameInput" placeholder="Enter username"></label>
+    <label>Language: <select id="languageSelect"></select></label>
+    <label>Meditation Speed: <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1"></label>
+    <label>Fractal Color Theme: 
+      <select id="colorTheme">
+        <option value="vivid">Vivid</option>
+        <option value="pastel">Pastel</option>
+        <option value="neon">Neon</option>
+      </select>
+    </label>
+    <label>Ambient Music: <input type="checkbox" id="ambientMusicToggle" checked></label>
+    <label>Transition Sounds: <input type="checkbox" id="transitionSoundsToggle" checked></label>
+    <button id="saveSettings">Save</button>
+  </div>
+  <div id="feedbackPanel">
+    <h3>Meditation Feedback</h3>
+    <label>Rating: 
+      <select id="feedbackRating">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Terrible</option>
+      </select>
+    </label>
+    <label>Comments: <textarea id="feedbackComments" rows="4" placeholder="Share your experience..."></textarea></label>
+    <button id="submitFeedback">Submit</button>
+    <button id="closeFeedback">Close</button>
+  </div>
+  <textarea id="messages" readonly>
+Welcome to the Virtual Fractal Sanctuary!
+Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided journey.
+  </textarea>
+  <input id="input" placeholder="Share your thoughts…" />
+
+  <!-- three.js, controls, VRButton, Tone.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/webxr/VRButton.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.26/Tone.min.js"></script>
+
   <script>
-    // CONFIG
-    const BLOCK = 20;
-    const CHUNK_SIZE = 32;
-    const FRACTAL_SCALE = 2.0;
-    const FRACTAL_POWER = 8.0;
+  // — Scene & renderer —
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.xr.enabled = true;
+  document.body.appendChild(renderer.domElement);
 
-    class FractalverseAI {
-      constructor() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(this.renderer.domElement);
+  // — Tranquil Background —
+  const skyGradientTexture = new THREE.CanvasTexture(generateSkyGradient());
+  function generateSkyGradient() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, 0, 512);
+    gradient.addColorStop(0, '#1e3c72');
+    gradient.addColorStop(1, '#2a5298');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 100; i++) {
+      context.fillStyle = 'rgba(255, 255, 255, ' + (Math.random() * 0.5 + 0.5) + ')';
+      context.beginPath();
+      context.arc(Math.random() * 512, Math.random() * 512, Math.random() * 1.5, 0, Math.PI * 2);
+      context.fill();
+    }
+    return canvas;
+  }
+  scene.background = skyGradientTexture;
 
-        this.camera.position.set(0, 0, 300);
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enablePan = true;
-        this.controls.enableZoom = true;
-        this.controls.target.set(0, 0, 0);
-        this.controls.update();
+  // Ocean Ripples (Tiny Water Bubbles)
+  const rippleParticles = [];
+  function createOceanRipples() {
+    rippleParticles.forEach(r => scene.remove(r.mesh));
+    rippleParticles.length = 0;
+    for (let i = 0; i < 3; i++) {
+      const geo = new THREE.BufferGeometry();
+      const verts = [];
+      const cols = [];
+      for (let j = 0; j < 100; j++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 50 + 30;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const z = (Math.random() - 0.5) * 5;
+        verts.push(x, y, z);
+        const col = new THREE.Color(0x87ceeb);
+        cols.push(col.r, col.g, col.b);
+      }
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+      const mat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true, opacity: 0.6 });
+      const ripple = new THREE.Points(geo, mat);
+      scene.add(ripple);
+      rippleParticles.push({ mesh: ripple, phase: Math.random() * Math.PI * 2 });
+    }
+  }
+  createOceanRipples();
 
-        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        this.scene.add(this.ambientLight);
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        this.directionalLight.position.set(-1, -1, -1).normalize();
-        this.scene.add(this.directionalLight);
+  // Fog Effect
+  scene.fog = new THREE.FogExp2(0x1e3c72, 0.02);
 
-        this.time = 0;
-        this.energyPoints = [];
-        this.obstacles = [];
-        this.particles = [];
-        this.energyPointsCollected = 0;
-        this.totalReward = 0;
-        this.aiTraining = false;
-        this.fractalScale = FRACTAL_SCALE;
-        this.fractalPower = FRACTAL_POWER;
-        this.episodeCount = 0;
-        this.episodeRewards = [];
-        this.avgReward = 0;
-        this.explorationRate = 0.1;
-        this.explorationDecay = 0.995;
-        this.minExplorationRate = 0.01;
-        this.stepsSinceLastPoint = 0;
-        this.trainingLog = [];
-        this.lastAvoidanceRewardTime = 0;
+  // — Ambient Interaction Particles with Trails —
+  const interactionParticles = [];
+  function createInteractionParticles(position) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [];
+    const cols = [];
+    const velocities = [];
+    for (let i = 0; i < 30; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 2;
+      const x = position.x + Math.cos(angle) * radius;
+      const y = position.y + Math.sin(angle) * radius;
+      const z = position.z + (Math.random() - 0.5) * 2;
+      verts.push(x, y, z);
+      const hue = Math.random() * 360;
+      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      cols.push(col.r, col.g, col.b);
+      velocities.push(
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1
+      );
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('velocity', new THREE.Float32BufferAttribute(velocities, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.2, vertexColors: true, transparent: true });
+    const particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+    interactionParticles.push({ mesh: particles, opacity: 1 });
+  }
 
-        this.qTable = new Map();
-        this.learningRate = 0.1;
-        this.discountFactor = 0.95;
-        this.actions = [
-          new THREE.Vector3(5, 0, 0),
-          new THREE.Vector3(-5, 0, 0),
-          new THREE.Vector3(0, 5, 0),
-          new THREE.Vector3(0, -5, 0),
-          new THREE.Vector3(0, 0, 5),
-          new THREE.Vector3(0, 0, -5)
-        ];
+  // — Controls & VRButton —
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  document.getElementById('vrButton').addEventListener('click', () => {
+    document.body.appendChild(THREE.VRButton.createButton(renderer));
+  });
+  camera.position.z = 20;
 
-        this.player = new THREE.Vector3(0, 0, 0);
-        const playerGeo = new THREE.SphereGeometry(5, 32, 32);
-        const playerMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-        this.playerMesh = new THREE.Mesh(playerGeo, playerMat);
-        this.playerMesh.position.copy(this.player);
-        this.scene.add(this.playerMesh);
+  // — Dynamic Lighting —
+  const light = new THREE.PointLight(0xffffff, 1, 50);
+  light.position.set(10, 10, 10);
+  scene.add(light);
 
-        this.pathPoints = [];
-        this.pathGeometry = new THREE.BufferGeometry();
-        this.pathMaterial = new THREE.PointsMaterial({ size: 2, vertexColors: true });
-        this.path = new THREE.Points(this.pathGeometry, this.pathMaterial);
-        this.scene.add(this.path);
+  // — Enhanced Fractal Cube with Ripples, Waves, and Visuals —
+  let fractal, fractalOverlay, cReal = -0.8, cImag = 0.156, fractalScale = 1;
+  let fractalPulse = 1;
+  let fractalZoom = 1;
+  let colorTheme = 'vivid';
+  let hueShift = 0;
+  let fractalRotationX = 0, fractalRotationY = 0;
+  let isDragging = false;
+  let previousMousePosition = { x: 0, y: 0 };
 
-        this.qArrows = [];
-        this.setupQArrows();
-
-        this.fractalMaterial = new THREE.ShaderMaterial({
-          side: THREE.BackSide,
-          uniforms: {
-            time: { value: 0 },
-            scale: { value: this.fractalScale },
-            power: { value: this.fractalPower }
-          },
-          vertexShader: `
-            varying vec3 vPosition;
-            varying vec3 vNormal;
-            void main() {
-              vPosition = position;
-              vNormal = normal;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  function generateFractal(density) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [], cols = [], offsets = [];
+    const N = 30;
+    const baseHue = (density - 1) * 30;
+    for (let x = -N; x < N; x++) {
+      for (let y = -N; y < N; y++) {
+        for (let z = -N; z < N; z++) {
+          let zr = (x / N) * 2 / fractalZoom;
+          let zi = (y / N) * 2 / fractalZoom;
+          let zc = (z / N) * 2 / fractalZoom;
+          let i = 0;
+          for (; i < 50; i++) {
+            const r2 = zr * zr, i2 = zi * zi, c2 = zc * zc;
+            if (r2 + i2 + c2 > 4) break;
+            const newZr = r2 - i2 - c2 + cReal;
+            const newZi = 2 * zr * zi + cImag;
+            zc = 2 * zr * zc + (cImag * 0.5);
+            zr = newZr;
+            zi = newZi;
+          }
+          if (i < 50) {
+            verts.push(x / 5, y / 5, z / 5);
+            const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
+            let col;
+            if (colorTheme === 'vivid') {
+              col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+            } else if (colorTheme === 'pastel') {
+              col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+            } else if (colorTheme === 'neon') {
+              col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
             }
-          `,
-          fragmentShader: `
-            uniform float time;
-            uniform float scale;
-            uniform float power;
-            varying vec3 vPosition;
-            varying vec3 vNormal;
-            float mandelbulb(vec3 pos) {
-              vec3 z = pos;
-              float dr = 1.0;
-              float r = 0.0;
-              for (int i = 0; i < 10; i++) {
-                r = length(z);
-                if (r > 2.0) break;
-                float theta = acos(z.z / r) * power;
-                float phi = atan(z.y, z.x) * power;
-                float zr = pow(r, power);
-                dr = pow(r, power - 1.0) * power * dr + 1.0;
-                z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
-                z += pos;
-              }
-              return 0.5 * log(r) * r / dr;
-            }
-            void main() {
-              vec3 pos = vPosition / scale;
-              float d = mandelbulb(pos);
-              float hue = 0.8 + 0.2 * sin(d * 10.0 + time);
-              vec3 color = vec3(hue, 0.6 + 0.2 * sin(time), 0.5);
-              vec3 lightDir = normalize(vec3(-1.0, -1.0, -1.0));
-              float diff = max(dot(vNormal, lightDir), 0.0);
-              color = color * (0.5 + 0.5 * diff);
-              gl_FragColor = vec4(color, 1.0);
-            }
-          `
-        });
-
-        this.terrain = new THREE.Mesh(new THREE.SphereGeometry(500, 128, 128), this.fractalMaterial);
-        this.terrain.position.set(0, 0, 0);
-        this.scene.add(this.terrain);
-
-        this.setup();
-      }
-
-      setup() {
-        this.spawnEnergyPoints();
-        this.spawnObstacles();
-        this.setupEventListeners();
-        this.animate();
-      }
-
-      setupQArrows() {
-        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-        this.actions.forEach((action, i) => {
-          const arrow = new THREE.ArrowHelper(
-            action.clone().normalize(),
-            this.player,
-            10,
-            colors[i],
-            5,
-            2
-          );
-          this.scene.add(arrow);
-          this.qArrows.push(arrow);
-        });
-      }
-
-      updateQArrows(qValues) {
-        const maxQ = Math.max(...qValues);
-        const minQ = Math.min(...qValues);
-        const range = maxQ - minQ || 1;
-        this.qArrows.forEach((arrow, i) => {
-          const qValue = qValues[i];
-          const normalized = (qValue - minQ) / range;
-          arrow.setLength(10 + normalized * 10);
-          arrow.position.copy(this.player);
-        });
-      }
-
-      getHeightAtPosition(pos) {
-        const normalizedPos = pos.clone().divideScalar(this.fractalScale);
-        let z = normalizedPos.clone();
-        let dr = 1.0;
-        let r = 0.0;
-        for (let i = 0; i < 10; i++) {
-          r = z.length();
-          if (r > 2.0) break;
-          const theta = Math.acos(z.z / r) * this.fractalPower;
-          const phi = Math.atan2(z.y, z.x) * this.fractalPower;
-          const zr = Math.pow(r, this.fractalPower);
-          dr = Math.pow(r, this.fractalPower - 1.0) * this.fractalPower * dr + 1.0;
-          z = new THREE.Vector3(
-            Math.sin(theta) * Math.cos(phi),
-            Math.sin(theta) * Math.sin(phi),
-            Math.cos(theta)
-          ).multiplyScalar(zr).add(normalizedPos);
-        }
-        return (0.5 * Math.log(r) * r / dr) * 10;
-      }
-
-      updatePathVisualization() {
-        this.pathPoints.push(this.player.clone());
-        if (this.pathPoints.length > 1000) this.pathPoints.shift();
-
-        const positions = [];
-        const colors = [];
-        this.pathPoints.forEach(point => {
-          const height = this.getHeightAtPosition(point);
-          positions.push(point.x, point.y, point.z);
-          const color = new THREE.Color().setHSL(height / 20, 0.7, 0.5);
-          colors.push(color.r, color.g, color.b);
-        });
-
-        this.pathGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        this.pathGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        this.pathGeometry.attributes.position.needsUpdate = true;
-        this.pathGeometry.attributes.color.needsUpdate = true;
-      }
-
-      mandelbulbDistance(pos) {
-        let z = pos.clone();
-        let dr = 1.0;
-        let r = 0.0;
-        for (let i = 0; i < 10; i++) {
-          r = z.length();
-          if (r > 2.0) break;
-          const theta = Math.acos(z.z / r) * this.fractalPower;
-          const phi = Math.atan2(z.y, z.x) * this.fractalPower;
-          const zr = Math.pow(r, this.fractalPower);
-          dr = Math.pow(r, this.fractalPower - 1.0) * this.fractalPower * dr + 1.0;
-          z = new THREE.Vector3(
-            Math.sin(theta) * Math.cos(phi),
-            Math.sin(theta) * Math.sin(phi),
-            Math.cos(theta)
-          ).multiplyScalar(zr).add(pos);
-        }
-        return 0.5 * Math.log(r) * r / dr;
-      }
-
-      spawnEnergyPoints() {
-        this.energyPoints = [];
-        const numPoints = window.innerWidth < 768 ? 30 : 50;
-        for (let i = 0; i < numPoints; i++) {
-          let pos;
-          let attempts = 0;
-          const maxAttempts = 100;
-          do {
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
-            const radius = 400 * Math.cbrt(Math.random());
-            pos = new THREE.Vector3(
-              radius * Math.sin(phi) * Math.cos(theta),
-              radius * Math.sin(phi) * Math.sin(theta),
-              radius * Math.cos(phi)
-            );
-            const scaledPos = pos.clone().divideScalar(this.fractalScale);
-            const d = this.mandelbulbDistance(scaledPos);
-            attempts++;
-            if (attempts >= maxAttempts) {
-              pos.set(
-                (Math.random() - 0.5) * 400,
-                (Math.random() - 0.5) * 400,
-                (Math.random() - 0.5) * 400
-              );
-              break;
-            }
-          } while (Math.abs(this.mandelbulbDistance(pos.clone().divideScalar(this.fractalScale))) > 0.1);
-
-          const geo = new THREE.SphereGeometry(3, 16, 16);
-          const mat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.position.copy(pos);
-          this.scene.add(mesh);
-          const velocity = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.5
-          );
-          this.energyPoints.push({ pos, mesh, velocity });
-        }
-      }
-
-      spawnObstacles() {
-        this.obstacles = [];
-        const enableChasers = document.getElementById('chasers').checked;
-        const enableBarriers = document.getElementById('barriers').checked;
-
-        if (enableChasers) {
-          for (let i = 0; i < 2; i++) {
-            const x = (Math.random() - 0.5) * 400;
-            const y = (Math.random() - 0.5) * 400;
-            const z = (Math.random() - 0.5) * 400;
-            const geo = new THREE.BoxGeometry(8, 8, 8);
-            const mat = new THREE.MeshLambertMaterial({ color: 0xff4500 });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z);
-            this.scene.add(mesh);
-            this.obstacles.push({ pos: new THREE.Vector3(x, y, z), mesh, type: 'chaser' });
+            cols.push(col.r, col.g, col.b);
+            offsets.push(Math.random() * Math.PI * 2);
           }
         }
-
-        if (enableBarriers) {
-          for (let i = 0; i < 2; i++) {
-            const x = (Math.random() - 0.5) * 400;
-            const y = (Math.random() - 0.5) * 400;
-            const z = (Math.random() - 0.5) * 400;
-            const geo = new THREE.BoxGeometry(20, 20, 20);
-            const mat = new THREE.MeshLambertMaterial({ color: 0x808080 });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z);
-            this.scene.add(mesh);
-            this.obstacles.push({ pos: new THREE.Vector3(x, y, z), mesh, type: 'barrier' });
-          }
-        }
-      }
-
-      createFirework(position) {
-        const particleCount = 30;
-        const positions = [];
-        const velocities = [];
-        const colors = [];
-        const sizes = [];
-
-        for (let i = 0; i < particleCount; i++) {
-          positions.push(position.x, position.y, position.z);
-          const velocity = new THREE.Vector3(
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10
-          );
-          velocities.push(velocity);
-          const color = new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
-          colors.push(color.r, color.g, color.b);
-          sizes.push(2 + Math.random() * 2);
-        }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
-
-        const material = new THREE.PointsMaterial({
-          size: 2,
-          vertexColors: true,
-          transparent: true,
-          opacity: 1
-        });
-
-        const particleSystem = new THREE.Points(geometry, material);
-        this.scene.add(particleSystem);
-        this.particles.push({ system: particleSystem, velocities, lifetime: 1.0 });
-      }
-
-      updateParticles(delta) {
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          const particle = this.particles[i];
-          particle.lifetime -= delta;
-          if (particle.lifetime <= 0) {
-            this.scene.remove(particle.system);
-            this.particles.splice(i, 1);
-            continue;
-          }
-
-          const positions = particle.system.geometry.attributes.position.array;
-          for (let j = 0; j < positions.length; j += 3) {
-            positions[j] += particle.velocities[j / 3].x * delta;
-            positions[j + 1] += particle.velocities[j / 3].y * delta;
-            positions[j + 2] += particle.velocities[j / 3].z * delta;
-          }
-          particle.system.geometry.attributes.position.needsUpdate = true;
-          particle.system.material.opacity = particle.lifetime;
-        }
-      }
-
-      updateDynamicElements() {
-        this.energyPoints.forEach(point => {
-          point.pos.add(point.velocity);
-          point.mesh.position.copy(point.pos);
-          if (Math.abs(point.pos.x) > 400) point.velocity.x *= -1;
-          if (Math.abs(point.pos.y) > 400) point.velocity.y *= -1;
-          if (Math.abs(point.pos.z) > 400) point.velocity.z *= -1;
-        });
-
-        this.obstacles.forEach(obstacle => {
-          if (obstacle.type === 'chaser') {
-            const direction = this.player.clone().sub(obstacle.pos).normalize();
-            obstacle.pos.add(direction.multiplyScalar(1.0));
-            obstacle.mesh.position.copy(obstacle.pos);
-            obstacle.mesh.rotation.x += 0.02;
-            obstacle.mesh.rotation.y += 0.02;
-          } else if (obstacle.type === 'barrier') {
-            obstacle.mesh.rotation.x += 0.01;
-            obstacle.mesh.rotation.y += 0.01;
-          }
-          if (Math.abs(obstacle.pos.x) > 400) obstacle.pos.x = Math.sign(obstacle.pos.x) * 400;
-          if (Math.abs(obstacle.pos.y) > 400) obstacle.pos.y = Math.sign(obstacle.pos.y) * 400;
-          if (Math.abs(obstacle.pos.z) > 400) obstacle.pos.z = Math.sign(obstacle.pos.z) * 400;
-        });
-      }
-
-      setupEventListeners() {
-        document.getElementById('startAI').addEventListener('click', () => {
-          console.log("Starting AI training...");
-          this.aiTraining = true;
-          this.aiTrainingInterval = setInterval(() => {
-            console.log("Interval tick: Running aiStep...");
-            this.aiStep();
-          }, 100);
-        });
-
-        document.getElementById('stopAI').addEventListener('click', () => {
-          console.log("Stopping AI training...");
-          this.aiTraining = false;
-          clearInterval(this.aiTrainingInterval);
-        });
-
-        document.getElementById('resetEnv').addEventListener('click', () => {
-          this.resetEnvironment();
-        });
-
-        document.getElementById('fractalScale').addEventListener('input', (e) => {
-          this.fractalScale = parseFloat(e.target.value);
-          this.fractalMaterial.uniforms.scale.value = this.fractalScale;
-        });
-
-        document.getElementById('fractalPower').addEventListener('input', (e) => {
-          this.fractalPower = parseFloat(e.target.value);
-          this.fractalMaterial.uniforms.power.value = this.fractalPower;
-        });
-
-        document.getElementById('chasers').addEventListener('change', () => {
-          this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
-          this.spawnObstacles();
-        });
-
-        document.getElementById('barriers').addEventListener('change', () => {
-          this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
-          this.spawnObstacles();
-        });
-
-        document.getElementById('downloadLog').addEventListener('click', () => {
-          this.downloadLog();
-        });
-
-        document.getElementById('fullscreenButton').addEventListener('click', () => {
-          const element = document.documentElement;
-          if (!document.fullscreenElement) {
-            if (element.requestFullscreen) {
-              element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) {
-              element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) {
-              element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) {
-              element.msRequestFullscreen();
-            }
-            console.log("Entered full-screen mode.");
-          } else {
-            if (document.exitFullscreen) {
-              document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-              document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) {
-              document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-              document.msExitFullscreen();
-            }
-            console.log("Exited full-screen mode.");
-          }
-        });
-
-        window.addEventListener('resize', () => this.onWindowResize());
-      }
-
-      stateToKey(state) {
-        const playerPos = state.playerPos.map(x => Math.round(x / 10) * 10);
-        const pointPos = state.closestPointPos.map(x => Math.round(x / 10) * 10);
-        const obstaclePos = state.closestObstaclePos.map(x => Math.round(x / 10) * 10);
-        return `${playerPos.join(',')}|${pointPos.join(',')}|${obstaclePos.join(',')}`;
-      }
-
-      getState() {
-        const closestPoint = this.energyPoints.length > 0
-          ? this.energyPoints.reduce((closest, point) =>
-              this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
-            )
-          : { pos: new THREE.Vector3(0, 0, 0) };
-        const closestObstacle = this.obstacles.length > 0
-          ? this.obstacles.reduce((closest, obstacle) =>
-              this.player.distanceTo(obstacle.pos) < this.player.distanceTo(closest.pos) ? obstacle : closest
-            )
-          : { pos: new THREE.Vector3(0, 0, 0) };
-        return {
-          playerPos: [this.player.x, this.player.y, this.player.z],
-          closestPointPos: [closestPoint.pos.x, closestPoint.pos.y, closestPoint.pos.z],
-          closestObstaclePos: [closestObstacle.pos.x, closestObstacle.pos.y, closestObstacle.pos.z]
-        };
-      }
-
-      async getReward() {
-        let reward = 0;
-        this.stepsSinceLastPoint++;
-
-        const closestPoint = this.energyPoints.length > 0
-          ? this.energyPoints.reduce((closest, point) =>
-              this.player.distanceTo(point.pos) < this.player.distanceTo(closest.pos) ? point : closest
-            )
-          : null;
-        if (closestPoint) {
-          const distance = this.player.distanceTo(closestPoint.pos);
-          console.log(`Distance to closest energy point: ${distance}`);
-          reward += (400 - distance) * 0.0005;
-        } else {
-          console.log("No energy points available");
-          reward -= 0.1;
-        }
-
-        let collected = false;
-        for (let i = this.energyPoints.length - 1; i >= 0; i--) {
-          const point = this.energyPoints[i];
-          const distance = this.player.distanceTo(point.pos);
-          if (distance < 20) {
-            console.log(`Collected energy point at (${point.pos.x}, ${point.pos.y}, ${point.pos.z}), distance: ${distance}`);
-            this.createFirework(point.pos);
-            this.scene.remove(point.mesh);
-            this.energyPoints.splice(i, 1);
-            this.energyPointsCollected++;
-            this.totalReward += 10;
-            reward += 10;
-            this.stepsSinceLastPoint = 0;
-            collected = true;
-            if (this.energyPoints.length === 0) {
-              this.spawnEnergyPoints();
-            }
-            break;
-          }
-        }
-
-        if (!collected && this.stepsSinceLastPoint > 20 && closestPoint) {
-          console.log("Forcing collection of closest energy point due to timeout");
-          const index = this.energyPoints.findIndex(point => point === closestPoint);
-          if (index !== -1) {
-            this.createFirework(closestPoint.pos);
-            this.scene.remove(closestPoint.mesh);
-            this.energyPoints.splice(index, 1);
-            this.energyPointsCollected++;
-            this.totalReward += 10;
-            reward += 10;
-            this.stepsSinceLastPoint = 0;
-            if (this.energyPoints.length === 0) {
-              this.spawnEnergyPoints();
-            }
-          }
-        }
-
-        for (const obstacle of this.obstacles) {
-          const distance = this.player.distanceTo(obstacle.pos);
-          const threshold = obstacle.type === 'barrier' ? 30 : 20;
-          if (distance < threshold) {
-            console.log(`Penalty from ${obstacle.type} at distance ${distance}`);
-            reward -= 5;
-            this.totalReward -= 5;
-            break;
-          }
-        }
-
-        const now = Date.now();
-        if (now - this.lastAvoidanceRewardTime >= 2000) {
-          let hasCollision = false;
-          for (const obstacle of this.obstacles) {
-            const threshold = obstacle.type === 'barrier' ? 30 : 20;
-            if (this.player.distanceTo(obstacle.pos) < threshold) {
-              hasCollision = true;
-              break;
-            }
-          }
-          if (!hasCollision) {
-            reward += 0.5;
-            this.totalReward += 0.5;
-            console.log("Avoidance reward applied");
-          }
-          this.lastAvoidanceRewardTime = now;
-        }
-
-        if (this.stepsSinceLastPoint > 50) {
-          console.log("Ending episode due to timeout");
-          reward -= 10;
-          this.endEpisode();
-        }
-
-        console.log(`Reward calculated: ${reward}, Total Reward: ${this.totalReward}, Energy Points Collected: ${this.energyPointsCollected}`);
-        this.updateUI();
-        return reward;
-      }
-
-      takeAction(actionIndex) {
-        console.log(`Taking action ${actionIndex}...`);
-        if (actionIndex < 0 || actionIndex >= this.actions.length) {
-          console.error(`Invalid action index: ${actionIndex}`);
-          actionIndex = 0;
-        }
-        const action = this.actions[actionIndex];
-        this.player.add(action);
-        this.player.clamp(
-          new THREE.Vector3(-400, -400, -400),
-          new THREE.Vector3(400, 400, 400)
-        );
-        console.log(`Player position set to (${this.player.x}, ${this.player.y}, ${this.player.z})`);
-      }
-
-      updatePlayer() {
-        this.playerMesh.position.copy(this.player);
-        this.renderer.render(this.scene, this.camera);
-        console.log(`PlayerMesh updated to (${this.playerMesh.position.x}, ${this.playerMesh.position.y}, ${this.playerMesh.position.z})`);
-      }
-
-      aiStep() {
-        if (!this.aiTraining) return;
-
-        const state = this.getState();
-        const stateKey = this.stateToKey(state);
-
-        if (!this.qTable.has(stateKey)) {
-          this.qTable.set(stateKey, Array(this.actions.length).fill(0));
-        }
-
-        const qValues = this.qTable.get(stateKey);
-
-        let action;
-        if (Math.random() < this.explorationRate) {
-          action = Math.floor(Math.random() * this.actions.length);
-        } else {
-          action = qValues.indexOf(Math.max(...qValues));
-        }
-
-        this.takeAction(action);
-
-        const reward = this.getReward();
-        const nextState = this.getState();
-        const nextStateKey = this.stateToKey(nextState);
-
-        if (!this.qTable.has(nextStateKey)) {
-          this.qTable.set(nextStateKey, Array(this.actions.length).fill(0));
-        }
-
-        const currentQ = qValues[action];
-        const nextQValues = this.qTable.get(nextStateKey);
-        const maxNextQ = Math.max(...nextQValues);
-        const newQ = currentQ + this.learningRate * (reward + this.discountFactor * maxNextQ - currentQ);
-        qValues[action] = newQ;
-        this.qTable.set(stateKey, qValues);
-
-        this.explorationRate = Math.max(this.minExplorationRate, this.explorationRate * this.explorationDecay);
-
-        this.trainingLog.push({
-          episode: this.episodeCount,
-          step: this.stepsSinceLastPoint,
-          state,
-          action,
-          reward,
-          nextState,
-          totalReward: this.totalReward,
-          explorationRate: this.explorationRate
-        });
-
-        this.updateQArrows(qValues);
-        this.updatePathVisualization();
-      }
-
-      endEpisode() {
-        console.log(`Ending episode ${this.episodeCount}, total reward: ${this.totalReward}`);
-        this.episodeCount++;
-        this.episodeRewards.push(this.totalReward);
-        if (this.episodeRewards.length > 100) {
-          this.episodeRewards.shift();
-        }
-        this.avgReward = this.episodeRewards.length > 0
-          ? this.episodeRewards.reduce((a, b) => a + b, 0) / this.episodeRewards.length
-          : 0;
-        this.stepsSinceLastPoint = 0;
-        this.resetEnvironment();
-        this.updateUI();
-        console.log(`New episode ${this.episodeCount} started, avg reward: ${this.avgReward}`);
-      }
-
-      resetEnvironment() {
-        this.player.set(0, 0, 0);
-        this.playerMesh.position.copy(this.player);
-        this.energyPointsCollected = 0;
-        this.totalReward = 0;
-        this.stepsSinceLastPoint = 0;
-        this.pathPoints = [];
-        this.energyPoints.forEach(point => this.scene.remove(point.mesh));
-        this.obstacles.forEach(obstacle => this.scene.remove(obstacle.mesh));
-        this.particles.forEach(particle => this.scene.remove(particle.system));
-        this.particles = [];
-        this.spawnEnergyPoints();
-        this.spawnObstacles();
-        this.updateUI();
-      }
-
-      downloadLog() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.trainingLog, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute('href', dataStr);
-        downloadAnchor.setAttribute('download', 'training_log.json');
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-      }
-
-      updateUI() {
-        console.log(`Updating UI: Energy Points: ${this.energyPointsCollected}, Total Reward: ${this.totalReward}, Avg Reward: ${this.avgReward}, Episode: ${this.episodeCount}`);
-        document.getElementById('energyPoints').innerHTML = this.energyPointsCollected;
-        document.getElementById('totalReward').innerHTML = this.totalReward.toFixed(2);
-        document.getElementById('avgReward').innerHTML = this.avgReward.toFixed(2);
-        document.getElementById('explorationRate').innerHTML = this.explorationRate.toFixed(3);
-        document.getElementById('episodeCount').innerHTML = this.episodeCount;
-      }
-
-      animate() {
-        let lastTime = 0;
-        const animateLoop = (currentTime) => {
-          requestAnimationFrame(animateLoop);
-          const delta = (currentTime - lastTime) / 1000;
-          lastTime = currentTime;
-
-          this.time += 0.02;
-          this.fractalMaterial.uniforms.time.value = this.time;
-          this.updateDynamicElements();
-          this.updateParticles(delta);
-          this.updatePlayer();
-          this.renderer.render(this.scene, this.camera);
-        };
-        requestAnimationFrame(animateLoop);
-      }
-
-      onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
       }
     }
+    if (!verts.length) {
+      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0);
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
+    const material = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute float offset;
+        varying vec3 vColor;
+        uniform float time;
+        void main() {
+          vColor = color;
+          vec3 pos = position;
+          float wave = sin(time + offset) * 0.2;
+          pos.x += wave;
+          pos.y += wave;
+          pos.z += wave;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = 5.0 * (1.0 + sin(time + offset) * 0.5);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 0.8);
+        }
+      `,
+      uniforms: {
+        time: { value: 0 }
+      },
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+    const points = new THREE.Points(geo, material);
+    points.position.set(0, 0, 0);
+    return points;
+  }
 
-    const game = new FractalverseAI();
+  function generateFractalOverlay(density) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [], cols = [], offsets = [];
+    const N = 40;
+    const baseHue = (density - 1) * 30 + 180;
+    for (let x = -N; x < N; x++) {
+      for (let y = -N; y < N; y++) {
+        for (let z = -N; z < N; z++) {
+          let zr = (x / N) * 2 / fractalZoom;
+          let zi = (y / N) * 2 / fractalZoom;
+          let zc = (z / N) * 2 / fractalZoom;
+          let i = 0;
+          for (; i < 50; i++) {
+            const r2 = zr * zr, i2 = zi * zi, c2 = zc * zc;
+            if (r2 + i2 + c2 > 4) break;
+            const newZr = r2 - i2 - c2 + cReal;
+            const newZi = 2 * zr * zi + cImag;
+            zc = 2 * zr * zc + (cImag * 0.5);
+            zr = newZr;
+            zi = newZi;
+          }
+          if (i < 50) {
+            const dist = Math.sqrt(x * x + y * y + z * z);
+            if (dist < 20) {
+              verts.push(x / 3, y / 3, z / 3);
+              const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
+              let col;
+              if (colorTheme === 'vivid') {
+                col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+              } else if (colorTheme === 'pastel') {
+                col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+              } else if (colorTheme === 'neon') {
+                col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+              }
+              cols.push(col.r, col.g, col.b);
+              offsets.push(Math.random() * Math.PI * 2);
+            }
+          }
+        }
+      }
+    }
+    if (!verts.length) {
+      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0);
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
+    const material = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute float offset;
+        varying vec3 vColor;
+        uniform float time;
+        void main() {
+          vColor = color;
+          vec3 pos = position;
+          float wave = sin(time + offset) * 0.3;
+          pos.x += wave * 0.5;
+          pos.y += wave * 0.5;
+          pos.z += wave * 0.5;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = 4.0 * (1.0 + sin(time + offset) * 0.8);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 0.7);
+        }
+      `,
+      uniforms: {
+        time: { value: 0 }
+      },
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+    const points = new THREE.Points(geo, material);
+    points.position.set(0, 0, 0);
+    return points;
+  }
+
+  let lastColorUpdate = 0;
+  function updateFractalColors(timestamp) {
+    if (timestamp - lastColorUpdate < 100) return;
+    lastColorUpdate = timestamp;
+    hueShift += 1;
+    const baseHueMain = (currentDensity - 1) * 30;
+    const baseHueOverlay = (currentDensity - 1) * 30 + 180;
+
+    const positionsMain = fractal.geometry.attributes.position.array;
+    const colorsMain = fractal.geometry.attributes.color.array;
+    for (let i = 0; i < positionsMain.length / 3; i++) {
+      const iteration = (positionsMain[i * 3 + 2] / 10) * 50;
+      const hue = (baseHueMain + (iteration / 50) * 360 + hueShift) % 360;
+      let col;
+      if (colorTheme === 'vivid') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      } else if (colorTheme === 'pastel') {
+        col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+      } else if (colorTheme === 'neon') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+      } else {
+        col = new THREE.Color(1, 1, 1);
+      }
+      colorsMain[i * 3] = col.r;
+      colorsMain[i * 3 + 1] = col.g;
+      colorsMain[i * 3 + 2] = col.b;
+    }
+    fractal.geometry.attributes.color.needsUpdate = true;
+
+    const positionsOverlay = fractalOverlay.geometry.attributes.position.array;
+    const colorsOverlay = fractalOverlay.geometry.attributes.color.array;
+    for (let i = 0; i < positionsOverlay.length / 3; i++) {
+      const iteration = (positionsOverlay[i * 3 + 2] / 5) * 50;
+      const hue = (baseHueOverlay + (iteration / 50) * 360 + hueShift) % 360;
+      let col;
+      if (colorTheme === 'vivid') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      } else if (colorTheme === 'pastel') {
+        col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+      } else if (colorTheme === 'neon') {
+        col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+      } else {
+        col = new THREE.Color(1, 1, 1);
+      }
+      colorsOverlay[i * 3] = col.r;
+      colorsOverlay[i * 3 + 1] = col.g;
+      colorsOverlay[i * 3 + 2] = col.b;
+    }
+    fractalOverlay.geometry.attributes.color.needsUpdate = true;
+  }
+
+  function animateFractalParameters(timestamp) {
+    cReal += Math.sin(timestamp * 0.0001) * 0.001;
+    cImag += Math.cos(timestamp * 0.0001) * 0.001;
+    if (fractal && Math.random() < 0.01) {
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+    }
+  }
+
+  function createGlowEffect() {
+    const geo = new THREE.SphereGeometry(10, 32, 32);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.1,
+      blending: THREE.AdditiveBlending
+    });
+    const glow = new THREE.Mesh(geo, material);
+    glow.position.set(0, 0, 0);
+    return glow;
+  }
+
+  function createDensityCompleteEffect() {
+    const geo = new THREE.BufferGeometry();
+    const verts = [];
+    const cols = [];
+    for (let i = 0; i < 100; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 5;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const z = (Math.random() - 0.5) * 5;
+      verts.push(x, y, z);
+      const hue = Math.random() * 360;
+      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      cols.push(col.r, col.g, col.b);
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true });
+    const particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+    let opacity = 1;
+    const fade = setInterval(() => {
+      opacity -= 0.02;
+      particles.material.opacity = opacity;
+      if (opacity <= 0) {
+        scene.remove(particles);
+        clearInterval(fade);
+      }
+    }, 50);
+    new Tone.Synth().toDestination().triggerAttackRelease("C5", "2n");
+  }
+
+  // — Enhanced Weather (Rain and Snow) —
+  let weatherParticles = [];
+  let weatherType = 'none';
+  function createWeather() {
+    weatherParticles.forEach(p => scene.remove(p.mesh));
+    weatherParticles.length = 0;
+    if (weatherType === 'none') return;
+    for (let i = 0; i < 200; i++) {
+      const geo = new THREE.BufferGeometry();
+      const verts = [];
+      const cols = [];
+      const x = (Math.random() - 0.5) * 50;
+      const y = Math.random() * 50;
+      const z = (Math.random() - 0.5) * 50;
+      verts.push(x, y, z);
+      const col = weatherType === 'rain' ? new THREE.Color(0x87ceeb) : new THREE.Color(0xffffff);
+      cols.push(col.r, col.g, col.b);
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+      const mat = new THREE.PointsMaterial({ 
+        size: weatherType === 'rain' ? 0.1 : 0.2, 
+        vertexColors: true, 
+        transparent: true, 
+        opacity: 0.8 
+      });
+      const particle = new THREE.Points(geo, mat);
+      scene.add(particle);
+      weatherParticles.push({ 
+        mesh: particle, 
+        velocity: weatherType === 'rain' ? -0.5 : -0.3, 
+        sway: Math.random() * 0.1 
+      });
+    }
+  }
+
+  // — DOM Elements —
+  const optionsButton = document.getElementById('optionsButton');
+  const optionsDropdown = document.getElementById('optionsDropdown');
+  const voiceDropdown = document.getElementById('voiceDropdown');
+  const languageSelect = document.getElementById('languageSelect');
+  const speedSlider = document.getElementById('speedSlider');
+  const colorThemeSelect = document.getElementById('colorTheme');
+  const ambientMusicToggle = document.getElementById('ambientMusicToggle');
+  const transitionSoundsToggle = document.getElementById('transitionSoundsToggle');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const settingsButton = document.getElementById('settingsButton');
+  const saveSettings = document.getElementById('saveSettings');
+  const usernameInput = document.getElementById('usernameInput');
+  const profileText = document.getElementById('profile');
+  const dimensionTxt = document.getElementById('dimension');
+  const progressText = document.getElementById('progress');
+  const progressFill = document.getElementById('progressFill');
+  const messages = document.getElementById('messages');
+  const zoomInButton = document.getElementById('zoomInButton');
+  const zoomOutButton = document.getElementById('zoomOutButton');
+  const feedbackButton = document.getElementById('feedbackButton');
+  const feedbackPanel = document.getElementById('feedbackPanel');
+  const feedbackRating = document.getElementById('feedbackRating');
+  const feedbackComments = document.getElementById('feedbackComments');
+  const submitFeedback = document.getElementById('submitFeedback');
+  const closeFeedback = document.getElementById('closeFeedback');
+  const saveProfileButton = document.getElementById('saveProfileButton');
+  const loadProfileButton = document.getElementById('loadProfileButton');
+  const shareFractalButton = document.getElementById('shareFractalButton');
+  const weatherDropdown = document.getElementById('weatherDropdown');
+  const fractalDropdown = document.getElementById('fractalDropdown');
+  const fpsDisplay = document.getElementById('fps');
+
+  // — Dropdown Menu Functionality —
+  optionsButton.addEventListener('click', () => {
+    const isVisible = optionsDropdown.style.display === 'flex';
+    optionsDropdown.style.display = isVisible ? 'none' : 'flex';
+    optionsButton.textContent = isVisible ? 'Options ▼' : 'Options ▲';
+  });
+
+  // — Load user settings from localStorage —
+  const savedSettings = JSON.parse(localStorage.getItem('fractalSanctuarySettings')) || {};
+  let meditationSpeed = 1;
+  let enableAmbientMusic = true;
+  let enableTransitionSounds = true;
+  let username = '';
+  if (savedSettings.language) languageSelect.value = savedSettings.language;
+  if (savedSettings.meditationSpeed) {
+    meditationSpeed = savedSettings.meditationSpeed;
+    speedSlider.value = savedSettings.meditationSpeed;
+  }
+  if (savedSettings.colorTheme) {
+    colorTheme = savedSettings.colorTheme;
+    colorThemeSelect.value = savedSettings.colorTheme;
+  }
+  if (savedSettings.enableAmbientMusic !== undefined) {
+    enableAmbientMusic = savedSettings.enableAmbientMusic;
+    ambientMusicToggle.checked = savedSettings.enableAmbientMusic;
+  }
+  if (savedSettings.enableTransitionSounds !== undefined) {
+    enableTransitionSounds = savedSettings.enableTransitionSounds;
+    transitionSoundsToggle.checked = savedSettings.enableTransitionSounds;
+  }
+
+  // — Profile & stage logic —
+  let userProfile = { currentDensity: 1, currentDimension: 1, highestStage: 0 };
+  localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile));
+  let currentDensity = userProfile.currentDensity;
+  let currentDimension = userProfile.currentDimension;
+
+  let isMeditating = false;
+  let isFunMode = false;
+  let stageTimeout = null;
+  let meditationIdx = 0;
+  let lastDensity = 1;
+
+  // — Voice and Language Selection —
+  let voices = [];
+  function populateVoices() {
+    voices = speechSynthesis.getVoices();
+    const uniqueLangs = [...new Set(voices.map(voice => voice.lang))];
+    languageSelect.innerHTML = uniqueLangs.map(lang => 
+      `<option value="${lang}">${lang}</option>`
+    ).join('');
+    updateVoiceDropdown();
+  }
+  function updateVoiceDropdown() {
+    const selectedLang = languageSelect.value;
+    voiceDropdown.innerHTML = voices
+      .filter(voice => voice.lang === selectedLang)
+      .map((voice, index) => 
+        `<option value="${voices.indexOf(voice)}">${voice.name} (${voice.lang})</option>`
+      ).join('');
+  }
+  speechSynthesis.onvoiceschanged = populateVoices;
+  populateVoices();
+  languageSelect.addEventListener('change', updateVoiceDropdown);
+
+  // — Initial Narration on App Start —
+  function speakWelcomeMessage() {
+    const welcomeMessage = "Welcome to the Virtual Fractal Sanctuary! Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided journey.";
+    const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+    utterance.rate = 0.8;
+    const selectedVoice = voices[voiceDropdown.value];
+    if (selectedVoice) utterance.voice = selectedVoice;
+    speechSynthesis.speak(utterance);
+  }
+
+  // Delay the welcome message slightly to let the rain sound settle
+  setTimeout(speakWelcomeMessage, 2000);
+
+  // — Bubbles & enhanced pop effect with ripple —
+  const bubbles = [];
+  function spawnBubbles() {
+    const bubbleCount = isFunMode ? 20 : 10;
+    for (let i = 0; i < bubbleCount; i++) {
+      const hue = isFunMode ? (currentDensity - 1) * 30 + Math.random() * 60 : Math.random() * 360;
+      const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      const size = isFunMode ? (Math.random() * 0.4 + 0.2) : 0.3;
+      const b = new THREE.Mesh(
+        new THREE.SphereGeometry(size, 16, 16),
+        new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.7 })
+      );
+      b.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20);
+      b.userData.vel = new THREE.Vector3(
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1
+      );
+      scene.add(b);
+      bubbles.push(b);
+    }
+  }
+  spawnBubbles();
+
+  // — Audio Setup (Soundscapes) —
+  // Gentle Rain Sound
+  const rainSynth = new Tone.NoiseSynth({
+    noise: { type: "white" },
+    envelope: { attack: 1, decay: 0.2, sustain: 0.5, release: 2 }
+  });
+  const rainFilter = new Tone.Filter({
+    type: "lowpass",
+    frequency: 1000,
+    Q: 1
+  }).toDestination();
+  const rainVolume = new Tone.Volume(-20).toDestination(); // Lower volume to avoid overpowering narration
+  rainSynth.connect(rainFilter);
+  rainFilter.connect(rainVolume);
+  let rainLoop = null;
+
+  function startGentleRainSound() {
+    if (rainLoop) rainLoop.stop();
+    rainLoop = new Tone.Loop((time) => {
+      rainSynth.triggerAttackRelease("4n", time);
+    }, "0.5n").start(0);
+    Tone.Transport.start();
+  }
+
+  function stopGentleRainSound() {
+    if (rainLoop) {
+      rainLoop.stop();
+      rainLoop = null;
+    }
+    Tone.Transport.stop();
+  }
+
+  // Start the gentle rain sound on app load
+  startGentleRainSound();
+
+  // Modified Water Ripple Sound (Lower Pitch, Softer)
+  const waterRippleSynth = new Tone.Synth({
+    oscillator: { type: "sine" },
+    envelope: { attack: 0.5, decay: 1, sustain: 0.3, release: 2 }
+  }).toDestination();
+  let waterRippleLoop = null;
+
+  function startWaterRippleSound() {
+    if (waterRippleLoop) waterRippleLoop.stop();
+    waterRippleLoop = new Tone.Loop((time) => {
+      waterRippleSynth.triggerAttackRelease("G3", "8n", time); // Lowered from C4 to G3 for a softer tone
+    }, "2n").start(0);
+    Tone.Transport.start();
+  }
+
+  function stopWaterRippleSound() {
+    if (waterRippleLoop) {
+      waterRippleLoop.stop();
+      waterRippleLoop = null;
+    }
+    Tone.Transport.stop();
+  }
+
+  const ambientSynth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "sine" },
+    envelope: { attack: 1, decay: 1, sustain: 0.5, release: 2 }
+  }).toDestination();
+  let ambientLOOP = null;
+
+  const transitionSynth = new Tone.Synth({
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.5, decay: 1, sustain: 0, release: 1 }
+  }).toDestination();
+
+  const soundscapeSynth = new Tone.Synth({
+    oscillator: { type: "sawtooth" },
+    envelope: { attack: 2, decay: 1, sustain: 0.3, release: 3 }
+  }).toDestination();
+  let soundscapeLoop = null;
+
+  function startAmbientMusic(density) {
+    if (!enableAmbientMusic) return;
+    if (ambientLoop) ambientLoop.stop();
+    if (soundscapeLoop) soundscapeLoop.stop();
+    ambientLoop = new Tone.Loop((time) => {
+      const note = 220 + (density - 1) * 20;
+      ambientSynth.triggerAttackRelease(note, "2n", time);
+    }, "4n").start(0);
+    soundscapeLoop = new Tone.Loop((time) => {
+      const note = 110 + (currentDimension - 1) * 10;
+      soundscapeSynth.triggerAttackRelease(note, "4n", time);
+    }, "8n").start(0);
+    Tone.Transport.start();
+  }
+
+  function stopAmbientMusic() {
+    if (ambientLoop) {
+      ambientLoop.stop();
+      ambientLoop = null;
+    }
+    if (soundscapeLoop) {
+      soundscapeLoop.stop();
+      soundscapeLoop = null;
+    }
+    Tone.Transport.stop();
+  }
+
+  function playTransitionSound() {
+    if (enableTransitionSounds) {
+      transitionSynth.triggerAttackRelease("G4", "8n");
+    }
+  }
+
+  function createBurstEffect(pos, isFunMode) {
+    const light = new THREE.PointLight(0xffffff, 1, 10);
+    light.position.copy(pos); scene.add(light);
+    let intensity = 1;
+    const fade = setInterval(() => {
+      intensity -= 0.05; light.intensity = intensity;
+      if (intensity <= 0) { scene.remove(light); clearInterval(fade); }
+    }, 50);
+
+    const spiralGeo = new THREE.BufferGeometry();
+    const spiralVerts = [];
+    const spiralCols = [];
+    for (let i = 0; i < 50; i++) {
+      const angle = (i / 50) * Math.PI * 4;
+      const radius = (i / 50) * 2;
+      const x = pos.x + Math.cos(angle) * radius;
+      const y = pos.y + Math.sin(angle) * radius;
+      const z = pos.z + (i / 50) * 2;
+      spiralVerts.push(x, y, z);
+      const hue = (i * 3) % 360;
+      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      spiralCols.push(col.r, col.g, col.b);
+    }
+    spiralGeo.setAttribute('position', new THREE.Float32BufferAttribute(spiralVerts, 3));
+    spiralGeo.setAttribute('color', new THREE.Float32BufferAttribute(spiralCols, 3));
+    const spiralMat = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, transparent: true });
+    const spiral = new THREE.Points(spiralGeo, spiralMat);
+    scene.add(spiral);
+    let spiralOpacity = 1;
+    const spiralFade = setInterval(() => {
+      spiralOpacity -= 0.05;
+      spiral.material.opacity = spiralOpacity;
+      if (spiralOpacity <= 0) {
+        scene.remove(spiral);
+        clearInterval(spiralFade);
+      }
+    }, 50);
+
+    const fireworkGeo = new THREE.BufferGeometry();
+    const fireworkVerts = [];
+    const fireworkCols = [];
+    for (let i = 0; i < 30; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 2;
+      const x = pos.x + Math.cos(angle) * radius;
+      const y = pos.y + Math.sin(angle) * radius;
+      const z = pos.z + (Math.random() - 0.5) * 2;
+      fireworkVerts.push(x, y, z);
+      const hue = (Math.random() * 360) % 360;
+      const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+      fireworkCols.push(col.r, col.g, col.b);
+    }
+    fireworkGeo.setAttribute('position', new THREE.Float32BufferAttribute(fireworkVerts, 3));
+    fireworkGeo.setAttribute('color', new THREE.Float32BufferAttribute(fireworkCols, 3));
+    const fireworkMat = new THREE.PointsMaterial({ size: 0.2, vertexColors: true, transparent: true });
+    const firework = new THREE.Points(fireworkGeo, fireworkMat);
+    scene.add(firework);
+    let fireworkOpacity = 1;
+    const fireworkFade = setInterval(() => {
+      fireworkOpacity -= 0.05;
+      firework.material.opacity = fireworkOpacity;
+      if (fireworkOpacity <= 0) {
+        scene.remove(firework);
+        clearInterval(fireworkFade);
+      }
+    }, 50);
+
+    if (isFunMode) {
+      const rippleGeo = new THREE.BufferGeometry();
+      const rippleVerts = [];
+      const rippleCols = [];
+      for (let i = 0; i < 30; i++) {
+        const angle = (i / 30) * Math.PI * 2;
+        const radius = 0.5;
+        const x = pos.x + Math.cos(angle) * radius;
+        const y = pos.y + Math.sin(angle) * radius;
+        const z = pos.z;
+        rippleVerts.push(x, y, z);
+        const hue = (i * 6) % 360;
+        const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+        rippleCols.push(col.r, col.g, col.b);
+      }
+      rippleGeo.setAttribute('position', new THREE.Float32BufferAttribute(rippleVerts, 3));
+      rippleGeo.setAttribute('color', new THREE.Float32BufferAttribute(rippleCols, 3));
+      const rippleMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true });
+      const ripple = new THREE.Points(rippleGeo, rippleMat);
+      scene.add(ripple);
+      let rippleScale = 1;
+      let rippleOpacity = 1;
+      const rippleFade = setInterval(() => {
+        rippleScale += 0.1;
+        ripple.position.set(pos.x, pos.y, pos.z);
+        ripple.scale.set(rippleScale, rippleScale, 1);
+        rippleOpacity -= 0.05;
+        ripple.material.opacity = rippleOpacity;
+        if (rippleOpacity <= 0) {
+          scene.remove(ripple);
+          clearInterval(rippleFade);
+        }
+      }, 50);
+
+      fractalPulse = 1.2;
+      new Tone.Synth().toDestination().triggerAttackRelease("E6", "16n");
+    }
+
+    createInteractionParticles(pos);
+    new Tone.Synth().toDestination().triggerAttackRelease("C6", "16n");
+  }
+
+  // — Densities & Dimensions data —
+  const densities = [];
+  const meditationNarrations = [];
+  for (let D = 1; D <= 12; D++) {
+    const densityArr = [];
+    const narrationArr = [];
+    const narrationThemes = [
+      "Peace", "Balance", "Chaos", "Awareness", "Imagination", "Compassion", "Insight", "Möbius", "Spiral of Life"
+    ];
+    const densityThemes = [
+      "Foundation of Being",
+      "Duality and Harmony",
+      "Physical Manifestation",
+      "Time and Perception",
+      "Creative Expression",
+      "Unity and Empathy",
+      "Inner Knowing",
+      "Infinite Cycles",
+      "Cosmic Integration",
+      "Transcendence",
+      "Eternal Source",
+      "Pure Consciousness"
+    ];
+    const meditationThemes = [
+      { dimension: '1D', chapter: 'Chapter 1 – The Binary Code of Creation: 0 and 1', theme: 'PEACE & the VOID', chakra: 'Root (I NEED)', text: `We enter Density ${D}: 1D – Peace & the Void (Chapter 1). Feel the feminine Void (0) and masculine Vector (1) unite. Root yourself in stillness; I NEED the silent potential.` },
+      { dimension: '2D', chapter: 'Chapter 2 – The Birth of Duality: Known & Unknown', theme: 'LOVE', chakra: 'Sacral (I WANT)', text: `Now in 2D: Love – Known & Unknown (Chapter 2). Witness the first ripples of duality, the sacral dance of desire. I WANT to embrace both what is seen and what remains hidden.` },
+      { dimension: '3D', chapter: 'Chapter 3 – Light, Harmony, and the Emergence of Form', theme: 'HARMONY', chakra: 'Solar (I DESIRE)', text: `In 3D: Harmony (Chapter 3). Feel light and form merging into balance. I DESIRE the radiant unity of opposites in harmony.` },
+      { dimension: '4D', chapter: 'Chapter 4 – Time, Cycles, and the Illusion of Separation', theme: 'BALANCE', chakra: 'Crown (I THINK)', text: `Now 4D: Balance & Time (Chapter 4). Observe the day–night cycle, the crown of thought and stillness. I THINK in rhythms that weave unity from separation.` },
+      { dimension: '5D', chapter: 'Chapter 5 – The Third Eye, Imagination, and the Fall from Grace', theme: 'HOPE', chakra: '3rd Eye (I SEE)', text: `In 5D: Hope & Imagination (Chapter 5). Open your third eye—see beyond the fall from grace. I SEE the spark of hope guiding me back to source.` },
+      { dimension: '6D', chapter: 'Chapter 6 – Compassion, Completion, and the Trinity of Connection', theme: 'COMPASSION', chakra: 'Throat (I SPEAK)', text: `Now 6D: Compassion (Chapter 6). Speak the trinity of motion, stillness, and creation. I SPEAK in kindness, bridging all divides.` },
+      { dimension: '7D', chapter: 'Chapter 7 – Truth, Quantum Entanglement, and the Conquest of Death', theme: 'TRUTH', chakra: 'Heart (I AM)', text: `In 7D: Truth (Chapter 7). Feel the entangled unity of life and death. I AM the eternal witness beyond illusion.` },
+      { dimension: '8D', chapter: 'Chapter 8 – Completion, Infinity, and the Spiral of Cycles', theme: 'COMPLETION', chakra: '(I AM COMPLETE)', text: `Now 8D: Completion (Chapter 8). Witness the spiral of infinite cycles. I AM COMPLETE in every ending and new beginning.` },
+      { dimension: '9D', chapter: 'Chapter 9 – The Spiral of Life, Unity, and the Return to the Source', theme: 'UNITY', chakra: '(I AM UNIFIED)', text: `In 9D: Unity (Chapter 9). Merge into the spiral of life returning to source. I AM UNIFIED with all that ever was and will be.` }
+    ];
+    for (let d = 1; d <= 9; d++) {
+      const narration = `Welcome to Density ${D}, Dimension ${d}: ${narrationThemes[d - 1]} within the ${densityThemes[D - 1]}. Feel the ${narrationThemes[d - 1].toLowerCase()} as you ascend into this layer of consciousness.`;
+      densityArr.push({
+        name: `${D}D${d}`,
+        cReal: -0.8 + (D - 1) * 0.1 + (d - 1) * 0.02,
+        cImag: 0.156 + (D - 1) * 0.05 + (d - 1) * 0.01,
+        scale: 1 + D * 0.1 + d * 0.05,
+        narration: narration
+      });
+      narrationArr.push({
+        density: D,
+        dimension: `${d}D`,
+        chapter: meditationThemes[d - 1].chapter,
+        theme: meditationThemes[d - 1].theme,
+        chakra: meditationThemes[d - 1].chakra,
+        text: meditationThemes[d - 1].text.replace(`Density ${D}`, `Density ${D}, Dimension ${d}D`),
+        fullNarration: `${meditationThemes[d - 1].text.replace(`Density ${D}`, `Density ${D}, Dimension ${d}D`)} Chakra: ${meditationThemes[d - 1].chakra}.`
+      });
+    }
+    densities.push(densityArr);
+    meditationNarrations.push(narrationArr);
+  }
+
+  function updateProfile() {
+    const idx = (userProfile.currentDensity - 1) * 9 + userProfile.currentDimension;
+    userProfile.highestStage = Math.max(userProfile.highestStage, idx);
+    profileText.textContent = `Profile: ${userProfile.highestStage}/108 stages reached`;
+    progressText.textContent = `Progress: ${idx}/108 stages`;
+    progressFill.style.width = `${(idx / 108) * 100}%`;
+    localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile));
+  }
+  updateProfile();
+
+  function updateStage() {
+    if (!isMeditating) return;
+    if (!densities.length) return;
+    const D = THREE.MathUtils.clamp(currentDensity - 1, 0, densities.length - 1);
+    const dims = densities[D];
+    const d = THREE.MathUtils.clamp(currentDimension - 1, 0, dims.length - 1);
+    const stage = dims[d];
+
+    dimensionTxt.textContent = `Density ${currentDensity}, Dimension ${currentDimension}`;
+    cReal = stage.cReal; cImag = stage.cImag; fractalScale = stage.scale;
+
+    if (fractal) scene.remove(fractal);
+    if (fractalOverlay) scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    fractalPulse = 1.2;
+    fractalZoom = 1;
+
+    const glow = createGlowEffect();
+    scene.add(glow);
+    let glowOpacity = 0.1;
+    const glowFade = setInterval(() => {
+      glowOpacity -= 0.005;
+      glow.material.opacity = glowOpacity;
+      if (glowOpacity <= 0) {
+        scene.remove(glow);
+        clearInterval(glowFade);
+      }
+    }, 50);
+
+    messages.value += `Entering ${stage.name}: ${stage.narration}\n`;
+    messages.scrollTop = messages.scrollHeight;
+
+    if (!isFunMode) {
+      const meditationNarration = meditationNarrations[D][d];
+      const utterance = new SpeechSynthesisUtterance(meditationNarration.fullNarration);
+      utterance.rate = 0.8;
+      const selectedVoice = voices[voiceDropdown.value];
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.speak(utterance);
+
+      setTimeout(() => {
+        const breathingUtterance = new SpeechSynthesisUtterance("Take a deep inhale and exhale between dimensions. Breathe in for 4 seconds. Hold for 2 seconds. Breathe out for 4 seconds.");
+        breathingUtterance.rate = 0.8;
+        if (selectedVoice) breathingUtterance.voice = selectedVoice;
+        speechSynthesis.speak(breathingUtterance);
+      }, 7000);
+
+      startAmbientMusic(currentDensity);
+      playTransitionSound();
+    } else {
+      const utterance = new SpeechSynthesisUtterance(stage.narration);
+      utterance.rate = 0.8;
+      const selectedVoice = voices[voiceDropdown.value];
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.speak(utterance);
+    }
+
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+
+    userProfile.currentDensity = currentDensity;
+    userProfile.currentDimension = currentDimension;
+    updateProfile();
+
+    if (currentDimension === 1 && lastDensity !== currentDensity && meditationIdx > 0) {
+      messages.value += `Congratulations! You've completed Density ${lastDensity}.\n`;
+      messages.scrollTop = messages.scrollHeight;
+      createDensityCompleteEffect();
+    }
+    lastDensity = currentDensity;
+
+    meditationIdx++;
+    if (meditationIdx < 108) {
+      currentDimension++;
+      if (currentDimension > 9) {
+        currentDimension = 1;
+        currentDensity++;
+        if (currentDensity > 12) currentDensity = 1;
+      }
+    } else {
+      isMeditating = false;
+      stopAmbientMusic();
+      messages.value += 'Meditation complete. Reflect on your journey.\n';
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+
+    if (isMeditating) {
+      stageTimeout = setTimeout(updateStage, 16000 / meditationSpeed);
+    }
+  }
+
+  // — Settings Panel with User Profiles —
+  settingsButton.addEventListener('click', () => {
+    settingsPanel.style.display = 'block';
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  saveSettings.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    meditationSpeed = parseFloat(speedSlider.value);
+    colorTheme = colorThemeSelect.value;
+    enableAmbientMusic = ambientMusicToggle.checked;
+    enableTransitionSounds = transitionSoundsToggle.checked;
+    if (!enableAmbientMusic) stopAmbientMusic();
+    if (fractal) {
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+    }
+    const settings = {
+      username: username,
+      language: languageSelect.value,
+      meditationSpeed: meditationSpeed,
+      colorTheme: colorTheme,
+      enableAmbientMusic: enableAmbientMusic,
+      enableTransitionSounds: enableTransitionSounds
+    };
+    localStorage.setItem('fractalSanctuarySettings', JSON.stringify(settings));
+    settingsPanel.style.display = 'none';
+  });
+
+  saveProfileButton.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    if (!username) {
+      messages.value += "Please enter a username in Settings to save your profile.\n";
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+    const profileData = {
+      username: username,
+      meditationSpeed: meditationSpeed,
+      colorTheme: colorTheme,
+      enableAmbientMusic: enableAmbientMusic,
+      enableTransitionSounds: enableTransitionSounds,
+      language: languageSelect.value
+    };
+    const savedProfiles = JSON.parse(localStorage.getItem('fractalSanctuaryProfiles')) || {};
+    savedProfiles[username] = profileData;
+    localStorage.setItem('fractalSanctuaryProfiles', JSON.stringify(savedProfiles));
+    messages.value += `Profile saved for ${username}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  loadProfileButton.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    if (!username) {
+      messages.value += "Please enter a username in Settings to load your profile.\n";
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+    const savedProfiles = JSON.parse(localStorage.getItem('fractalSanctuaryProfiles')) || {};
+    const profileData = savedProfiles[username];
+    if (!profileData) {
+      messages.value += `No profile found for ${username}.\n`;
+      messages.scrollTop = messages.scrollHeight;
+      return;
+    }
+    meditationSpeed = profileData.meditationSpeed || 1;
+    colorTheme = profileData.colorTheme || 'vivid';
+    enableAmbientMusic = profileData.enableAmbientMusic !== undefined ? profileData.enableAmbientMusic : true;
+    enableTransitionSounds = profileData.enableTransitionSounds !== undefined ? profileData.enableTransitionSounds : true;
+    languageSelect.value = profileData.language || languageSelect.value;
+    speedSlider.value = meditationSpeed;
+    colorThemeSelect.value = colorTheme;
+    ambientMusicToggle.checked = enableAmbientMusic;
+    transitionSoundsToggle.checked = enableTransitionSounds;
+    if (!enableAmbientMusic) stopAmbientMusic();
+    if (fractal) {
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+    }
+    messages.value += `Profile loaded for ${username}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — Zoom Controls —
+  zoomInButton.addEventListener('click', () => {
+    fractalZoom = Math.max(0.5, fractalZoom - 0.1);
+    scene.remove(fractal);
+    scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    messages.value += `Zoomed in to ${fractalZoom.toFixed(1)}x\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  zoomOutButton.addEventListener('click', () => {
+    fractalZoom = Math.min(2.0, fractalZoom + 0.1);
+    scene.remove(fractal);
+    scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    messages.value += `Zoomed out to ${fractalZoom.toFixed(1)}x\n`;
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — Feedback Form with Analytics —
+  feedbackButton.addEventListener('click', () => {
+    feedbackPanel.style.display = 'block';
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  submitFeedback.addEventListener('click', () => {
+    const rating = feedbackRating.value;
+    const comments = feedbackComments.value.trim();
+    messages.value += `Feedback submitted: Rating ${rating}/5, Comments: ${comments || 'None'}\n`;
+    messages.scrollTop = messages.scrollHeight;
+    const feedback = { rating: parseInt(rating), comments, timestamp: Date.now() };
+    const savedFeedback = JSON.parse(localStorage.getItem('fractalSanctuaryFeedback')) || [];
+    savedFeedback.push(feedback);
+    localStorage.setItem('fractalSanctuaryFeedback', JSON.stringify(savedFeedback));
+    feedbackComments.value = '';
+    feedbackPanel.style.display = 'none';
+  });
+
+  closeFeedback.addEventListener('click', () => {
+    feedbackPanel.style.display = 'none';
+  });
+
+  // — Community Features: Share Fractal —
+  shareFractalButton.addEventListener('click', () => {
+    const params = new URLSearchParams({
+      cReal: cReal.toFixed(4),
+      cImag: cImag.toFixed(4),
+      fractalZoom: fractalZoom.toFixed(2),
+      colorTheme: colorTheme,
+      currentDensity: currentDensity
+    });
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      messages.value += `Shareable URL copied to clipboard: ${shareUrl}\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // Load shared fractal parameters from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('cReal')) {
+    cReal = parseFloat(urlParams.get('cReal'));
+    cImag = parseFloat(urlParams.get('cImag'));
+    fractalZoom = parseFloat(urlParams.get('fractalZoom'));
+    colorTheme = urlParams.get('colorTheme') || 'vivid';
+    currentDensity = parseInt(urlParams.get('currentDensity')) || 1;
+    messages.value += "Loaded shared fractal parameters from URL.\n";
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // — Weather Control —
+  weatherDropdown.addEventListener('change', () => {
+    weatherType = weatherDropdown.value;
+    createWeather();
+    messages.value += `Weather set to: ${weatherType}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+  });
+
+  // — Fractal Control —
+  fractalDropdown.addEventListener('change', () => {
+    const fractalType = fractalDropdown.value;
+    if (fractalType === 'julia') {
+      cReal = -0.8;
+      cImag = 0.156;
+    } else if (fractalType === 'mandelbrot') {
+      cReal = -0.5;
+      cImag = 0;
+    } else {
+      cReal = -0.8;
+      cImag = 0.156;
+    }
+    scene.remove(fractal);
+    scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    messages.value += `Fractal type set to: ${fractalType}.\n`;
+    messages.scrollTop = messages.scrollHeight;
+  });
+
+  // — Button Controls —
+  document.getElementById('startButton').addEventListener('click', () => {
+    if (!isMeditating) {
+      isMeditating = true;
+      meditationIdx = 0;
+      currentDensity = 1;
+      currentDimension = 1;
+      if (isFunMode) {
+        messages.value += 'Starting meditation in Fun Mode.\n';
+      } else {
+        messages.value += 'Starting meditation in Meditation Mode.\n';
+      }
+      messages.scrollTop = messages.scrollHeight;
+      updateStage();
+    }
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('stopButton').addEventListener('click', () => {
+    if (isMeditating) {
+      isMeditating = false;
+      clearTimeout(stageTimeout);
+      speechSynthesis.cancel();
+      stopAmbientMusic();
+      messages.value += 'Meditation stopped.\n';
+      messages.scrollTop = messages.scrollHeight;
+    }
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('resetButton').addEventListener('click', () => {
+    isMeditating = false;
+    clearTimeout(stageTimeout);
+    speechSynthesis.cancel();
+    stopAmbientMusic();
+    currentDensity = 1;
+    currentDimension = 1;
+    meditationIdx = 0;
+    lastDensity = 1;
+    userProfile = { currentDensity: 1, currentDimension: 1, highestStage: 0 };
+    localStorage.setItem('fractalSanctuaryProfile', JSON.stringify(userProfile));
+    updateProfile();
+    if (fractal) scene.remove(fractal);
+    if (fractalOverlay) scene.remove(fractalOverlay);
+    fractal = generateFractal(currentDensity);
+    fractalOverlay = generateFractalOverlay(currentDensity);
+    scene.add(fractal);
+    scene.add(fractalOverlay);
+    createOceanRipples();
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+    messages.value += 'Meditation reset to Density 1, Dimension 1.\n';
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('funModeButton').addEventListener('click', () => {
+    isFunMode = true;
+    startWaterRippleSound();
+    stopAmbientMusic();
+    stopGentleRainSound(); // Stop
+    stopGentleRainSound(); // Stop rain in Fun Mode to focus on water ripple sounds
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+    if (fractal) fractal.position.set(0, 0, 0);
+    if (fractalOverlay) fractalOverlay.position.set(0, 0, 0);
+    messages.value += 'Fun Mode activated! Pop bubbles to see fireworks and hear water ripples.\n';
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  document.getElementById('meditationModeButton').addEventListener('click', () => {
+    isFunMode = false;
+    stopWaterRippleSound();
+    startGentleRainSound(); // Restart gentle rain in Meditation Mode
+    bubbles.forEach(b => scene.remove(b));
+    bubbles.length = 0;
+    spawnBubbles();
+    messages.value += 'Meditation Mode activated! Start the guided meditation.\n';
+    messages.scrollTop = messages.scrollHeight;
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — Initial fractal —
+  fractal = generateFractal(currentDensity);
+  fractalOverlay = generateFractalOverlay(currentDensity);
+  scene.add(fractal);
+  scene.add(fractalOverlay);
+
+  // — Raycaster for bubble pop and fractal interaction —
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  function popBubbles() {
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(bubbles);
+    if (hits.length) {
+      const b = hits[0].object;
+      const pos = b.position.clone();
+      scene.remove(b);
+      bubbles.splice(bubbles.indexOf(b), 1);
+      createBurstEffect(pos, isFunMode);
+      messages.value += "Bubble popped! ✨\n";
+      messages.scrollTop = messages.scrollHeight;
+      spawnBubbles();
+    }
+  }
+
+  function interactWithFractal() {
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects([fractal, fractalOverlay]);
+    if (hits.length && !isFunMode) {
+      cReal += (Math.random() - 0.5) * 0.1;
+      cImag += (Math.random() - 0.5) * 0.1;
+      scene.remove(fractal);
+      scene.remove(fractalOverlay);
+      fractal = generateFractal(currentDensity);
+      fractalOverlay = generateFractalOverlay(currentDensity);
+      scene.add(fractal);
+      scene.add(fractalOverlay);
+      messages.value += "Fractal parameters adjusted! New shape generated.\n";
+      messages.scrollTop = messages.scrollHeight;
+    }
+  }
+
+  // — Advanced Interactions: Drag to Rotate Fractal —
+  window.addEventListener('mousedown', e => {
+    if (!renderer.xr.isPresenting) {
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects([fractal, fractalOverlay]);
+      if (hits.length && !isFunMode) {
+        isDragging = true;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+        controls.enabled = false;
+      }
+    }
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (isDragging) {
+      const deltaX = e.clientX - previousMousePosition.x;
+      const deltaY = e.clientY - previousMousePosition.y;
+      fractalRotationY += deltaX * 0.01;
+      fractalRotationX += deltaY * 0.01;
+      fractal.rotation.x = fractalRotationX;
+      fractal.rotation.y = fractalRotationY;
+      fractalOverlay.rotation.x = fractalRotationX;
+      fractalOverlay.rotation.y = fractalRotationY;
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    controls.enabled = true;
+  });
+
+  window.addEventListener('click', e => {
+    if (!renderer.xr.isPresenting) {
+      mouse.x = (e.clientX / innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+      popBubbles();
+      if (!isDragging) interactWithFractal();
+      const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
+      const dir = vector.sub(camera.position).normalize();
+      const distance = -camera.position.z / dir.z;
+      const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+      createInteractionParticles(pos);
+    }
+  });
+
+  renderer.xr.getController(0).addEventListener('select', popBubbles);
+  renderer.xr.getController(1).addEventListener('select', popBubbles);
+
+  document.getElementById('input').addEventListener('keypress', e => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      messages.value += `You: ${e.target.value}\n`;
+      messages.scrollTop = messages.scrollHeight;
+      setTimeout(() => {
+        messages.value += "Community: Thanks for sharing!\n";
+        messages.scrollTop = messages.scrollHeight;
+      }, 500);
+      e.target.value = '';
+    }
+  });
+
+  document.getElementById('saveFractal').addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = `fractal-${currentDensity}D${currentDimension}.png`;
+    link.href = renderer.domElement.toDataURL();
+    link.click();
+    optionsDropdown.style.display = 'none';
+    optionsButton.textContent = 'Options ▼';
+  });
+
+  // — FPS Counter —
+  let lastFrameTime = 0;
+  let frameCount = 0;
+  let fps = 0;
+  function updateFPS(timestamp) {
+    frameCount++;
+    if (timestamp - lastFrameTime >= 1000) {
+      fps = frameCount;
+      frameCount = 0;
+      lastFrameTime = timestamp;
+      fpsDisplay.textContent = `FPS: ${fps}`;
+    }
+  }
+
+  // — Animation loop —
+  function animate(timestamp) {
+    renderer.setAnimationLoop(() => {
+      updateFPS(timestamp);
+      updateFractalColors(timestamp);
+      if (!isFunMode) {
+        animateFractalParameters(timestamp);
+      }
+      if (fractal) {
+        if (isFunMode) {
+          fractal.position.set(0, 0, 0);
+          fractalOverlay.position.set(0, 0, 0);
+          fractal.rotation.x += 0.005;
+          fractal.rotation.y += 0.005;
+          fractalOverlay.rotation.x += 0.005;
+          fractalOverlay.rotation.y += 0.005;
+        } else {
+          fractal.rotation.x += 0.001;
+          fractal.rotation.y += 0.001;
+          fractalOverlay.rotation.x += 0.001;
+          fractalOverlay.rotation.y += 0.001;
+        }
+        if (fractalPulse > 1) {
+          fractalPulse -= 0.02;
+          fractal.scale.set(fractalPulse, fractalPulse, fractalPulse);
+          fractalOverlay.scale.set(fractalPulse, fractalPulse, fractalPulse);
+        }
+        fractal.material.uniforms.time.value = timestamp * 0.001;
+        fractalOverlay.material.uniforms.time.value = timestamp * 0.001;
+      }
+      const time = Date.now() * 0.001;
+      light.position.x = Math.sin(time) * 15;
+      light.position.y = Math.cos(time) * 15;
+      light.position.z = Math.sin(time) * 15;
+      bubbles.forEach(b => {
+        b.position.add(b.userData.vel);
+        ['x', 'y', 'z'].forEach(ax => {
+          if (Math.abs(b.position[ax]) > 20) b.userData.vel[ax] *= -1;
+        });
+      });
+      rippleParticles.forEach(r => {
+        r.phase += 0.02;
+        const positions = r.mesh.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+          const angle = Math.atan2(positions[i + 1], positions[i]);
+          const radius = Math.sqrt(positions[i] * positions[i] + positions[i + 1] * positions[i + 1]);
+          positions[i + 2] = Math.sin(r.phase + angle) * 1;
+        }
+        r.mesh.geometry.attributes.position.needsUpdate = true;
+      });
+      interactionParticles.forEach(p => {
+        const positions = p.mesh.geometry.attributes.position.array;
+        const velocities = p.mesh.geometry.attributes.velocity.array;
+        for (let i = 0; i < positions.length / 3; i++) {
+          positions[i * 3] += velocities[i * 3];
+          positions[i * 3 + 1] += velocities[i * 3 + 1];
+          positions[i * 3 + 2] += velocities[i * 3 + 2];
+        }
+        p.mesh.geometry.attributes.position.needsUpdate = true;
+        p.opacity -= 0.02;
+        p.mesh.material.opacity = p.opacity;
+        if (p.opacity <= 0) {
+          scene.remove(p.mesh);
+          interactionParticles.splice(interactionParticles.indexOf(p), 1);
+        }
+      });
+      if (weatherType !== 'none') {
+        weatherParticles.forEach(p => {
+          p.mesh.position.y += p.velocity;
+          p.mesh.position.x += Math.sin(time + p.sway) * p.sway;
+          if (p.mesh.position.y < -50) {
+            p.mesh.position.y = 50;
+            p.mesh.position.x = (Math.random() - 0.5) * 50;
+            p.mesh.position.z = (Math.random() - 0.5) * 50;
+          }
+        });
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    });
+  }
+  animate(0);
+
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
   </script>
 </body>
 </html>
