@@ -186,6 +186,7 @@
             .book-title { font-size: 1.5rem; }
             .pen-name { font-size: 1.2rem; }
             .book-cover { max-width: 200px; }
+            nav a { margin: 0 10px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -195,6 +196,9 @@
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#book">Book</a>
+        <a href="fractal-ai-research.html">Fractal AI Research</a>
+        <a href="fractal-meditation.html">Fractal Meditation</a>
+        <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
         <a href="blog.html">Blog</a>
         <a href="#contact">Contact</a>
         <a href="https://x.com/senseizuna" target="_blank">X</a>
@@ -309,7 +313,5 @@
         }
         animate();
     </script>
-</body>
-</html>
 </body>
 </html>
