@@ -346,8 +346,6 @@
         <option value="neon">Neon</option>
       </select>
     </label>
-    <label>Ambient Music: <input type="checkbox" id="ambientMusicToggle" checked></label>
-    <label>Transition Sounds: <input type="checkbox" id="transitionSoundsToggle" checked></label>
     <button id="saveSettings">Save</button>
   </div>
   <div id="feedbackPanel">
@@ -380,11 +378,19 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   <script>
   // — Scene & renderer —
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.xr.enabled = true;
   document.body.appendChild(renderer.domElement);
+
+  // Check WebGL context
+  if (!renderer.getContext()) {
+    console.error("WebGL not supported or failed to initialize.");
+    document.getElementById('messages').value += "Error: WebGL not supported. Please try a different browser or device.\n";
+  } else {
+    console.log("WebGL context initialized successfully.");
+  }
 
   // — Tranquil Background —
   const skyGradientTexture = new THREE.CanvasTexture(generateSkyGradient());
@@ -429,7 +435,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       }
       geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
       geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-      const mat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true, opacity: 0.6 });
+      const mat = new THREE.PointsMaterial({ size: 0.5, vertexColors: true, transparent: true, opacity: 0.6 }); // Increased size
       const ripple = new THREE.Points(geo, mat);
       scene.add(ripple);
       rippleParticles.push({ mesh: ripple, phase: Math.random() * Math.PI * 2 });
@@ -466,10 +472,11 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
     geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
     geo.setAttribute('velocity', new THREE.Float32BufferAttribute(velocities, 3));
-    const mat = new THREE.PointsMaterial({ size: 0.2, vertexColors: true, transparent: true });
+    const mat = new THREE.PointsMaterial({ size: 0.5, vertexColors: true, transparent: true }); // Increased size
     const particles = new THREE.Points(geo, mat);
     scene.add(particles);
     interactionParticles.push({ mesh: particles, opacity: 1 });
+    console.log("Interaction particles created at position:", position);
   }
 
   // — Controls & VRButton —
@@ -478,14 +485,14 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   document.getElementById('vrButton').addEventListener('click', () => {
     document.body.appendChild(THREE.VRButton.createButton(renderer));
   });
-  camera.position.z = 20;
+  camera.position.z = 15; // Adjusted closer to ensure visibility
 
   // — Dynamic Lighting —
   const light = new THREE.PointLight(0xffffff, 1, 50);
   light.position.set(10, 10, 10);
   scene.add(light);
 
-  // — Enhanced Fractal Cube with Ripples, Waves, and Visuals —
+  // — Enhanced Fractal (Now 2D) with Ripples, Waves, and Visuals —
   let fractal, fractalOverlay, cReal = -0.8, cImag = 0.156, fractalScale = 1;
   let fractalPulse = 1;
   let fractalZoom = 1;
@@ -497,27 +504,109 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   function generateFractal(density) {
     const geo = new THREE.BufferGeometry();
-    const verts = [], cols = [], offsets = [];
-    const N = 30;
+    const verts = [], cols = [], offsets = [], distances = [];
+    const N = 40; // Increased resolution for better detail
     const baseHue = (density - 1) * 30;
     for (let x = -N; x < N; x++) {
       for (let y = -N; y < N; y++) {
-        for (let z = -N; z < N; z++) {
-          let zr = (x / N) * 2 / fractalZoom;
-          let zi = (y / N) * 2 / fractalZoom;
-          let zc = (z / N) * 2 / fractalZoom;
-          let i = 0;
-          for (; i < 50; i++) {
-            const r2 = zr * zr, i2 = zi * zi, c2 = zc * zc;
-            if (r2 + i2 + c2 > 4) break;
-            const newZr = r2 - i2 - c2 + cReal;
-            const newZi = 2 * zr * zi + cImag;
-            zc = 2 * zr * zc + (cImag * 0.5);
-            zr = newZr;
-            zi = newZi;
+        let zr = (x / N) * 2 / fractalZoom;
+        let zi = (y / N) * 2 / fractalZoom;
+        let i = 0;
+        // Julia set computation (default)
+        for (; i < 50; i++) {
+          const r2 = zr * zr, i2 = zi * zi;
+          if (r2 + i2 > 4) break;
+          const newZr = r2 - i2 + cReal;
+          const newZi = 2 * zr * zi + cImag;
+          zr = newZr;
+          zi = newZi;
+        }
+        if (i < 50) {
+          verts.push(x / 5, y / 5, 0); // 2D plane, z = 0
+          const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
+          let col;
+          if (colorTheme === 'vivid') {
+            col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+          } else if (colorTheme === 'pastel') {
+            col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+          } else if (colorTheme === 'neon') {
+            col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
           }
-          if (i < 50) {
-            verts.push(x / 5, y / 5, z / 5);
+          cols.push(col.r, col.g, col.b);
+          offsets.push(Math.random() * Math.PI * 2);
+          const dist = Math.sqrt((x / 5) * (x / 5) + (y / 5) * (y / 5));
+          distances.push(dist);
+        }
+      }
+    }
+    if (!verts.length) {
+      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0); distances.push(0);
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
+    geo.setAttribute('distance', new THREE.Float32BufferAttribute(distances, 1));
+    const material = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute float offset;
+        attribute float distance;
+        varying vec3 vColor;
+        uniform float time;
+        uniform float zoom;
+        void main() {
+          vColor = color;
+          vec3 pos = position;
+          float wave = sin(time + offset) * 0.3;
+          float ripple = sin(time * 0.8 + distance * 3.0) * 0.2;
+          float breathe = cos(time * 0.4 + distance * 1.5) * 0.15;
+          pos.x += wave + ripple + breathe;
+          pos.y += wave + ripple + breathe;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = (10.0 / zoom) * (1.0 + sin(time + offset) * 0.5); // Increased point size
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 0.8);
+        }
+      `,
+      uniforms: {
+        time: { value: 0 },
+        zoom: { value: fractalZoom }
+      },
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+    const points = new THREE.Points(geo, material);
+    points.position.set(0, 0, 0);
+    console.log("Fractal generated with", verts.length / 3, "points.");
+    return points;
+  }
+
+  function generateFractalOverlay(density) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [], cols = [], offsets = [], distances = [];
+    const N = 50;
+    const baseHue = (density - 1) * 30 + 180;
+    for (let x = -N; x < N; x++) {
+      for (let y = -N; y < N; y++) {
+        let zr = (x / N) * 2 / fractalZoom;
+        let zi = (y / N) * 2 / fractalZoom;
+        let i = 0;
+        for (; i < 50; i++) {
+          const r2 = zr * zr, i2 = zi * zi;
+          if (r2 + i2 > 4) break;
+          const newZr = r2 - i2 + cReal;
+          const newZi = 2 * zr * zi + cImag;
+          zr = newZr;
+          zi = newZi;
+        }
+        if (i < 50) {
+          const dist = Math.sqrt(x * x + y * y);
+          if (dist < 20) {
+            verts.push(x / 3, y / 3, 0);
             const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
             let col;
             if (colorTheme === 'vivid') {
@@ -529,111 +618,36 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
             }
             cols.push(col.r, col.g, col.b);
             offsets.push(Math.random() * Math.PI * 2);
+            const dist = Math.sqrt((x / 3) * (x / 3) + (y / 3) * (y / 3));
+            distances.push(dist);
           }
         }
       }
     }
     if (!verts.length) {
-      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0);
+      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0); distances.push(0);
     }
     geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
     geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
     geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
+    geo.setAttribute('distance', new THREE.Float32BufferAttribute(distances, 1));
     const material = new THREE.ShaderMaterial({
       vertexShader: `
         attribute float offset;
+        attribute float distance;
         varying vec3 vColor;
         uniform float time;
+        uniform float zoom;
         void main() {
           vColor = color;
           vec3 pos = position;
-          float wave = sin(time + offset) * 0.2;
-          pos.x += wave;
-          pos.y += wave;
-          pos.z += wave;
+          float wave = sin(time + offset) * 0.4;
+          float ripple = sin(time * 0.8 + distance * 3.0) * 0.25;
+          float breathe = cos(time * 0.4 + distance * 1.5) * 0.2;
+          pos.x += wave + ripple + breathe;
+          pos.y += wave + ripple + breathe;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = 5.0 * (1.0 + sin(time + offset) * 0.5);
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vColor;
-        void main() {
-          gl_FragColor = vec4(vColor, 0.8);
-        }
-      `,
-      uniforms: {
-        time: { value: 0 }
-      },
-      vertexColors: true,
-      transparent: true,
-      blending: THREE.AdditiveBlending
-    });
-    const points = new THREE.Points(geo, material);
-    points.position.set(0, 0, 0);
-    return points;
-  }
-
-  function generateFractalOverlay(density) {
-    const geo = new THREE.BufferGeometry();
-    const verts = [], cols = [], offsets = [];
-    const N = 40;
-    const baseHue = (density - 1) * 30 + 180;
-    for (let x = -N; x < N; x++) {
-      for (let y = -N; y < N; y++) {
-        for (let z = -N; z < N; z++) {
-          let zr = (x / N) * 2 / fractalZoom;
-          let zi = (y / N) * 2 / fractalZoom;
-          let zc = (z / N) * 2 / fractalZoom;
-          let i = 0;
-          for (; i < 50; i++) {
-            const r2 = zr * zr, i2 = zi * zi, c2 = zc * zc;
-            if (r2 + i2 + c2 > 4) break;
-            const newZr = r2 - i2 - c2 + cReal;
-            const newZi = 2 * zr * zi + cImag;
-            zc = 2 * zr * zc + (cImag * 0.5);
-            zr = newZr;
-            zi = newZi;
-          }
-          if (i < 50) {
-            const dist = Math.sqrt(x * x + y * y + z * z);
-            if (dist < 20) {
-              verts.push(x / 3, y / 3, z / 3);
-              const hue = (baseHue + (i / 50) * 360 + hueShift) % 360;
-              let col;
-              if (colorTheme === 'vivid') {
-                col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
-              } else if (colorTheme === 'pastel') {
-                col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
-              } else if (colorTheme === 'neon') {
-                col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
-              }
-              cols.push(col.r, col.g, col.b);
-              offsets.push(Math.random() * Math.PI * 2);
-            }
-          }
-        }
-      }
-    }
-    if (!verts.length) {
-      verts.push(0, 0, 0); cols.push(1, 1, 1); offsets.push(0);
-    }
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    geo.setAttribute('offset', new THREE.Float32BufferAttribute(offsets, 1));
-    const material = new THREE.ShaderMaterial({
-      vertexShader: `
-        attribute float offset;
-        varying vec3 vColor;
-        uniform float time;
-        void main() {
-          vColor = color;
-          vec3 pos = position;
-          float wave = sin(time + offset) * 0.3;
-          pos.x += wave * 0.5;
-          pos.y += wave * 0.5;
-          pos.z += wave * 0.5;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = 4.0 * (1.0 + sin(time + offset) * 0.8);
+          gl_PointSize = (8.0 / zoom) * (1.0 + sin(time + offset) * 0.8); // Increased point size
         }
       `,
       fragmentShader: `
@@ -643,7 +657,8 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
         }
       `,
       uniforms: {
-        time: { value: 0 }
+        time: { value: 0 },
+        zoom: { value: fractalZoom }
       },
       vertexColors: true,
       transparent: true,
@@ -651,6 +666,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     });
     const points = new THREE.Points(geo, material);
     points.position.set(0, 0, 0);
+    console.log("Fractal overlay generated with", verts.length / 3, "points.");
     return points;
   }
 
@@ -665,7 +681,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     const positionsMain = fractal.geometry.attributes.position.array;
     const colorsMain = fractal.geometry.attributes.color.array;
     for (let i = 0; i < positionsMain.length / 3; i++) {
-      const iteration = (positionsMain[i * 3 + 2] / 10) * 50;
+      const iteration = (positionsMain[i * 3 + 2] / 10) * 50 || i / 50;
       const hue = (baseHueMain + (iteration / 50) * 360 + hueShift) % 360;
       let col;
       if (colorTheme === 'vivid') {
@@ -686,7 +702,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     const positionsOverlay = fractalOverlay.geometry.attributes.position.array;
     const colorsOverlay = fractalOverlay.geometry.attributes.color.array;
     for (let i = 0; i < positionsOverlay.length / 3; i++) {
-      const iteration = (positionsOverlay[i * 3 + 2] / 5) * 50;
+      const iteration = (positionsOverlay[i * 3 + 2] / 5) * 50 || i / 50;
       const hue = (baseHueOverlay + (iteration / 50) * 360 + hueShift) % 360;
       let col;
       if (colorTheme === 'vivid') {
@@ -719,7 +735,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   }
 
   function createGlowEffect() {
-    const geo = new THREE.SphereGeometry(10, 32, 32);
+    const geo = new THREE.PlaneGeometry(20, 20, 32, 32);
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -740,15 +756,15 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       const radius = Math.random() * 5;
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius;
-      const z = (Math.random() - 0.5) * 5;
+      const z = 0;
       verts.push(x, y, z);
       const hue = Math.random() * 360;
       const col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
       cols.push(col.r, col.g, col.b);
     }
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); // Fixed syntax
     geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const mat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true });
+    const mat = new THREE.PointsMaterial({ size: 0.5, vertexColors: true, transparent: true }); // Increased size
     const particles = new THREE.Points(geo, mat);
     scene.add(particles);
     let opacity = 1;
@@ -760,7 +776,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
         clearInterval(fade);
       }
     }, 50);
-    new Tone.Synth().toDestination().triggerAttackRelease("C5", "2n");
   }
 
   // — Enhanced Weather (Rain and Snow) —
@@ -783,7 +798,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
       geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
       const mat = new THREE.PointsMaterial({ 
-        size: weatherType === 'rain' ? 0.1 : 0.2, 
+        size: weatherType === 'rain' ? 0.2 : 0.3, // Increased size
         vertexColors: true, 
         transparent: true, 
         opacity: 0.8 
@@ -805,8 +820,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   const languageSelect = document.getElementById('languageSelect');
   const speedSlider = document.getElementById('speedSlider');
   const colorThemeSelect = document.getElementById('colorTheme');
-  const ambientMusicToggle = document.getElementById('ambientMusicToggle');
-  const transitionSoundsToggle = document.getElementById('transitionSoundsToggle');
   const settingsPanel = document.getElementById('settingsPanel');
   const settingsButton = document.getElementById('settingsButton');
   const saveSettings = document.getElementById('saveSettings');
@@ -841,8 +854,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   // — Load user settings from localStorage —
   const savedSettings = JSON.parse(localStorage.getItem('fractalSanctuarySettings')) || {};
   let meditationSpeed = 1;
-  let enableAmbientMusic = true;
-  let enableTransitionSounds = true;
   let username = '';
   if (savedSettings.language) languageSelect.value = savedSettings.language;
   if (savedSettings.meditationSpeed) {
@@ -852,14 +863,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   if (savedSettings.colorTheme) {
     colorTheme = savedSettings.colorTheme;
     colorThemeSelect.value = savedSettings.colorTheme;
-  }
-  if (savedSettings.enableAmbientMusic !== undefined) {
-    enableAmbientMusic = savedSettings.enableAmbientMusic;
-    ambientMusicToggle.checked = savedSettings.enableAmbientMusic;
-  }
-  if (savedSettings.enableTransitionSounds !== undefined) {
-    enableTransitionSounds = savedSettings.enableTransitionSounds;
-    transitionSoundsToggle.checked = savedSettings.enableTransitionSounds;
   }
 
   // — Profile & stage logic —
@@ -876,6 +879,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   // — Voice and Language Selection —
   let voices = [];
+  let selectedVoiceData = null;
   function populateVoices() {
     voices = speechSynthesis.getVoices();
     const uniqueLangs = [...new Set(voices.map(voice => voice.lang))];
@@ -891,22 +895,45 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       .map((voice, index) => 
         `<option value="${voices.indexOf(voice)}">${voice.name} (${voice.lang})</option>`
       ).join('');
+    if (selectedVoiceData) {
+      const matchingVoice = voices.find(voice => 
+        voice.name === selectedVoiceData.name && voice.lang === selectedVoiceData.lang
+      );
+      if (matchingVoice) {
+        voiceDropdown.value = voices.indexOf(matchingVoice);
+      } else {
+        selectedVoiceData = null;
+      }
+    }
+    if (!selectedVoiceData && voices[voiceDropdown.value]) {
+      const selectedVoice = voices[voiceDropdown.value];
+      selectedVoiceData = { name: selectedVoice.name, lang: selectedVoice.lang };
+    }
   }
-  speechSynthesis.onvoiceschanged = populateVoices;
+  speechSynthesis.onvoiceschanged = () => {
+    populateVoices();
+  };
   populateVoices();
   languageSelect.addEventListener('change', updateVoiceDropdown);
+  voiceDropdown.addEventListener('change', () => {
+    const selectedVoice = voices[voiceDropdown.value];
+    if (selectedVoice) {
+      selectedVoiceData = { name: selectedVoice.name, lang: selectedVoice.lang };
+    }
+  });
 
   // — Initial Narration on App Start —
   function speakWelcomeMessage() {
     const welcomeMessage = "Welcome to the Virtual Fractal Sanctuary! Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided journey.";
     const utterance = new SpeechSynthesisUtterance(welcomeMessage);
     utterance.rate = 0.8;
-    const selectedVoice = voices[voiceDropdown.value];
-    if (selectedVoice) utterance.voice = selectedVoice;
+    if (selectedVoiceData) {
+      const voice = voices.find(v => v.name === selectedVoiceData.name && v.lang === selectedVoiceData.lang);
+      if (voice) utterance.voice = voice;
+    }
     speechSynthesis.speak(utterance);
   }
 
-  // Delay the welcome message slightly to let the rain sound settle
   setTimeout(speakWelcomeMessage, 2000);
 
   // — Bubbles & enhanced pop effect with ripple —
@@ -916,7 +943,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     for (let i = 0; i < bubbleCount; i++) {
       const hue = isFunMode ? (currentDensity - 1) * 30 + Math.random() * 60 : Math.random() * 360;
       const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
-      const size = isFunMode ? (Math.random() * 0.4 + 0.2) : 0.3;
+      const size = isFunMode ? (Math.random() * 0.8 + 0.4) : 0.6; // Increased size
       const b = new THREE.Mesh(
         new THREE.SphereGeometry(size, 16, 16),
         new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.7 })
@@ -930,124 +957,23 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       scene.add(b);
       bubbles.push(b);
     }
+    console.log("Spawned", bubbleCount, "bubbles.");
   }
   spawnBubbles();
 
-  // — Audio Setup (Soundscapes) —
-  // Gentle Rain Sound
-  const rainSynth = new Tone.NoiseSynth({
-    noise: { type: "white" },
-    envelope: { attack: 1, decay: 0.2, sustain: 0.2, release: 2 } // Reduced sustain for a gentler sound
-  });
-  const rainFilter = new Tone.Filter({
-    type: "lowpass",
-    frequency: 500, // Lowered frequency for a softer sound
-    Q: 1
-  }).toDestination();
-  const rainVolume = new Tone.Volume(-40).toDestination(); // Lowered volume significantly
-  rainSynth.connect(rainFilter);
-  rainFilter.connect(rainVolume);
-  let rainLoop = null;
-
-  function startGentleRainSound() {
-    if (rainLoop) rainLoop.stop();
-    rainLoop = new Tone.Loop((time) => {
-      rainSynth.triggerAttackRelease("4n", time);
-    }, "0.5n").start(0);
-    Tone.Transport.start();
-  }
-
-  function stopGentleRainSound() {
-    if (rainLoop) {
-      rainLoop.stop();
-      rainLoop = null;
-    }
-    Tone.Transport.stop();
-  }
-
-  // Start the gentle rain sound on app load
-  startGentleRainSound();
-
-  // Modified Water Ripple Sound (Lower Pitch, Softer)
-  const waterRippleSynth = new Tone.Synth({
-    oscillator: { type: "sine" },
-    envelope: { attack: 0.5, decay: 1, sustain: 0.3, release: 2 }
-  }).toDestination();
-  let waterRippleLoop = null;
-
-  function startWaterRippleSound() {
-    if (waterRippleLoop) waterRippleLoop.stop();
-    waterRippleLoop = new Tone.Loop((time) => {
-      waterRippleSynth.triggerAttackRelease("G3", "8n", time);
-    }, "2n").start(0);
-    Tone.Transport.start();
-  }
-
-  function stopWaterRippleSound() {
-    if (waterRippleLoop) {
-      waterRippleLoop.stop();
-      waterRippleLoop = null;
-    }
-    Tone.Transport.stop();
-  }
-
-  const ambientSynth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: "sine" },
-    envelope: { attack: 1, decay: 1, sustain: 0.5, release: 2 }
-  }).toDestination();
-  let ambientLoop = null; // Fixed variable name
-
-  const transitionSynth = new Tone.Synth({
-    oscillator: { type: "triangle" },
-    envelope: { attack: 0.5, decay: 1, sustain: 0, release: 1 }
-  }).toDestination();
-
-  const soundscapeSynth = new Tone.Synth({
-    oscillator: { type: "sawtooth" },
-    envelope: { attack: 2, decay: 1, sustain: 0.3, release: 3 }
-  }).toDestination();
-  let soundscapeLoop = null;
-
-  function startAmbientMusic(density) {
-    if (!enableAmbientMusic) return;
-    if (ambientLoop) ambientLoop.stop();
-    if (soundscapeLoop) soundscapeLoop.stop();
-    ambientLoop = new Tone.Loop((time) => {
-      const note = 220 + (density - 1) * 20;
-      ambientSynth.triggerAttackRelease(note, "2n", time);
-    }, "4n").start(0);
-    soundscapeLoop = new Tone.Loop((time) => {
-      const note = 110 + (currentDimension - 1) * 10;
-      soundscapeSynth.triggerAttackRelease(note, "4n", time);
-    }, "8n").start(0);
-    Tone.Transport.start();
-  }
-
-  function stopAmbientMusic() {
-    if (ambientLoop) {
-      ambientLoop.stop();
-      ambientLoop = null;
-    }
-    if (soundscapeLoop) {
-      soundscapeLoop.stop();
-      soundscapeLoop = null;
-    }
-    Tone.Transport.stop();
-  }
-
-  function playTransitionSound() {
-    if (enableTransitionSounds) {
-      transitionSynth.triggerAttackRelease("G4", "8n");
-    }
-  }
-
+  // — Audio Setup (Bubble Pop Sound Only) —
   function createBurstEffect(pos, isFunMode) {
     const light = new THREE.PointLight(0xffffff, 1, 10);
-    light.position.copy(pos); scene.add(light);
+    light.position.copy(pos);
+    scene.add(light);
     let intensity = 1;
     const fade = setInterval(() => {
-      intensity -= 0.05; light.intensity = intensity;
-      if (intensity <= 0) { scene.remove(light); clearInterval(fade); }
+      intensity -= 0.05;
+      light.intensity = intensity;
+      if (intensity <= 0) {
+        scene.remove(light);
+        clearInterval(fade);
+      }
     }, 50);
 
     const spiralGeo = new THREE.BufferGeometry();
@@ -1066,7 +992,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     }
     spiralGeo.setAttribute('position', new THREE.Float32BufferAttribute(spiralVerts, 3));
     spiralGeo.setAttribute('color', new THREE.Float32BufferAttribute(spiralCols, 3));
-    const spiralMat = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, transparent: true });
+    const spiralMat = new THREE.PointsMaterial({ size: 0.2, vertexColors: true, transparent: true }); // Increased size
     const spiral = new THREE.Points(spiralGeo, spiralMat);
     scene.add(spiral);
     let spiralOpacity = 1;
@@ -1095,7 +1021,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     }
     fireworkGeo.setAttribute('position', new THREE.Float32BufferAttribute(fireworkVerts, 3));
     fireworkGeo.setAttribute('color', new THREE.Float32BufferAttribute(fireworkCols, 3));
-    const fireworkMat = new THREE.PointsMaterial({ size: 0.2, vertexColors: true, transparent: true });
+    const fireworkMat = new THREE.PointsMaterial({ size: 0.4, vertexColors: true, transparent: true }); // Increased size
     const firework = new THREE.Points(fireworkGeo, fireworkMat);
     scene.add(firework);
     let fireworkOpacity = 1;
@@ -1125,7 +1051,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       }
       rippleGeo.setAttribute('position', new THREE.Float32BufferAttribute(rippleVerts, 3));
       rippleGeo.setAttribute('color', new THREE.Float32BufferAttribute(rippleCols, 3));
-      const rippleMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true });
+      const rippleMat = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true }); // Increased size
       const ripple = new THREE.Points(rippleGeo, rippleMat);
       scene.add(ripple);
       let rippleScale = 1;
@@ -1143,7 +1069,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       }, 50);
 
       fractalPulse = 1.2;
-      new Tone.Synth().toDestination().triggerAttackRelease("E6", "16n");
     }
 
     createInteractionParticles(pos);
@@ -1256,24 +1181,28 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       const meditationNarration = meditationNarrations[D][d];
       const utterance = new SpeechSynthesisUtterance(meditationNarration.fullNarration);
       utterance.rate = 0.8;
-      const selectedVoice = voices[voiceDropdown.value];
-      if (selectedVoice) utterance.voice = selectedVoice;
+      if (selectedVoiceData) {
+        const voice = voices.find(v => v.name === selectedVoiceData.name && v.lang === selectedVoiceData.lang);
+        if (voice) utterance.voice = voice;
+      }
       speechSynthesis.speak(utterance);
 
       setTimeout(() => {
         const breathingUtterance = new SpeechSynthesisUtterance("Take a deep inhale and exhale between dimensions. Breathe in for 4 seconds. Hold for 2 seconds. Breathe out for 4 seconds.");
         breathingUtterance.rate = 0.8;
-        if (selectedVoice) breathingUtterance.voice = selectedVoice;
+        if (selectedVoiceData) {
+          const voice = voices.find(v => v.name === selectedVoiceData.name && v.lang === selectedVoiceData.lang);
+          if (voice) breathingUtterance.voice = voice;
+        }
         speechSynthesis.speak(breathingUtterance);
       }, 7000);
-
-      startAmbientMusic(currentDensity);
-      playTransitionSound();
     } else {
       const utterance = new SpeechSynthesisUtterance(stage.narration);
       utterance.rate = 0.8;
-      const selectedVoice = voices[voiceDropdown.value];
-      if (selectedVoice) utterance.voice = selectedVoice;
+      if (selectedVoiceData) {
+        const voice = voices.find(v => v.name === selectedVoiceData.name && v.lang === selectedVoiceData.lang);
+        if (voice) utterance.voice = voice;
+      }
       speechSynthesis.speak(utterance);
     }
 
@@ -1292,25 +1221,24 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     }
     lastDensity = currentDensity;
 
-    meditationIdx++;
-    if (meditationIdx < 108) {
-      currentDimension++;
-      if (currentDimension > 9) {
-        currentDimension = 1;
-        currentDensity++;
-        if (currentDensity > 12) currentDensity = 1;
+    const totalDelay = 30000 / meditationSpeed;
+    stageTimeout = setTimeout(() => {
+      if (!isMeditating) return;
+      meditationIdx++;
+      if (meditationIdx < 108) {
+        currentDimension++;
+        if (currentDimension > 9) {
+          currentDimension = 1;
+          currentDensity++;
+          if (currentDensity > 12) currentDensity = 1;
+        }
+        updateStage();
+      } else {
+        isMeditating = false;
+        messages.value += 'Meditation complete. Reflect on your journey.\n';
+        messages.scrollTop = messages.scrollHeight;
       }
-    } else {
-      isMeditating = false;
-      stopAmbientMusic();
-      messages.value += 'Meditation complete. Reflect on your journey.\n';
-      messages.scrollTop = messages.scrollHeight;
-      return;
-    }
-
-    if (isMeditating) {
-      stageTimeout = setTimeout(updateStage, 16000 / meditationSpeed);
-    }
+    }, totalDelay);
   }
 
   // — Settings Panel with User Profiles —
@@ -1324,9 +1252,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     username = usernameInput.value.trim();
     meditationSpeed = parseFloat(speedSlider.value);
     colorTheme = colorThemeSelect.value;
-    enableAmbientMusic = ambientMusicToggle.checked;
-    enableTransitionSounds = transitionSoundsToggle.checked;
-    if (!enableAmbientMusic) stopAmbientMusic();
     if (fractal) {
       scene.remove(fractal);
       scene.remove(fractalOverlay);
@@ -1339,9 +1264,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       username: username,
       language: languageSelect.value,
       meditationSpeed: meditationSpeed,
-      colorTheme: colorTheme,
-      enableAmbientMusic: enableAmbientMusic,
-      enableTransitionSounds: enableTransitionSounds
+      colorTheme: colorTheme
     };
     localStorage.setItem('fractalSanctuarySettings', JSON.stringify(settings));
     settingsPanel.style.display = 'none';
@@ -1358,8 +1281,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       username: username,
       meditationSpeed: meditationSpeed,
       colorTheme: colorTheme,
-      enableAmbientMusic: enableAmbientMusic,
-      enableTransitionSounds: enableTransitionSounds,
       language: languageSelect.value
     };
     const savedProfiles = JSON.parse(localStorage.getItem('fractalSanctuaryProfiles')) || {};
@@ -1387,14 +1308,9 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     }
     meditationSpeed = profileData.meditationSpeed || 1;
     colorTheme = profileData.colorTheme || 'vivid';
-    enableAmbientMusic = profileData.enableAmbientMusic !== undefined ? profileData.enableAmbientMusic : true;
-    enableTransitionSounds = profileData.enableTransitionSounds !== undefined ? profileData.enableTransitionSounds : true;
     languageSelect.value = profileData.language || languageSelect.value;
     speedSlider.value = meditationSpeed;
     colorThemeSelect.value = colorTheme;
-    ambientMusicToggle.checked = enableAmbientMusic;
-    transitionSoundsToggle.checked = enableTransitionSounds;
-    if (!enableAmbientMusic) stopAmbientMusic();
     if (fractal) {
       scene.remove(fractal);
       scene.remove(fractalOverlay);
@@ -1411,28 +1327,36 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   // — Zoom Controls —
   zoomInButton.addEventListener('click', () => {
-    fractalZoom = Math.max(0.5, fractalZoom - 0.1);
+    fractalZoom = Math.max(0.5, fractalZoom * 0.9);
     scene.remove(fractal);
     scene.remove(fractalOverlay);
     fractal = generateFractal(currentDensity);
     fractalOverlay = generateFractalOverlay(currentDensity);
+    fractal.scale.set(1 / fractalZoom, 1 / fractalZoom, 1);
+    fractalOverlay.scale.set(1 / fractalZoom, 1 / fractalZoom, 1);
+    fractal.material.uniforms.zoom.value = fractalZoom;
+    fractalOverlay.material.uniforms.zoom.value = fractalZoom;
     scene.add(fractal);
     scene.add(fractalOverlay);
-    messages.value += `Zoomed in to ${fractalZoom.toFixed(1)}x\n`;
+    messages.value += `Zoomed in to ${(1 / fractalZoom).toFixed(1)}x\n`;
     messages.scrollTop = messages.scrollHeight;
     optionsDropdown.style.display = 'none';
     optionsButton.textContent = 'Options ▼';
   });
 
   zoomOutButton.addEventListener('click', () => {
-    fractalZoom = Math.min(2.0, fractalZoom + 0.1);
+    fractalZoom = Math.min(2.0, fractalZoom * 1.1);
     scene.remove(fractal);
     scene.remove(fractalOverlay);
     fractal = generateFractal(currentDensity);
     fractalOverlay = generateFractalOverlay(currentDensity);
+    fractal.scale.set(1 / fractalZoom, 1 / fractalZoom, 1);
+    fractalOverlay.scale.set(1 / fractalZoom, 1 / fractalZoom, 1);
+    fractal.material.uniforms.zoom.value = fractalZoom;
+    fractalOverlay.material.uniforms.zoom.value = fractalZoom;
     scene.add(fractal);
     scene.add(fractalOverlay);
-    messages.value += `Zoomed out to ${fractalZoom.toFixed(1)}x\n`;
+    messages.value += `Zoomed out to ${(1 / fractalZoom).toFixed(1)}x\n`;
     messages.scrollTop = messages.scrollHeight;
     optionsDropdown.style.display = 'none';
     optionsButton.textContent = 'Options ▼';
@@ -1547,7 +1471,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       isMeditating = false;
       clearTimeout(stageTimeout);
       speechSynthesis.cancel();
-      stopAmbientMusic();
       messages.value += 'Meditation stopped.\n';
       messages.scrollTop = messages.scrollHeight;
     }
@@ -1559,7 +1482,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     isMeditating = false;
     clearTimeout(stageTimeout);
     speechSynthesis.cancel();
-    stopAmbientMusic();
     currentDensity = 1;
     currentDimension = 1;
     meditationIdx = 0;
@@ -1585,15 +1507,12 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   document.getElementById('funModeButton').addEventListener('click', () => {
     isFunMode = true;
-    startWaterRippleSound();
-    stopAmbientMusic();
-    stopGentleRainSound(); // Stop rain in Fun Mode to focus on water ripple sounds
     bubbles.forEach(b => scene.remove(b));
     bubbles.length = 0;
     spawnBubbles();
     if (fractal) fractal.position.set(0, 0, 0);
     if (fractalOverlay) fractalOverlay.position.set(0, 0, 0);
-    messages.value += 'Fun Mode activated! Pop bubbles to see fireworks and hear water ripples.\n';
+    messages.value += 'Fun Mode activated! Pop bubbles to see fireworks and hear the pop.\n';
     messages.scrollTop = messages.scrollHeight;
     optionsDropdown.style.display = 'none';
     optionsButton.textContent = 'Options ▼';
@@ -1601,8 +1520,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   document.getElementById('meditationModeButton').addEventListener('click', () => {
     isFunMode = false;
-    stopWaterRippleSound();
-    startGentleRainSound(); // Restart gentle rain in Meditation Mode
     bubbles.forEach(b => scene.remove(b));
     bubbles.length = 0;
     spawnBubbles();
@@ -1615,8 +1532,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   // — Initial fractal —
   fractal = generateFractal(currentDensity);
   fractalOverlay = generateFractalOverlay(currentDensity);
-  scene
-  .add(fractal);
+  scene.add(fractal);
   scene.add(fractalOverlay);
 
   // — Raycaster for bubble pop and fractal interaction —
@@ -1641,7 +1557,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     raycaster.setFromCamera(mouse, camera);
     const hits = raycaster.intersectObjects([fractal, fractalOverlay]);
     if (hits.length && !isFunMode) {
-      cReal += (Math.random() - 0.5) * 0.1;
+      cReal += (Math.random() - 0.5) * 0.1; // Fixed syntax
       cImag += (Math.random() - 0.5) * 0.1;
       scene.remove(fractal);
       scene.remove(fractalOverlay);
@@ -1649,6 +1565,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       fractalOverlay = generateFractalOverlay(currentDensity);
       scene.add(fractal);
       scene.add(fractalOverlay);
+      messages.value
       messages.value += "Fractal parameters adjusted! New shape generated.\n";
       messages.scrollTop = messages.scrollHeight;
     }
@@ -1688,8 +1605,8 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   window.addEventListener('click', e => {
     if (!renderer.xr.isPresenting) {
-      mouse.x = (e.clientX / innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
       popBubbles();
       if (!isDragging) interactWithFractal();
       const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
@@ -1739,92 +1656,85 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   }
 
   // — Animation loop —
-  function animate(timestamp) {
-    renderer.setAnimationLoop(() => {
-      updateFPS(timestamp);
-      updateFractalColors(timestamp);
-      if (!isFunMode) {
-        animateFractalParameters(timestamp);
+  renderer.setAnimationLoop(timestamp => {
+    updateFPS(timestamp);
+    updateFractalColors(timestamp);
+    if (!isFunMode) {
+      animateFractalParameters(timestamp);
+    }
+    if (fractal) {
+      // Smooth, natural rotation
+      const time = timestamp * 0.001;
+      fractal.rotation.x = Math.sin(time * 0.2) * 0.5;
+      fractal.rotation.y = Math.cos(time * 0.3) * 0.5;
+      fractalOverlay.rotation.x = Math.sin(time * 0.2) * 0.5;
+      fractalOverlay.rotation.y = Math.cos(time * 0.3) * 0.5;
+      if (isFunMode) {
+        fractal.position.set(0, 0, 0);
+        fractalOverlay.position.set(0, 0, 0);
       }
-      if (fractal) {
-        if (isFunMode) {
-          fractal.position.set(0, 0, 0);
-          fractalOverlay.position.set(0, 0, 0);
-          fractal.rotation.x += 0.005;
-          fractal.rotation.y += 0.005;
-          fractalOverlay.rotation.x += 0.005;
-          fractalOverlay.rotation.y += 0.005;
-        } else {
-          fractal.rotation.x += 0.001;
-          fractal.rotation.y += 0.001;
-          fractalOverlay.rotation.x += 0.001;
-          fractalOverlay.rotation.y += 0.001;
-        }
-        if (fractalPulse > 1) {
-          fractalPulse -= 0.02;
-          fractal.scale.set(fractalPulse, fractalPulse, fractalPulse);
-          fractalOverlay.scale.set(fractalPulse, fractalPulse, fractalPulse);
-        }
-        fractal.material.uniforms.time.value = timestamp * 0.001;
-        fractalOverlay.material.uniforms.time.value = timestamp * 0.001;
-      }
-      const time = Date.now() * 0.001;
-      light.position.x = Math.sin(time) * 15;
-      light.position.y = Math.cos(time) * 15;
-      light.position.z = Math.sin(time) * 15;
-      bubbles.forEach(b => {
-        b.position.add(b.userData.vel);
-        ['x', 'y', 'z'].forEach(ax => {
-          if (Math.abs(b.position[ax]) > 20) b.userData.vel[ax] *= -1;
-        });
+      // Breathing effect
+      fractalPulse = 1 + Math.sin(time * 0.5) * 0.1; // Continuous breathing
+      fractal.scale.set(fractalPulse / fractalZoom, fractalPulse / fractalZoom, 1); // 2D scaling
+      fractalOverlay.scale.set(fractalPulse / fractalZoom, fractalPulse / fractalZoom, 1);
+      fractal.material.uniforms.time.value = time;
+      fractalOverlay.material.uniforms.time.value = time;
+    }
+    const time = Date.now() * 0.001;
+    light.position.x = Math.sin(time) * 15;
+    light.position.y = Math.cos(time) * 15;
+    light.position.z = Math.sin(time) * 15;
+    bubbles.forEach(b => {
+      b.position.add(b.userData.vel);
+      ['x', 'y', 'z'].forEach(ax => {
+        if (Math.abs(b.position[ax]) > 20) b.userData.vel[ax] *= -1;
       });
-      rippleParticles.forEach(r => {
-        r.phase += 0.02;
-        const positions = r.mesh.geometry.attributes.position.array;
-        for (let i = 0; i < positions.length; i += 3) {
-          const angle = Math.atan2(positions[i + 1], positions[i]);
-          const radius = Math.sqrt(positions[i] * positions[i] + positions[i + 1] * positions[i + 1]);
-          positions[i + 2] = Math.sin(r.phase + angle) * 1;
-        }
-        r.mesh.geometry.attributes.position.needsUpdate = true;
-      });
-      interactionParticles.forEach(p => {
-        const positions = p.mesh.geometry.attributes.position.array;
-        const velocities = p.mesh.geometry.attributes.velocity.array;
-        for (let i = 0; i < positions.length / 3; i++) {
-          positions[i * 3] += velocities[i * 3];
-          positions[i * 3 + 1] += velocities[i * 3 + 1];
-          positions[i * 3 + 2] += velocities[i * 3 + 2];
-        }
-        p.mesh.geometry.attributes.position.needsUpdate = true;
-        p.opacity -= 0.02;
-        p.mesh.material.opacity = p.opacity;
-        if (p.opacity <= 0) {
-          scene.remove(p.mesh);
-          interactionParticles.splice(interactionParticles.indexOf(p), 1);
-        }
-      });
-      if (weatherType !== 'none') {
-        weatherParticles.forEach(p => {
-          p.mesh.position.y += p.velocity;
-          p.mesh.position.x += Math.sin(time + p.sway) * p.sway;
-          if (p.mesh.position.y < -50) {
-            p.mesh.position.y = 50;
-            p.mesh.position.x = (Math.random() - 0.5) * 50;
-            p.mesh.position.z = (Math.random() - 0.5) * 50;
-          }
-        });
-      }
-      controls.update();
-      renderer.render(scene, camera);
     });
-  }
-  animate(0);
+    rippleParticles.forEach(r => {
+      r.phase += 0.02;
+      const positions = r.mesh.geometry.attributes.position.array;
+      for (let i = 0; i < positions.length; i += 3) {
+        const angle = Math.atan2(positions[i + 1], positions[i]);
+        const radius = Math.sqrt(positions[i] * positions[i] + positions[i + 1] * positions[i + 1]);
+        positions[i + 2] = Math.sin(r.phase + angle) * 1;
+      }
+      r.mesh.geometry.attributes.position.needsUpdate = true;
+    });
+    interactionParticles.forEach(p => {
+      const positions = p.mesh.geometry.attributes.position.array;
+      const velocities = p.mesh.geometry.attributes.velocity.array;
+      for (let i = 0; i < positions.length / 3; i++) {
+        positions[i * 3] += velocities[i * 3];
+        positions[i * 3 + 1] += velocities[i * 3 + 1];
+        positions[i * 3 + 2] += velocities[i * 3 + 2];
+      }
+      p.mesh.geometry.attributes.position.needsUpdate = true;
+      p.opacity -= 0.02;
+      p.mesh.material.opacity = p.opacity;
+      if (p.opacity <= 0) {
+        scene.remove(p.mesh);
+        interactionParticles.splice(interactionParticles.indexOf(p), 1);
+      }
+    });
+    if (weatherType !== 'none') {
+      weatherParticles.forEach(p => {
+        p.mesh.position.y += p.velocity;
+        p.mesh.position.x += Math.sin(time + p.sway) * p.sway;
+        if (p.mesh.position.y < -50) {
+          p.mesh.position.y = 50;
+          p.mesh.position.x = (Math.random() - 0.5) * 50;
+          p.mesh.position.z = (Math.random() - 0.5) * 50;
+        }
+      });
+    }
+    controls.update();
+    renderer.render(scene, camera);
+  });
 
   window.addEventListener('resize', () => {
-    camera.aspect = innerWidth / innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
   });
   </script>
 </body>
