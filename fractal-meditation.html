@@ -67,3 +67,671 @@
     <p>This is a placeholder for the Fractal Meditation project. Add your project content here.</p>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fractalverse 3D VR Therapeutic Adaptation Enhanced</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; }
+    #vrButton { position: absolute; bottom: 20px; right: 20px; padding: 10px; background: #fff; border: none; cursor: pointer; }
+    #controls {
+      position: absolute; bottom: 10px; left: 50%;
+      transform: translateX(-50%);
+      width: 80%; max-width: 800px;
+      text-align: center;
+      color: #fff; font-family: Arial;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 10px;
+    }
+    button { margin: 5px; padding: 5px 10px; }
+    p { margin: 5px 0; }
+    #tooltip {
+      position: absolute; top: 50px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: Arial;
+      font-size: 14px;
+      pointer-events: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <button id="vrButton">Enter VR</button>
+  <div id="controls">
+    <p>Mode: <span id="mode">Exploration</span></p>
+    <p>Heart Rate Simulation: <span id="heartRate">60</span> BPM</p>
+    <p>Stress Level: <span id="stressLevel">50</span>%</p>
+    <p>Energy Points Collected: <span id="energyPoints">0</span></p>
+    <button id="calmMode">Toggle Calm Mode</button>
+    <button id="mindfulness">Start Mindfulness</button>
+    <button id="rehab">Start Rehab Task</button>
+  </div>
+  <div id="tooltip"></div>
+  <script>
+    // CONFIG
+    const BLOCK = 20;
+    const CHUNK_SIZE = 32;
+    const RENDER_DISTANCE = 2;
+    const FRACTAL_SCALE = 2.0;
+    const FRACTAL_POWER = 8.0;
+
+    class FractalverseTherapy {
+      constructor() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(this.renderer.domElement);
+
+        // Enable WebXR for VR
+        this.renderer.xr.enabled = true;
+
+        // Camera and Controls
+        this.camera.position.set(0, 0, 10);
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enablePan = true;
+        this.controls.enableZoom = true;
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
+
+        // VR Controllers
+        this.controller1 = this.renderer.xr.getController(0);
+        this.controller2 = this.renderer.xr.getController(1);
+        this.scene.add(this.controller1);
+        this.scene.add(this.controller2);
+        this.raycaster = new THREE.Raycaster();
+        this.controller1.addEventListener('select', () => this.onControllerSelect());
+        this.controller2.addEventListener('select', () => this.onControllerSelect());
+
+        // Mouse Interaction
+        this.mouse = new THREE.Vector2();
+        this.raycasterMouse = new THREE.Raycaster();
+
+        // Lighting
+        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(this.ambientLight);
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        this.directionalLight.position.set(-1, -1, -1).normalize();
+        this.directionalLight.castShadow = true;
+        this.scene.add(this.directionalLight);
+
+        // State
+        this.time = 0;
+        this.lastMetricUpdate = 0;
+        this.energyPoints = [];
+        this.particles = [];
+        this.bubbles = [];
+        this.energyPointsCollected = 0;
+        this.calmMode = false;
+        this.mindfulnessMode = false;
+        this.rehabMode = false;
+        this.heartRate = 60;
+        this.targetHeartRate = 60;
+        this.stressLevel = 50;
+        this.targetStressLevel = 50;
+        this.keys = {};
+        this.sphereRadius = 500; // Initial radius of the fractal sphere
+
+        // Player
+        this.player = new THREE.Vector3(0, 0, 0);
+        const playerGeo = new THREE.SphereGeometry(5, 32, 32);
+        const playerMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+        this.playerMesh = new THREE.Mesh(playerGeo, playerMat);
+        this.playerMesh.castShadow = true;
+        this.playerMesh.position.copy(this.player);
+        this.scene.add(this.playerMesh);
+
+        // Virtual Guide (Glowing Orb)
+        const guideGeo = new THREE.SphereGeometry(3, 16, 16);
+        const guideMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.8 });
+        this.guide = new THREE.Mesh(guideGeo, guideMat);
+        this.guide.position.set(0, 0, -20);
+        this.scene.add(this.guide);
+        this.guide.visible = false;
+
+        // Enhanced Fractal Material with Ripple Effect
+        this.fractalMaterial = new THREE.ShaderMaterial({
+          side: THREE.BackSide,
+          uniforms: {
+            time: { value: 0 },
+            scale: { value: FRACTAL_SCALE },
+            power: { value: FRACTAL_POWER },
+            calmMode: { value: false },
+            mindfulnessMode: { value: false },
+            lightIntensity: { value: 1.0 },
+            sphereRadius: { value: this.sphereRadius }
+          },
+          vertexShader: `
+            varying vec3 vPosition;
+            varying vec3 vNormal;
+            uniform float time;
+            uniform float sphereRadius;
+            uniform bool mindfulnessMode;
+            void main() {
+              vPosition = position;
+              vNormal = normal;
+              vec3 newPosition = position;
+              if (mindfulnessMode) {
+                float scale = 1.0 + 0.1 * sin(time * 0.5); // Breathing effect
+                newPosition *= scale;
+              }
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+            }
+          `,
+          fragmentShader: `
+            uniform float time;
+            uniform float scale;
+            uniform float power;
+            uniform float lightIntensity;
+            uniform bool calmMode;
+            uniform bool mindfulnessMode;
+            uniform float sphereRadius;
+            varying vec3 vPosition;
+            varying vec3 vNormal;
+            float mandelbulb(vec3 pos) {
+              vec3 z = pos;
+              float dr = 1.0;
+              float r = 0.0;
+              for (int i = 0; i < 10; i++) {
+                r = length(z);
+                if (r > 2.0) break;
+                float theta = acos(z.z / r) * power;
+                float phi = atan(z.y, z.x) * power;
+                float zr = pow(r, power);
+                dr = pow(r, power - 1.0) * power * dr + 1.0;
+                z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+                z += pos;
+              }
+              return 0.5 * log(r) * r / dr;
+            }
+            void main() {
+              vec3 pos = vPosition / scale;
+              float d = mandelbulb(pos);
+              float hue = calmMode ? 0.5 + 0.2 * sin(time) : 0.8 + 0.2 * sin(d * 10.0 + time);
+              vec3 color = calmMode ? vec3(0.4, 0.7, 1.0) : vec3(hue, 0.6 + 0.2 * sin(time), 0.5);
+              if (mindfulnessMode) {
+                float ripple = sin(length(vPosition) * 0.02 - time * 2.0) * 0.1;
+                color += vec3(0.0, 0.1, 0.2) * ripple; // Water ripple effect
+              }
+              vec3 lightDir = normalize(vec3(-1.0, -1.0, -1.0));
+              float diff = max(dot(vNormal, lightDir), 0.0) * lightIntensity;
+              color = color * (0.5 + 0.5 * diff);
+              gl_FragColor = vec4(color, 1.0);
+            }
+          `
+        });
+
+        // Fractal Terrain (Large sphere for VR skybox)
+        this.terrain = new THREE.Mesh(new THREE.SphereGeometry(this.sphereRadius, 128, 128), this.fractalMaterial);
+        this.terrain.position.set(0, 0, 0);
+        this.scene.add(this.terrain);
+
+        // 3D UI in VR
+        const uiGeo = new THREE.PlaneGeometry(100, 50);
+        const uiCanvas = document.createElement('canvas');
+        uiCanvas.width = 512;
+        uiCanvas.height = 256;
+        this.uiContext = uiCanvas.getContext('2d');
+        this.uiTexture = new THREE.CanvasTexture(uiCanvas);
+        const uiMat = new THREE.MeshBasicMaterial({ map: this.uiTexture, transparent: true });
+        this.uiPlane = new THREE.Mesh(uiGeo, uiMat);
+        this.uiPlane.position.set(0, -20, -50);
+        this.scene.add(this.uiPlane);
+        this.updateVRUI();
+
+        // Audio (Simulated with state changes)
+        this.audioState = 'silent';
+
+        // Initialize
+        this.setup();
+      }
+
+      setup() {
+        this.spawnEnergyPoints();
+        this.setupEventListeners();
+        this.animate();
+      }
+
+      setupEventListeners() {
+        document.getElementById('vrButton').addEventListener('click', () => {
+          if (this.renderer.xr.getSession()) {
+            this.renderer.xr.getSession().end();
+          } else if (navigator.xr) {
+            navigator.xr.requestSession('immersive-vr', {
+              optionalFeatures: ['local-floor', 'bounded-floor']
+            }).then(session => {
+              this.renderer.xr.setSession(session);
+            }).catch(err => {
+              console.error('Failed to start VR session:', err);
+              alert('Failed to start VR session. Please ensure your device supports WebXR.');
+            });
+          } else {
+            alert('WebXR not supported on this browser');
+          }
+        });
+
+        document.getElementById('calmMode').addEventListener('click', () => {
+          this.calmMode = !this.calmMode;
+          this.mindfulnessMode = false;
+          this.rehabMode = false;
+          this.fractalMaterial.uniforms.calmMode.value = this.calmMode;
+          this.fractalMaterial.uniforms.mindfulnessMode.value = false;
+          this.audioState = this.calmMode ? 'calm_ambient' : 'silent';
+          this.guide.visible = false;
+          this.updateMode();
+          this.showTooltip(this.calmMode ? "Calm Mode Activated: Relax and Explore" : "Calm Mode Deactivated");
+        });
+
+        document.getElementById('mindfulness').addEventListener('click', () => {
+          this.mindfulnessMode = !this.mindfulnessMode;
+          this.calmMode = this.mindfulnessMode;
+          this.rehabMode = false;
+          this.fractalMaterial.uniforms.calmMode.value = this.calmMode;
+          this.fractalMaterial.uniforms.mindfulnessMode.value = this.mindfulnessMode;
+          this.audioState = this.mindfulnessMode ? 'ocean_waves' : 'silent';
+          this.guide.visible = this.mindfulnessMode;
+          this.updateMode();
+          if (this.mindfulnessMode) {
+            this.startMindfulness();
+          } else {
+            this.showTooltip("Mindfulness Session Ended");
+          }
+        });
+
+        document.getElementById('rehab').addEventListener('click', () => {
+          this.rehabMode = !this.rehabMode;
+          this.calmMode = false;
+          this.mindfulnessMode = false;
+          this.fractalMaterial.uniforms.calmMode.value = false;
+          this.fractalMaterial.uniforms.mindfulnessMode.value = false;
+          this.audioState = this.rehabMode ? 'gentle_chimes' : 'silent';
+          this.guide.visible = this.rehabMode;
+          this.updateMode();
+          if (this.rehabMode) {
+            this.startRehabTask();
+          } else {
+            this.showTooltip("Rehab Task Ended");
+          }
+        });
+
+        document.addEventListener('keydown', (event) => this.onKeyDown(event));
+        document.addEventListener('keyup', (event) => this.onKeyUp(event));
+        window.addEventListener('resize', () => this.onWindowResize());
+        document.addEventListener('mousemove', (event) => this.onMouseMove(event));
+        document.addEventListener('click', () => this.onMouseClick());
+      }
+
+      onMouseMove(event) {
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      }
+
+      onMouseClick() {
+        if (this.renderer.xr.getSession()) return; // Disable mouse clicks in VR
+        this.raycasterMouse.setFromCamera(this.mouse, this.camera);
+        const intersects = this.raycasterMouse.intersectObjects(this.energyPoints.map(p => p.mesh));
+        if (intersects.length > 0) {
+          const point = this.energyPoints.find(p => p.mesh === intersects[0].object);
+          if (point) {
+            const index = this.energyPoints.indexOf(point);
+            this.scene.remove(point.mesh);
+            this.energyPoints.splice(index, 1);
+            this.energyPointsCollected++;
+            this.targetStressLevel = Math.max(0, this.targetStressLevel - 5);
+            this.spawnFractalBurst(point.pos);
+            this.scheduleBubbles(point.pos);
+            this.updateUI();
+            this.showTooltip("Energy Point Popped! Light Fractals Burst.");
+            if (this.rehabMode && this.energyPoints.length === 0) {
+              this.showTooltip("Rehab Task Complete! Well Done!");
+              this.rehabMode = false;
+              this.guide.visible = false;
+              this.spawnEnergyPoints();
+            }
+          }
+        }
+      }
+
+      spawnFractalBurst(position) {
+        for (let i = 0; i < 20; i++) {
+          const geo = new THREE.SphereGeometry(1, 8, 8);
+          const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+          const particle = new THREE.Mesh(geo, mat);
+          particle.position.copy(position);
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.random() * Math.PI;
+          const r = 5 + Math.random() * 5;
+          particle.velocity = new THREE.Vector3(
+            Math.sin(phi) * Math.cos(theta) * r,
+            Math.sin(phi) * Math.sin(theta) * r,
+            Math.cos(phi) * r
+          );
+          particle.life = 60;
+          particle.fractalMotion = true;
+          this.scene.add(particle);
+          this.particles.push(particle);
+        }
+      }
+
+      scheduleBubbles(position) {
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => {
+            this.spawnBubble(position);
+          }, Math.random() * 3000 + 1000); // Random delay between 1-4 seconds
+        }
+      }
+
+      spawnBubble(position) {
+        const geo = new THREE.SphereGeometry(3, 16, 16);
+        const mat = new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.5 });
+        const bubble = new THREE.Mesh(geo, mat);
+        bubble.position.copy(position).add(new THREE.Vector3(
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 20
+        ));
+        bubble.velocity = new THREE.Vector3(0, 2, 0);
+        bubble.life = 100;
+        this.scene.add(bubble);
+        this.bubbles.push(bubble);
+      }
+
+      updateBubbles() {
+        for (let i = this.bubbles.length - 1; i >= 0; i--) {
+          const bubble = this.bubbles[i];
+          bubble.position.add(bubble.velocity);
+          bubble.life--;
+          bubble.material.opacity = bubble.life / 100 * 0.5;
+          bubble.scale.setScalar(1 + Math.sin(bubble.life * 0.1) * 0.2);
+          if (bubble.life <= 0) {
+            this.scene.remove(bubble);
+            this.bubbles.splice(i, 1);
+          }
+        }
+      }
+
+      onControllerSelect() {
+        this.raycaster.setFromCamera({ x: 0, y: 0 }, this.camera);
+        const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
+        this.camera.position.add(direction.multiplyScalar(5));
+        this.player.copy(this.camera.position);
+        this.playerMesh.position.copy(this.player);
+
+        if (this.rehabMode) {
+          this.checkEnergyPoints();
+        }
+      }
+
+      spawnEnergyPoints() {
+        this.energyPoints = [];
+        for (let i = 0; i < 10; i++) {
+          const x = (Math.random() - 0.5) * 400;
+          const y = (Math.random() - 0.5) * 400;
+          const z = (Math.random() - 0.5) * 400;
+          const geo = new THREE.SphereGeometry(5, 16, 16);
+          const mat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.set(x, y, z);
+          mesh.castShadow = true;
+          this.scene.add(mesh);
+          this.energyPoints.push({ pos: new THREE.Vector3(x, y, z), mesh, scale: 1.0 });
+        }
+      }
+
+      checkEnergyPoints() {
+        for (let i = this.energyPoints.length - 1; i >= 0; i--) {
+          const point = this.energyPoints[i];
+          if (this.player.distanceTo(point.pos) < 20) {
+            this.scene.remove(point.mesh);
+            this.energyPoints.splice(i, 1);
+            this.energyPointsCollected++;
+            this.targetStressLevel = Math.max(0, this.targetStressLevel - 5);
+            this.spawnFractalBurst(point.pos);
+            this.scheduleBubbles(point.pos);
+            this.updateUI();
+            this.showTooltip("Energy Point Collected! Keep Moving.");
+            if (this.rehabMode && this.energyPoints.length === 0) {
+              this.showTooltip("Rehab Task Complete! Well Done!");
+              this.rehabMode = false;
+              this.guide.visible = false;
+              this.spawnEnergyPoints();
+            }
+          }
+        }
+      }
+
+      spawnParticles(position) {
+        for (let i = 0; i < 10; i++) {
+          const geo = new THREE.SphereGeometry(1, 8, 8);
+          const mat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.8 });
+          const particle = new THREE.Mesh(geo, mat);
+          particle.position.copy(position);
+          particle.velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 5,
+            (Math.random() - 0.5) * 5,
+            (Math.random() - 0.5) * 5
+          );
+          particle.life = 50;
+          this.scene.add(particle);
+          this.particles.push(particle);
+        }
+      }
+
+      updateParticles() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const particle = this.particles[i];
+          if (particle.fractalMotion) {
+            const t = (60 - particle.life) * 0.1;
+            const r = 5 + t;
+            const theta = t + particle.velocity.x;
+            const phi = t + particle.velocity.y;
+            particle.position.set(
+              particle.position.x + Math.sin(phi) * Math.cos(theta) * 0.5,
+              particle.position.y + Math.sin(phi) * Math.sin(theta) * 0.5,
+              particle.position.z + Math.cos(phi) * 0.5
+            );
+          } else {
+            particle.position.add(particle.velocity);
+          }
+          particle.life--;
+          particle.material.opacity = particle.life / (particle.fractalMotion ? 60 : 50);
+          if (particle.life <= 0) {
+            this.scene.remove(particle);
+            this.particles.splice(i, 1);
+          }
+        }
+      }
+
+      startMindfulness() {
+        this.showTooltip("Mindfulness Session Started: Focus on Your Breathing");
+        let step = 0;
+        const mindfulnessSteps = [
+          "Inhale deeply as the fractals glow brighter...",
+          "Exhale slowly, feel the terrain pulse with your breath...",
+          "Notice the colors shifting, stay present..."
+        ];
+        const mindfulnessInterval = setInterval(() => {
+          if (!this.mindfulnessMode) {
+            clearInterval(mindfulnessInterval);
+            this.guide.visible = false;
+            return;
+          }
+          this.showTooltip(mindfulnessSteps[step]);
+          this.targetHeartRate = Math.max(50, this.targetHeartRate - 2);
+          this.targetStressLevel = Math.max(0, this.targetStressLevel - 3);
+          this.updateUI();
+          step = (step + 1) % mindfulnessSteps.length;
+        }, 5000);
+
+        // Guide movement
+        this.guideMovementInterval = setInterval(() => {
+          if (!this.mindfulnessMode) {
+            clearInterval(this.guideMovementInterval);
+            return;
+          }
+          const t = this.time * 0.5;
+          this.guide.position.set(
+            Math.sin(t) * 30,
+            Math.cos(t) * 30,
+            -20 + Math.sin(t * 0.3) * 10
+          );
+        }, 16);
+      }
+
+      startRehabTask() {
+        this.showTooltip("Rehab Task Started: Collect Energy Points by Moving in VR");
+        this.energyPointsCollected = 0;
+        this.spawnEnergyPoints();
+        this.updateUI();
+
+        // Guide movement towards nearest energy point
+        this.guideMovementInterval = setInterval(() => {
+          if (!this.rehabMode || this.energyPoints.length === 0) {
+            clearInterval(this.guideMovementInterval);
+            return;
+          }
+          let nearestPoint = this.energyPoints[0];
+          let minDist = this.player.distanceTo(nearestPoint.pos);
+          for (let i = 1; i < this.energyPoints.length; i++) {
+            const dist = this.player.distanceTo(this.energyPoints[i].pos);
+            if (dist < minDist) {
+              minDist = dist;
+              nearestPoint = this.energyPoints[i];
+            }
+          }
+          const dir = nearestPoint.pos.clone().sub(this.player).normalize();
+          this.guide.position.copy(this.player).add(dir.multiplyScalar(20));
+        }, 16);
+      }
+
+      updateMode() {
+        const modeText = this.calmMode ? "Calm Mode" : this.mindfulnessMode ? "Mindfulness Mode" : this.rehabMode ? "Rehab Mode" : "Exploration";
+        document.getElementById('mode').innerHTML = modeText;
+        this.updateVRUI();
+      }
+
+      updateVRUI() {
+        this.uiContext.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.uiContext.fillRect(0, 0, 512, 256);
+        this.uiContext.fillStyle = '#fff';
+        this.uiContext.font = '24px Arial';
+        this.uiContext.textAlign = 'center';
+        this.uiContext.fillText(`Mode: ${this.calmMode ? "Calm Mode" : this.mindfulnessMode ? "Mindfulness Mode" : this.rehabMode ? "Rehab Mode" : "Exploration"}`, 256, 50);
+        this.uiContext.fillText(`Heart Rate: ${Math.round(this.heartRate)} BPM`, 256, 100);
+        this.uiContext.fillText(`Stress Level: ${Math.round(this.stressLevel)}%`, 256, 150);
+        this.uiContext.fillText(`Energy Points: ${this.energyPointsCollected}`, 256, 200);
+        this.uiTexture.needsUpdate = true;
+      }
+
+      updateUI() {
+        document.getElementById('heartRate').innerHTML = Math.round(this.heartRate);
+        document.getElementById('stressLevel').innerHTML = Math.round(this.stressLevel);
+        document.getElementById('energyPoints').innerHTML = this.energyPointsCollected;
+        this.updateVRUI();
+      }
+
+      showTooltip(message) {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.innerText = message;
+        tooltip.style.display = 'block';
+        setTimeout(() => {
+          tooltip.style.display = 'none';
+        }, 3000);
+      }
+
+      animate() {
+        this.renderer.setAnimationLoop(() => {
+          this.time += 0.02;
+
+          // Update lighting for calm mode
+          if (this.calmMode || this.mindfulnessMode) {
+            this.ambientLight.intensity = 0.5 + 0.2 * Math.sin(this.time);
+            this.directionalLight.intensity = 0.8 + 0.2 * Math.cos(this.time);
+            this.fractalMaterial.uniforms.lightIntensity.value = 0.8 + 0.2 * Math.cos(this.time);
+          } else {
+            this.ambientLight.intensity = 0.5;
+            this.directionalLight.intensity = 1.0;
+            this.fractalMaterial.uniforms.lightIntensity.value = 1.0;
+          }
+          this.fractalMaterial.uniforms.time.value = this.time;
+
+          // Update energy points animation
+          this.energyPoints.forEach(point => {
+            point.scale = 1.0 + 0.2 * Math.sin(this.time * 2);
+            point.mesh.scale.set(point.scale, point.scale, point.scale);
+          });
+
+          // Update particles and bubbles
+          this.updateParticles();
+          this.updateBubbles();
+
+          // Update player position
+          this.updatePlayer();
+          this.checkEnergyPoints();
+
+          // Update heart rate and stress level (slower and smoother)
+          const now = Date.now();
+          if (now - this.lastMetricUpdate >= 500) {
+            if (!this.mindfulnessMode) {
+              this.targetHeartRate = 60 + Math.sin(this.time * 0.1) * 5;
+              this.targetStressLevel = 50 + Math.sin(this.time * 0.1) * 10;
+              if (this.rehabMode) {
+                this.targetStressLevel = Math.min(100, this.targetStressLevel + 1);
+              }
+            }
+            this.lastMetricUpdate = now;
+          }
+
+          // Smoothly interpolate heart rate and stress level
+          this.heartRate += (this.targetHeartRate - this.heartRate) * 0.05;
+          this.stressLevel += (this.targetStressLevel - this.stressLevel) * 0.05;
+          this.updateUI();
+
+          this.renderer.render(this.scene, this.camera);
+        });
+      }
+
+      updatePlayer() {
+        let isMoving = this.keys['a'] || this.keys['d'] || this.keys['w'] || this.keys['s'];
+        this.controls.enabled = !isMoving && !this.renderer.xr.getSession();
+
+        if (this.keys['a']) this.player.x -= 5;
+        if (this.keys['d']) this.player.x += 5;
+        if (this.keys['w']) this.player.y -= 5;
+        if (this.keys['s']) this.player.y += 5;
+
+        if (!this.renderer.xr.getSession()) {
+          this.playerMesh.position.copy(this.player);
+        }
+      }
+
+      onKeyDown(event) {
+        this.keys[event.key] = true;
+      }
+
+      onKeyUp(event) {
+        this.keys[event.key] = false;
+      }
+
+      onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    }
+
+    const game = new FractalverseTherapy();
+  </script>
+</body>
+</html>
