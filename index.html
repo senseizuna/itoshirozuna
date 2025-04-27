@@ -104,6 +104,33 @@
         nav a:hover {
             color: #FFD700;
         }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            min-width: 160px;
+            z-index: 1;
+            border-radius: 5px;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .dropdown-content a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
         section {
             padding: 40px;
             text-align: center;
@@ -187,6 +214,8 @@
             .pen-name { font-size: 1.2rem; }
             .book-cover { max-width: 200px; }
             nav a { margin: 0 10px; font-size: 1rem; }
+            .dropdown-content { min-width: 120px; }
+            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
         }
     </style>
 </head>
@@ -196,13 +225,24 @@
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#book">Books</a>
-        <a href="fractal-ai-research.html">Fractal AI Research</a>
-        <a href="fractal-meditation.html">Fractal Meditation</a>
-        <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
         <a href="blog.html">Blog</a>
+        <div class="dropdown">
+            <a href="#">Apps</a>
+            <div class="dropdown-content">
+                <a href="fractal-ai-research.html">Fractal AI Research</a>
+                <a href="fractal-meditation.html">Fractal Meditation</a>
+                <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+            </div>
+        </div>
         <a href="#contact">Contact</a>
-        <a href="https://x.com/senseizuna" target="_blank">X</a>
-        <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
+        <div class="dropdown">
+            <a href="#">Social Media</a>
+            <div class="dropdown-content">
+                <a href="https://x.com/senseizuna" target="_blank">X</a>
+                <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
+                <a href="https://tiktok.com/@itoshirozuna" target="_blank">TikTok</a>
+            </div>
+        </div>
     </nav>
     <section class="hero" id="home">
         <div class="hero-content">
@@ -252,6 +292,7 @@
         <p>Follow me on social media:</p>
         <a href="https://x.com/senseizuna" target="_blank">@senseizuna on X</a>
         <a href="https://instagram.com/itoshirozuna" target="_blank">@itoshirozuna on Instagram</a>
+        <a href="https://tiktok.com/@itoshirozuna" target="_blank">@itoshirozuna on TikTok</a>
         <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
     </footer>
     <script>
