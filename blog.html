@@ -12,6 +12,7 @@
             color: #fff;
             overflow-x: hidden;
             position: relative;
+            background: #0a0a23; /* Fallback background */
         }
         canvas {
             position: fixed;
@@ -22,13 +23,26 @@
             z-index: 0;
             background: linear-gradient(to bottom, #0a0a23, #1c2526);
         }
-        nav {
+        header {
             position: fixed;
             top: 0;
             width: 100%;
             background: rgba(0, 0, 0, 0.8);
-            padding: 10px 0;
             z-index: 2;
+            padding: 10px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #FFD700;
+            text-shadow: 0 0 5px #000;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 0;
         }
         nav a {
             color: #fff;
@@ -41,7 +55,7 @@
             color: #FFD700;
         }
         section {
-            padding: 40px;
+            padding: 100px 40px; /* Adjusted for header height */
             text-align: center;
             position: relative;
             z-index: 1;
@@ -50,6 +64,7 @@
             color: #FFD700;
             font-size: 2.5rem;
             text-shadow: 0 0 15px #000;
+            margin-bottom: 20px;
         }
         section p {
             color: #C0C0C0;
@@ -66,18 +81,18 @@
         article {
             margin: 40px 0;
             text-align: left;
-            max-width: 800px;
-            margin: 40px auto;
         }
         article h3 {
             color: #FFD700;
             font-size: 1.8rem;
             text-shadow: 0 0 10px #000;
+            margin-bottom: 10px;
         }
         article p {
             color: #C0C0C0;
             font-size: 1.2rem;
             text-shadow: 0 0 5px #000;
+            margin: 5px 0;
         }
         footer {
             background: rgba(0, 0, 0, 0.8);
@@ -85,6 +100,11 @@
             text-align: center;
             position: relative;
             z-index: 1;
+        }
+        footer p {
+            margin: 5px 0;
+            color: #C0C0C0;
+            text-shadow: 0 0 5px #000;
         }
         footer a {
             color: #FFD700;
@@ -96,24 +116,49 @@
             color: #e6c200;
         }
         @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.5rem; }
-            article h3 { font-size: 1.5rem; }
-            article p { font-size: 1rem; }
+            header h1 {
+                font-size: 1.2rem;
+            }
+            nav {
+                flex-wrap: wrap;
+                padding: 5px 0;
+            }
+            nav a {
+                margin: 5px 10px;
+                font-size: 1rem;
+            }
+            section {
+                padding: 80px 20px;
+            }
+            section h1 {
+                font-size: 2rem;
+            }
+            article h3 {
+                font-size: 1.5rem;
+            }
+            article p {
+                font-size: 1rem;
+            }
+            .content-box {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <canvas id="fractalCanvas"></canvas>
-    <nav>
-        <a href="index.html#home">Home</a>
-        <a href="index.html#about">About</a>
-        <a href="index.html#book">Book</a>
-        <a href="blog.html">Blog</a>
-        <a href="index.html#contact">Contact</a>
-        <a href="https://x.com/senseizuna" target="_blank">X</a>
-        <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
-    </nav>
+    <header>
+        <h1>Itoshiro Zuna</h1>
+        <nav>
+            <a href="index.html#home">Home</a>
+            <a href="index.html#about">About</a>
+            <a href="index.html#books">Books</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#apps">Apps</a>
+            <a href="index.html#contact">Contact</a>
+            <a href="index.html#social-media">Social Media</a>
+        </nav>
+    </header>
     <section>
         <div class="content-box">
             <h1>Blog</h1>
@@ -130,6 +175,7 @@
         <p>Follow me on social media:</p>
         <a href="https://x.com/senseizuna" target="_blank">@senseizuna on X</a>
         <a href="https://instagram.com/itoshirozuna" target="_blank">@itoshirozuna on Instagram</a>
+        <a href="https://www.tiktok.com/@itoshirozuna" target="_blank">@itoshirozuna on TikTok</a>
         <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
     </footer>
     <script>
