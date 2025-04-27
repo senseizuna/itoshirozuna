@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Itoshiro Zuna, author of The Fractal Symphony of Time, weaves the thread of eras. Explore a metaphysical journey through dimensions and consciousness.">
+    <title>Itoshiro Zuna | The Fractal Symphony of Time</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(to bottom, #0a0a23, #1c2526);
+        }
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-shadow: 0 0 15px #FFD700, 0 0 5px #000;
+        }
+        .pen-name {
+            font-size: 1.5rem;
+            color: #C0C0C0;
+            margin: 10px 0;
+            text-shadow: 0 0 10px #000;
+        }
+        .book-title {
+            font-size: 2rem;
+            color: #FFD700;
+            margin: 20px 0;
+            text-shadow: 0 0 10px #000;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #FFD700;
+            color: #0a0a23;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        .cta-button:hover {
+            transform: scale(1.1);
+        }
+        .book-cover {
+            max-width: 300px;
+            margin: 20px auto;
+            border: 2px solid #C0C0C0;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 0;
+            z-index: 3;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
+        }
+        nav a:hover {
+            color: #FFD700;
+        }
+        section {
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        section h2 {
+            color: #FFD700;
+            text-shadow: 0 0 10px #000;
+        }
+        section p {
+            color: #C0C0C0;
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: 0 0 5px #000;
+        }
+        section .content-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .contact-form label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #C0C0C0;
+            text-shadow: 0 0 5px #000;
+        }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+            color: #444;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .contact-form input:focus, .contact-form textarea:focus {
+            outline: none;
+            background: #fff;
+            border-color: #FFD700;
+        }
+        .contact-form button {
+            background: #FFD700;
+            color: #0a0a23;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .contact-form button:hover {
+            background: #e6c200;
+        }
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        footer a {
+            color: #FFD700;
+            text-decoration: none;
+            margin: 0 10px;
+            text-shadow: 0 0 5px #000;
+        }
+        footer a:hover {
+            color: #e6c200;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .book-title { font-size: 1.5rem; }
+            .pen-name { font-size: 1.2rem; }
+            .book-cover { max-width: 200px; }
+            nav a { margin: 0 10px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fractalCanvas"></canvas>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#book">Books</a>
+        <a href="fractal-ai-research.html">Fractal AI Research</a>
+        <a href="fractal-meditation.html">Fractal Meditation</a>
+        <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+        <a href="blog.html">Blog</a>
+        <a href="#contact">Contact</a>
+        <a href="https://x.com/senseizuna" target="_blank">X</a>
+        <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
+    </nav>
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Itoshiro Zuna</h1>
+            <p class="pen-name">One who weaves the thread of eras, carrying the name that arrives through hidden harbors</p>
+            <p class="book-title">The Fractal Symphony of Time</p>
+            <img src="images/book-cover.jpg" alt="The Fractal Symphony of Time Book Cover by Itoshiro Zuna" class="book-cover">
+            <a href="https://amzn.to/44CdNom" class="cta-button">Buy Now on Kindle</a>
+        </div>
+    </section>
+    <section id="about">
+        <div class="content-box">
+            <h2>About Itoshiro Zuna</h2>
+            <p>Itoshiro Zuna, meaning ‘one who weaves the thread of eras,’ is the pen name of a visionary author. Inspired by a childhood memory under a metal arch and a meditation vision with my boxer Akaya, I crafted *The Fractal Symphony of Time* to explore time as a living, fractal force. Dedicated to my wife, children, parents, and Akaya’s memory, this book is my invitation to see yourself as a creator in the cosmic melody.</p>
+        </div>
+    </section>
+    <section class="book-preview" id="book">
+        <div class="content-box">
+            <h2>Explore My Books</h2>
+            <p>A metaphysical journey through dimensions and consciousness.</p>
+            <div style="text-align: center; padding: 20px;">
+                <p style="font-size: 1.2rem; margin: 10px 0;">The Fractal Symphony of Time</p>
+                <a href="https://amzn.to/44CdNom" class="cta-button">Get Your Copy Now</a>
+                <p style="font-size: 1.2rem; margin: 20px 0;">When Realms Bleed: The World As I See It</p>
+                <a href="https://amzn.to/443m18U" class="cta-button">Get Your Copy Now</a>
+            </div>
+        </div>
+    </section>
+    <section id="contact">
+        <div class="content-box">
+            <h2>Contact Me</h2>
+            <p>Have a question or want to share your thoughts? Send me a message below.</p>
+            <div class="contact-form">
+                <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" required>
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" required>
+                    <label for="message">Message</label>
+                    <textarea name="message" id="message" rows="5" required></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>Follow me on social media:</p>
+        <a href="https://x.com/senseizuna" target="_blank">@senseizuna on X</a>
+        <a href="https://instagram.com/itoshirozuna" target="_blank">@itoshirozuna on Instagram</a>
+        <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
+    </footer>
+    <script>
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let time = 0;
+        const colors = [
+            'rgba(0, 255, 0, 0.5)',    // Green
+            'rgba(255, 215, 0, 0.5)',  // Gold
+            'rgba(192, 192, 192, 0.5)' // Silver
+        ];
+
+        function drawFlowerOfLife(x, y, radius, depth) {
+            if (depth <= 0) return;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = colors[depth % colors.length];
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            const offset = radius * Math.sin(time + depth) * 0.5;
+            const newRadius = radius * 0.5;
+            const positions = [
+                [x + (radius + offset), y],
+                [x - (radius + offset), y],
+                [x + (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
+                [x + (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)],
+                [x - (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
+                [x - (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)]
+            ];
+
+            for (const [px, py] of positions) {
+                drawFlowerOfLife(px, py, newRadius, depth - 1);
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 35, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const gridSize = 150;
+            for (let x = 0; x < canvas.width + gridSize; x += gridSize) {
+                for (let y = 0; y < canvas.height + gridSize; y += gridSize) {
+                    drawFlowerOfLife(x, y, 50, 3);
+                }
+            }
+
+            time += 0.02;
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
