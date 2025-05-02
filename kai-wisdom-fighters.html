@@ -112,7 +112,7 @@
         }
         #healthBar, #playerHealthBar {
             position: absolute;
-            top: 60px; /* Adjusted for nav bar */
+            top: 10px;
             width: 200px;
             background: gray;
             height: 20px;
@@ -134,7 +134,7 @@
         }
         #livesDisplay {
             position: absolute;
-            top: 85px; /* Adjusted for nav bar */
+            top: 35px;
             left: 20px;
             display: flex;
             gap: 5px;
@@ -149,7 +149,7 @@
         }
         #levelIndicator {
             position: absolute;
-            top: 60px; /* Adjusted for nav bar */
+            top: 10px;
             right: 20px;
             font-size: 24px;
             color: white;
@@ -167,7 +167,6 @@
             border-radius: 10px;
             display: none;
             text-align: center;
-            z-index: 2; /* Ensure above nav */
         }
         #customizeMenu h2, #tutorialMenu h2, #gradeMenu h2 {
             font-size: 24px;
@@ -194,7 +193,6 @@
             font-size: 24px;
             text-align: center;
             display: none;
-            z-index: 2; /* Ensure above nav */
         }
         #damageIndicator {
             background: transparent;
@@ -204,124 +202,9 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             top: 30%;
         }
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 0;
-            z-index: 1;
-            text-align: center;
-        }
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 20px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px #000;
-        }
-        nav a:hover {
-            color: #FFD700;
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            min-width: 160px;
-            z-index: 1;
-            border-radius: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .dropdown-content a {
-            color: #fff;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 1rem;
-            margin: 0;
-        }
-        .dropdown-content a:hover {
-            background: rgba(255, 215, 0, 0.2);
-            color: #FFD700;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            padding: 8px 0;
-            text-align: center;
-            z-index: 1;
-            font-size: 0.8rem;
-        }
-        footer p {
-            color: #C0C0C0;
-            margin: 0;
-            text-shadow: 0 0 5px #000;
-        }
-        #webglError {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 24px;
-            text-align: center;
-            z-index: 2;
-            display: none;
-        }
-        @media (max-width: 768px) {
-            nav a { margin: 0 10px; font-size: 1rem; }
-            .dropdown-content { min-width: 120px; }
-            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
-            #ui { bottom: 5px; }
-            #mathProblem { font-size: 24px; }
-            #answerInput { font-size: 18px; width: 100px; }
-            #submitButton, #hintButton, #customizeButton, #gradeButton, #musicButton, #fullscreenButton {
-                font-size: 16px;
-                padding: 6px 12px;
-            }
-            #feedback { font-size: 20px; }
-            #scoreDisplay { font-size: 16px; }
-            #webglError { font-size: 18px; }
-        }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <div class="dropdown">
-                <a href="#">Apps</a>
-                <div class="dropdown-content">
-                    <a href="fractal-ai-research.html">Fractal AI Research</a>
-                    <a href="fractal-meditation.html">Fractal Meditation</a>
-                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
-                    <a href="plasmamind-journey.html">PlasmaMind: Journey Through Consciousness</a>
-                    <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
-                    <a href="app-instructions.html">Instructions</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#">Kid's Zone</a>
-                <div class="dropdown-content">
-                    <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
-                    <a href="certificate.html">Certificate</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <div id="webglError">
-        WebGL is not supported or disabled in your browser. Please enable WebGL or use a compatible browser to play Kai Wisdom Fighters.
-    </div>
     <div id="ui">
         <div id="mathProblem"></div>
         <input type="number" id="answerInput" placeholder="Your Ans">
@@ -395,25 +278,8 @@
     <div id="storyMessage"></div>
     <div id="dialogue"></div>
     <div id="damageIndicator"></div>
-    <footer>
-        <p>© 2025 Itoshiro Zuna LLC. All rights reserved.</p>
-    </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r154/three.min.js"></script>
-    <script>
-        // Check for WebGL support
-        function isWebGLSupported() {
-            try {
-                const canvas = document.createElement('canvas');
-                return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-            } catch (e) {
-                return false;
-            }
-        }
-
-        if (!isWebGLSupported()) {
-            document.getElementById('webglError').style.display = 'block';
-            throw new Error('WebGL not supported');
-        }
+    <script type="module">
+        import * as THREE from 'https://esm.sh/three@0.154.0';
 
         // Scene setup
         let scene, camera, renderer;
@@ -430,8 +296,6 @@
             document.body.appendChild(renderer.domElement);
         } catch (e) {
             console.error('Error setting up Three.js scene:', e);
-            document.getElementById('webglError').style.display = 'block';
-            return;
         }
 
         // Lighting
@@ -1432,7 +1296,7 @@
                 const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
                 wing2.position.set(1.8, 1, 0);
                 wing2.rotation.z = -Math.PI / 4;
-                                               enemyAccessoryGroup.add(wing1, wing2);
+                enemyAccessoryGroup.add(wing1, wing2);
             }
             const scale = 1 + (level - 1) * 0.1;
             enemyGroup.scale.set(scale, scale, scale);
@@ -1534,7 +1398,8 @@
                     setTimeout(generateProblem, 3000);
                 } else {
                     document.getElementById('feedback').textContent = `Correct! ${problemsToSolve - correctAnswersThisLevel} more to defeat the boss!`;
-                    setTimeout(generateProblem, 2000);
+                    setTimeout(generateProblem, 2000
+                                        );
                 }
 
                 if (playerMonsters[currentMonster].xp >= playerMonsters[currentMonster].maxXp) {
@@ -1571,9 +1436,7 @@
         // Animation loop
         let time = 0;
         let lastTime = performance.now();
-        let isInitialized = false;
         function animate() {
-            if (!isInitialized) return; // Skip rendering if initialization failed
             try {
                 requestAnimationFrame(animate);
                 const now = performance.now();
@@ -1745,30 +1608,17 @@
 
         // Window resize handler
         window.addEventListener('resize', () => {
-            if (isInitialized) {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
+        // Start animation
+        animate();
+
         // Initialize game
-        let isInitialized = false;
-        if (typeof THREE !== 'undefined') {
-            try {
-                // Scene setup already done above
-                isInitialized = true;
-                document.getElementById('tutorialMenu').style.display = 'block';
-                document.getElementById('answerInput').focus();
-                animate();
-            } catch (e) {
-                console.error('Error initializing game:', e);
-                document.getElementById('webglError').style.display = 'block';
-            }
-        } else {
-            console.error('Three.js library failed to load');
-            document.getElementById('webglError').style.display = 'block';
-        }
+        document.getElementById('tutorialMenu').style.display = 'block';
+        document.getElementById('answerInput').focus();
     </script>
 </body>
 </html>
