@@ -1432,7 +1432,7 @@
                 const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
                 wing2.position.set(1.8, 1, 0);
                 wing2.rotation.z = -Math.PI / 4;
-                                enemyAccessoryGroup.add(wing1, wing2);
+                                               enemyAccessoryGroup.add(wing1, wing2);
             }
             const scale = 1 + (level - 1) * 0.1;
             enemyGroup.scale.set(scale, scale, scale);
@@ -1571,7 +1571,9 @@
         // Animation loop
         let time = 0;
         let lastTime = performance.now();
+        let isInitialized = false;
         function animate() {
+            if (!isInitialized) return; // Skip rendering if initialization failed
             try {
                 requestAnimationFrame(animate);
                 const now = performance.now();
@@ -1743,17 +1745,30 @@
 
         // Window resize handler
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (isInitialized) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         });
 
-        // Start animation
-        animate();
-
         // Initialize game
-        document.getElementById('tutorialMenu').style.display = 'block';
-        document.getElementById('answerInput').focus();
+        let isInitialized = false;
+        if (typeof THREE !== 'undefined') {
+            try {
+                // Scene setup already done above
+                isInitialized = true;
+                document.getElementById('tutorialMenu').style.display = 'block';
+                document.getElementById('answerInput').focus();
+                animate();
+            } catch (e) {
+                console.error('Error initializing game:', e);
+                document.getElementById('webglError').style.display = 'block';
+            }
+        } else {
+            console.error('Three.js library failed to load');
+            document.getElementById('webglError').style.display = 'block';
+        }
     </script>
 </body>
 </html>
