@@ -202,9 +202,87 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             top: 30%;
         }
+                nav {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .nav-links a:hover {
+            color: #ffdd33;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a {
+            color: #ffcc00;
+            padding: 12px 16px;
+            display: block;
+            text-align: left;
+        }
+        .dropdown-content a:hover {
+            background: rgba(255, 204, 0, 0.2);
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffcc00;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+        <nav>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <div class="dropdown">
+                <a href="#">Apps</a>
+                <div class="dropdown-content">
+                    <a href="fractal-ai-research.html">Fractal AI Research</a>
+                    <a href="fractal-meditation.html">Fractal Meditation</a>
+                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                    <a href="plasmamind-journey.html">PlasmaMind: Journey Through Consciousness</a>
+                    <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
+                    <a href="app-instructions.html">Instructions</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Kid's Zone</a>
+                <div class="dropdown-content">
+                    <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
+                    <a href="certificate.html">Certificate</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div id="ui">
         <div id="mathProblem"></div>
         <input type="number" id="answerInput" placeholder="Your Ans">
@@ -1620,5 +1698,8 @@
         document.getElementById('tutorialMenu').style.display = 'block';
         document.getElementById('answerInput').focus();
     </script>
+        <footer>
+        <p>© 2025 Itoshiro Zuna LLC. All rights reserved.</p>
+    </footer>
 </body>
 </html>
