@@ -112,7 +112,7 @@
         }
         #healthBar, #playerHealthBar {
             position: absolute;
-            top: 60px;
+            top: 60px; /* Adjusted for nav bar */
             width: 200px;
             background: gray;
             height: 20px;
@@ -134,7 +134,7 @@
         }
         #livesDisplay {
             position: absolute;
-            top: 85px;
+            top: 85px; /* Adjusted for nav bar */
             left: 20px;
             display: flex;
             gap: 5px;
@@ -149,7 +149,7 @@
         }
         #levelIndicator {
             position: absolute;
-            top: 60px;
+            top: 60px; /* Adjusted for nav bar */
             right: 20px;
             font-size: 24px;
             color: white;
@@ -167,6 +167,7 @@
             border-radius: 10px;
             display: none;
             text-align: center;
+            z-index: 2; /* Ensure above nav */
         }
         #customizeMenu h2, #tutorialMenu h2, #gradeMenu h2 {
             font-size: 24px;
@@ -193,6 +194,7 @@
             font-size: 24px;
             text-align: center;
             display: none;
+            z-index: 2; /* Ensure above nav */
         }
         #damageIndicator {
             background: transparent;
@@ -208,7 +210,7 @@
             width: 100%;
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 0;
-            z-index: 1000;
+            z-index: 1;
             text-align: center;
         }
         nav a {
@@ -257,7 +259,7 @@
             background: rgba(0, 0, 0, 0.85);
             padding: 8px 0;
             text-align: center;
-            z-index: 1000;
+            z-index: 1;
             font-size: 0.8rem;
         }
         footer p {
@@ -265,33 +267,61 @@
             margin: 0;
             text-shadow: 0 0 5px #000;
         }
+        #webglError {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            z-index: 2;
+            display: none;
+        }
         @media (max-width: 768px) {
             nav a { margin: 0 10px; font-size: 1rem; }
             .dropdown-content { min-width: 120px; }
             .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
             #ui { bottom: 5px; }
-            #healthBar, #playerHealthBar { top: 80px; }
-            #livesDisplay { top: 105px; }
-            #levelIndicator { top: 80px; }
-            footer { font-size: 0.7rem; }
+            #mathProblem { font-size: 24px; }
+            #answerInput { font-size: 18px; width: 100px; }
+            #submitButton, #hintButton, #customizeButton, #gradeButton, #musicButton, #fullscreenButton {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            #feedback { font-size: 20px; }
+            #scoreDisplay { font-size: 16px; }
+            #webglError { font-size: 18px; }
         }
     </style>
 </head>
 <body>
     <nav>
-        <a href="index.html">Home</a>
-        <div class="dropdown">
-            <a href="#">Apps</a>
-            <div class="dropdown-content">
-                <a href="fractal-ai-research.html">Fractal AI Research</a>
-                <a href="fractal-meditation.html">Fractal Meditation</a>
-                <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
-                <a href="plasmamind-journey.html">PlasmaMind: Journey Through Consciousness</a>
-                <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
-                <a href="app-instructions.html">Instructions</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <div class="dropdown">
+                <a href="#">Apps</a>
+                <div class="dropdown-content">
+                    <a href="fractal-ai-research.html">Fractal AI Research</a>
+                    <a href="fractal-meditation.html">Fractal Meditation</a>
+                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                    <a href="plasmamind-journey.html">PlasmaMind: Journey Through Consciousness</a>
+                    <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
+                    <a href="app-instructions.html">Instructions</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Kid's Zone</a>
+                <div class="dropdown-content">
+                    <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
+                    <a href="certificate.html">Certificate</a>
+                </div>
             </div>
         </div>
     </nav>
+    <div id="webglError">
+        WebGL is not supported or disabled in your browser. Please enable WebGL or use a compatible browser to play Kai Wisdom Fighters.
+    </div>
     <div id="ui">
         <div id="mathProblem"></div>
         <input type="number" id="answerInput" placeholder="Your Ans">
@@ -366,10 +396,24 @@
     <div id="dialogue"></div>
     <div id="damageIndicator"></div>
     <footer>
-        <p>Itoshiro Zuna LLC © 2025. All rights reserved.</p>
+        <p>© 2025 Itoshiro Zuna LLC. All rights reserved.</p>
     </footer>
-    <script type="module">
-        import * as THREE from 'https://esm.sh/three@0.154.0';
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r154/three.min.js"></script>
+    <script>
+        // Check for WebGL support
+        function isWebGLSupported() {
+            try {
+                const canvas = document.createElement('canvas');
+                return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+            } catch (e) {
+                return false;
+            }
+        }
+
+        if (!isWebGLSupported()) {
+            document.getElementById('webglError').style.display = 'block';
+            throw new Error('WebGL not supported');
+        }
 
         // Scene setup
         let scene, camera, renderer;
@@ -386,6 +430,8 @@
             document.body.appendChild(renderer.domElement);
         } catch (e) {
             console.error('Error setting up Three.js scene:', e);
+            document.getElementById('webglError').style.display = 'block';
+            return;
         }
 
         // Lighting
@@ -1386,7 +1432,7 @@
                 const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
                 wing2.position.set(1.8, 1, 0);
                 wing2.rotation.z = -Math.PI / 4;
-                enemyAccessoryGroup.add(wing1, wing2);
+                                enemyAccessoryGroup.add(wing1, wing2);
             }
             const scale = 1 + (level - 1) * 0.1;
             enemyGroup.scale.set(scale, scale, scale);
@@ -1472,8 +1518,7 @@
             const uiDiv = document.getElementById('ui');
             if (userAnswer === correctAnswer) {
                 uiDiv.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
-                setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204,
-                  setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204, 0.8)', 300);
+                setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204, 0.8)', 300);
                 document.getElementById('feedback').textContent = 'Correct!';
                 score += 10;
                 document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
