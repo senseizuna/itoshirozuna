@@ -220,7 +220,6 @@
         const listener = new THREE.AudioListener();
         const audioCtx = listener.context;
         camera.add(listener);
-        let backgroundOscillator = null;
 
         const sphereRadius = 100;
         const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 64, 64);
@@ -798,7 +797,6 @@
             const chaserCount = settings.baseChaserCount + Math.floor(level / 2);
             const obstacleCount = settings.baseObstacleCount + level;
             chaserSpeed = settings.chaserSpeed * (1 + level * 0.05);
-            updateBackgroundMusic();
 
             chasers.forEach(chaser => {
                 scene.remove(chaser.trail);
@@ -1071,20 +1069,6 @@
             osc.connect(audioCtx.destination);
             osc.start();
             setTimeout(() => osc.stop(), 200);
-        }
-
-        function updateBackgroundMusic() {
-            if (backgroundOscillator) {
-                backgroundOscillator.stop();
-            }
-            backgroundOscillator = audioCtx.createOscillator();
-            backgroundOscillator.type = 'sawtooth';
-            backgroundOscillator.frequency.value = 100 + currentLevel * 10;
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.1;
-            backgroundOscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            backgroundOscillator.start();
         }
 
         function createParticles() {
