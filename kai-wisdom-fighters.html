@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kai Wisdom Fighters - A math-based monster battling game by Itoshiro Zuna LLC.">
+    <!--
+      Kai Wisdom Fighters
+      Itoshiro Zuna LLC
+      Copyright (c) 2025 Itoshiro Zuna LLC
+      All rights reserved.
+      Unauthorized copying, modification, or distribution of this code is prohibited.
+    -->
+    <title>Kai Wisdom Fighters</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; background: #000; font-family: 'Comic Sans MS', cursive, sans-serif; }
+        canvas { display: block; }
+        #ui {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 204, 0.8);
+            border: 3px solid #ffcc00;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+            transition: background-color 0.3s;
+        }
+        #mathProblem {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        #countingBlocks {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .block {
+            width: 20px;
+            height: 20px;
+            margin: 2px;
+            border: 1px solid #333;
+        }
+        #answerInput {
+            padding: 8px;
+            font-size: 24px;
+            width: 120px;
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        #submitButton, #hintButton, #customizeButton, #gradeButton, #musicButton, #fullscreenButton {
+            padding: 8px 15px;
+            font-size: 20px;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #hintButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #submitButton:hover, #hintButton:hover, #customizeButton:hover, #gradeButton:hover, #musicButton:hover, #fullscreenButton:hover {
+            background-color: #ffdd33;
+        }
+        #submitButton:focus, #hintButton:focus, #customizeButton:focus, #gradeButton:focus, #musicButton:focus, #fullscreenButton:focus {
+            outline: 2px solid #333;
+        }
+        #feedback {
+            font-size: 24px;
+            color: red;
+            margin-top: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        #scoreDisplay {
+            font-size: 20px;
+            color: #333;
+            margin-top: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        #monsterRoster {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 204, 0.9);
+            border: 3px solid #ffcc00;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 250px;
+            display: none;
+        }
+        #monsterRoster h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        #monsterRoster div {
+            font-size: 16px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        #monsterRoster div:hover {
+            color: #ffcc00;
+        }
+        #healthBar, #playerHealthBar {
+            position: absolute;
+            top: 60px;
+            width: 200px;
+            background: gray;
+            height: 20px;
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            display: none;
+        }
+        #healthBar {
+            right: 20px;
+        }
+        #playerHealthBar {
+            left: 20px;
+        }
+        #healthFill, #playerHealthFill {
+            height: 100%;
+            background: green;
+            border-radius: 3px;
+            transition: width 0.5s ease-in-out, background 0.3s;
+        }
+        #livesDisplay {
+            position: absolute;
+            top: 85px;
+            left: 20px;
+            display: flex;
+            gap: 5px;
+            display: none;
+        }
+        .life {
+            width: 15px;
+            height: 15px;
+            background: green;
+            border-radius: 50%;
+            border: 1px solid #333;
+        }
+        #levelIndicator {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            font-size: 24px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        #customizeMenu, #tutorialMenu, #gradeMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 204, 0.95);
+            border: 3px solid #ffcc00;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+        }
+        #customizeMenu h2, #tutorialMenu h2, #gradeMenu h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        #customizeMenu select, #customizeMenu button, #tutorialMenu button, #gradeMenu select, #gradeMenu button {
+            margin: 10px;
+            padding: 8px;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+        #customizeMenu select:focus, #customizeMenu button:focus, #tutorialMenu button:focus, #gradeMenu select:focus, #gradeMenu button:focus {
+            outline: 2px solid #333;
+        }
+        #storyMessage, #dialogue, #damageIndicator {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 204, 0.9);
+            padding: 20px;
+            border: 3px solid #ffcc00;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+            display: none;
+        }
+        #damageIndicator {
+            background: transparent;
+            border: none;
+            color: red;
+            font-size: 28px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            top: 30%;
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 0;
+            z-index: 1000;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
+        }
+        nav a:hover {
+            color: #FFD700;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            min-width: 160px;
+            z-index: 1;
+            border-radius: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .dropdown-content a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 8px 0;
+            text-align: center;
+            z-index: 1000;
+            font-size: 0.8rem;
+        }
+        footer p {
+            color: #C0C0C0;
+            margin: 0;
+            text-shadow: 0 0 5px #000;
+        }
+        @media (max-width: 768px) {
+            nav a { margin: 0 10px; font-size: 1rem; }
+            .dropdown-content { min-width: 120px; }
+            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
+            #ui { bottom: 5px; }
+            #healthBar, #playerHealthBar { top: 80px; }
+            #livesDisplay { top: 105px; }
+            #levelIndicator { top: 80px; }
+            footer { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <div class="dropdown">
+            <a href="#">Apps</a>
+            <div class="dropdown-content">
+                <a href="fractal-ai-research.html">Fractal AI Research</a>
+                <a href="fractal-meditation.html">Fractal Meditation</a>
+                <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                <a href="plasmamind-journey.html">PlasmaMind: Journey Through Consciousness</a>
+                <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
+                <a href="app-instructions.html">Instructions</a>
+            </div>
+        </div>
+    </nav>
+    <div id="ui">
+        <div id="mathProblem"></div>
+        <input type="number" id="answerInput" placeholder="Your Ans">
+        <button id="submitButton" onclick="checkAnswer()">Submit</button>
+        <button id="hintButton" onclick="showHint()" disabled>Hint</button>
+        <button id="customizeButton" onclick="openCustomizeMenu()">Customize</button>
+        <button id="gradeButton" onclick="openGradeMenu()">Grade Level</button>
+        <button id="musicButton" onclick="toggleMusic()">Music: On</button>
+        <button id="fullscreenButton" onclick="toggleFullScreen()">Full Screen</button>
+        <div id="feedback"></div>
+        <div id="scoreDisplay">Score: 0</div>
+        <div id="countingBlocks"></div>
+    </div>
+    <div id="monsterRoster">
+        <h3>Your Monsters</h3>
+        <div onclick="selectMonster(0)">Flame Kai (Fire, Lv. 1)</div>
+        <div onclick="selectMonster(1)">Aqua Kai (Water, Lv. 1)</div>
+        <div onclick="selectMonster(2)">Earth Kai (Earth, Lv. 1)</div>
+        <div onclick="selectMonster(3)">Wind Kai (Wind, Lv. 1)</div>
+        <div onclick="selectMonster(4)">Magic Kai (Magic, Lv. 1)</div>
+    </div>
+    <div id="healthBar">
+        <div id="healthFill"></div>
+    </div>
+    <div id="playerHealthBar">
+        <div id="playerHealthFill"></div>
+    </div>
+    <div id="livesDisplay">
+        <div class="life"></div>
+        <div class="life"></div>
+        <div class="life"></div>
+    </div>
+    <div id="levelIndicator"></div>
+    <div id="customizeMenu">
+        <h2>Customize Monster</h2>
+        <label>Color: <select id="colorSelect">
+            <option value="0xff4500">Red</option>
+            <option value="0x00b7eb">Blue</option>
+            <option value="0xff6f00">Neon Brown</option>
+            <option value="0x87ceeb">Sky Blue</option>
+            <option value="0x9400d3">Purple</option>
+        </select></label>
+        <label>Accessory: <select id="accessorySelect">
+            <option value="none">None</option>
+            <option value="horns">Horns</option>
+            <option value="wings">Wings</option>
+        </select></label>
+        <button onclick="applyCustomization()">Apply</button>
+        <button onclick="closeCustomizeMenu()">Close</button>
+    </div>
+    <div id="gradeMenu">
+        <h2>Select Grade Level</h2>
+        <label>Grade: <select id="gradeSelect">
+            <option value="1">1st Grade</option>
+            <option value="2" selected>2nd Grade</option>
+            <option value="3">3rd Grade</option>
+            <option value="4">4th Grade</option>
+            <option value="5">5th Grade</option>
+            <option value="6">6th Grade</option>
+        </select></label>
+        <button onclick="applyGradeLevel()">Apply</button>
+        <button onclick="closeGradeMenu()">Close</button>
+    </div>
+    <div id="tutorialMenu">
+        <h2>Welcome to Kai Wisdom Fighters!</h2>
+        <p>Solve math problems to make your monster attack the enemy.</p>
+        <p>Use the blocks to count if you need help!</p>
+        <p>Defeat enemies to level up and unlock new monsters!</p>
+        <button onclick="closeTutorial()">Start Playing</button>
+    </div>
+    <div id="storyMessage"></div>
+    <div id="dialogue"></div>
+    <div id="damageIndicator"></div>
+    <footer>
+        <p>Itoshiro Zuna LLC © 2025. All rights reserved.</p>
+    </footer>
+    <script type="module">
+        import * as THREE from 'https://esm.sh/three@0.154.0';
+
+        // Scene setup
+        let scene, camera, renderer;
+        try {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 20);
+            camera.lookAt(0, 0, 0);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+        } catch (e) {
+            console.error('Error setting up Three.js scene:', e);
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        directionalLight.position.set(0, 20, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        directionalLight.shadow.camera.near = 0.1;
+        directionalLight.shadow.camera.far = 50;
+        directionalLight.shadow.camera.left = -20;
+        directionalLight.shadow.camera.right = 20;
+        directionalLight.shadow.camera.top = 20;
+        directionalLight.shadow.camera.bottom = -20;
+        scene.add(directionalLight);
+        const pointLight = new THREE.PointLight(0xffff99, 1.5, 50);
+        pointLight.position.set(0, 10, 5);
+        pointLight.castShadow = true;
+        scene.add(pointLight);
+
+        // Scenery presets
+        const sceneryPresets = [
+            { ambient: 0x555555, terrain: 0x336633, stars: 0xffffff, fog: 0x88ccee, scenery: 'jungle' },
+            { ambient: 0x333366, terrain: 0xa0ddfb, stars: 0xeeeeff, fog: 0xffffff, scenery: 'ice' },
+            { ambient: 0x663333, terrain: 0x8b0000, stars: 0xffeecc, fog: 0xff4500, scenery: 'lava' },
+            { ambient: 0x444444, terrain: 0x4682b4, stars: 0xffffff, fog: 0xa0a0a0, scenery: 'mountain' },
+            { ambient: 0x104060, terrain: 0x20b2aa, stars: 0xaaffee, fog: 0x104060, scenery: 'ocean' },
+            { ambient: 0x222222, terrain: 0x333333, stars: 0xaaaaaa, fog: 0x444444, scenery: 'graveyard' },
+            { ambient: 0x4b0082, terrain: 0x9400d3, stars: 0xddaaff, fog: 0x4b0082, scenery: 'library' },
+            { ambient: 0x333333, terrain: 0x708090, stars: 0xcccccc, fog: 0x555555, scenery: 'city' },
+            { ambient: 0x111111, terrain: 0x2f4f4f, stars: 0xffffff, fog: 0x000000, scenery: 'space' },
+            { ambient: 0x555555, terrain: 0x556b2f, stars: 0xffffcc, fog: 0x666666, scenery: 'arena' },
+        ];
+
+        // Starfield background
+        const starGroup = new THREE.Group();
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = new Float32Array(3000);
+        for (let i = 0; i < 1000; i++) {
+            starPositions[i * 3] = (Math.random() - 0.5) * 200;
+            starPositions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+            starPositions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.2 });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        starGroup.add(stars);
+        scene.add(starGroup);
+
+        // Procedural terrain
+        let environmentGroup = new THREE.Group();
+        scene.add(environmentGroup);
+        const terrainGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
+        const terrainMaterial = new THREE.MeshStandardMaterial({ color: 0x336633 });
+        const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+        terrain.rotation.x = -Math.PI / 2;
+        terrain.position.y = -5;
+        terrain.receiveShadow = true;
+        scene.add(terrain);
+        const vertices = terrainGeometry.attributes.position.array;
+        for (let i = 0; i < vertices.length; i += 3) {
+            vertices[i + 2] = Math.sin(vertices[i] * 0.1) * Math.cos(vertices[i + 1] * 0.1) * 2;
+        }
+        terrainGeometry.attributes.position.needsUpdate = true;
+
+        // Procedural scenery
+        function updateEnvironment(level) {
+            environmentGroup.children.forEach(child => {
+                environmentGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+            const preset = sceneryPresets[level - 1];
+            if (preset.scenery === 'jungle') {
+                for (let i = 0; i < 20; i++) {
+                    const scale = Math.random() * 0.5 + 0.75;
+                    const trunkGeometry = new THREE.CylinderGeometry(0.5 * scale, 0.5 * scale, 3 * scale, 8);
+                    const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+                    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                    trunk.castShadow = true;
+                    const foliageGeometry = new THREE.ConeGeometry(2 * scale, 4 * scale, 8);
+                    const foliageMaterial = new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0x228B22 : 0x2E8B57 });
+                    const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+                    foliage.position.y = 3.5 * scale;
+                    foliage.castShadow = true;
+                    const tree = new THREE.Group();
+                    tree.add(trunk, foliage);
+                    tree.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    environmentGroup.add(tree);
+                }
+            } else if (preset.scenery === 'ice') {
+                for (let i = 0; i < 15; i++) {
+                    const scale = Math.random() * 0.5 + 0.5;
+                    const spikeGeometry = new THREE.ConeGeometry(1 * scale, 4 * scale, 6);
+                    const spikeMaterial = new THREE.MeshStandardMaterial({ color: 0xa0ddfb });
+                    const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+                    spike.position.set((Math.random() - 0.5) * 80, -4 + 2 * scale, (Math.random() - 0.5) * 80);
+                    spike.castShadow = true;
+                    environmentGroup.add(spike);
+                }
+            } else if (preset.scenery === 'lava') {
+                for (let i = 0; i < 10; i++) {
+                    const rockGeometry = new THREE.SphereGeometry(2, 8, 8);
+                    const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x3c2f2f });
+                    const rock = new THREE.Mesh(rockGeometry, rockMaterial);
+                    rock.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    rock.castShadow = true;
+                    environmentGroup.add(rock);
+                }
+            } else if (preset.scenery === 'mountain') {
+                for (let i = 0; i < 12; i++) {
+                    const rockGeometry = new THREE.SphereGeometry(3, 6, 6);
+                    const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x4682b4 });
+                    const rock = new THREE.Mesh(rockGeometry, rockMaterial);
+                    rock.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    rock.castShadow = true;
+                    environmentGroup.add(rock);
+                }
+            } else if (preset.scenery === 'ocean') {
+                for (let i = 0; i < 15; i++) {
+                    const coralGeometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 8);
+                    const coralMaterial = new THREE.MeshStandardMaterial({ color: 0xff4040 });
+                    const coral = new THREE.Mesh(coralGeometry, coralMaterial);
+                    coral.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    coral.castShadow = true;
+                    environmentGroup.add(coral);
+                }
+            } else if (preset.scenery === 'graveyard') {
+                for (let i = 0; i < 10; i++) {
+                    const tombGeometry = new THREE.BoxGeometry(1, 2, 0.5);
+                    const tombMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
+                    const tomb = new THREE.Mesh(tombGeometry, tombMaterial);
+                    tomb.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    tomb.castShadow = true;
+                    environmentGroup.add(tomb);
+                }
+            } else if (preset.scenery === 'library') {
+                for (let i = 0; i < 12; i++) {
+                    const bookGeometry = new THREE.BoxGeometry(2, 3, 0.5);
+                    const bookMaterial = new THREE.MeshStandardMaterial({ color: 0x8b008b });
+                    const book = new THREE.Mesh(bookGeometry, bookMaterial);
+                    book.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    book.castShadow = true;
+                    environmentGroup.add(book);
+                }
+            } else if (preset.scenery === 'city') {
+                for (let i = 0; i < 15; i++) {
+                    const buildingGeometry = new THREE.BoxGeometry(2, 5, 2);
+                    const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x708090 });
+                    const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+                    building.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    building.castShadow = true;
+                    environmentGroup.add(building);
+                }
+            } else if (preset.scenery === 'space') {
+                for (let i = 0; i < 10; i++) {
+                    const asteroidGeometry = new THREE.SphereGeometry(2, 6, 6);
+                    const asteroidMaterial = new THREE.MeshStandardMaterial({ color: 0x2f4f4f });
+                    const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+                    asteroid.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    asteroid.castShadow = true;
+                    environmentGroup.add(asteroid);
+                }
+            } else if (preset.scenery === 'arena') {
+                for (let i = 0; i < 8; i++) {
+                    const pillarGeometry = new THREE.CylinderGeometry(1, 1, 4, 8);
+                    const pillarMaterial = new THREE.MeshStandardMaterial({ color: 0x556b2f });
+                    const pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+                    pillar.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
+                    pillar.castShadow = true;
+                    environmentGroup.add(pillar);
+                }
+            }
+        }
+
+        // Player monster (Flame Kai, Aqua Kai, etc.)
+        const playerGroup = new THREE.Group();
+        const playerBodyGeometry = new THREE.BoxGeometry(2, 3, 2);
+        const playerMaterial = new THREE.MeshStandardMaterial({ color: 0xff4500 });
+        const playerBody = new THREE.Mesh(playerBodyGeometry, playerMaterial);
+        playerBody.position.set(0, 1.5, 0);
+        playerBody.castShadow = true;
+        playerGroup.add(playerBody);
+
+        // Player head
+        const playerHeadGeometry = new THREE.SphereGeometry(1, 16, 16);
+        const playerHead = new THREE.Mesh(playerHeadGeometry, playerMaterial);
+        playerHead.position.set(0, 3.5, 0);
+        playerHead.castShadow = true;
+        playerGroup.add(playerHead);
+
+        // Player facial features
+        const facialFeaturesGroup = new THREE.Group();
+        let leftEye, rightEye, nose, mouth;
+        function updateFacialFeatures(type) {
+            facialFeaturesGroup.children.forEach(child => {
+                facialFeaturesGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+            const eyeGeom = new THREE.SphereGeometry(0.15, 8, 8);
+            const noseGeom = new THREE.ConeGeometry(0.15, 0.3, 8);
+            const mouthGeom = new THREE.BoxGeometry(0.4, 0.05, 0.1);
+            const colors = {
+                'Fire': { eye: 0xff0000, nose: 0xffa500 },
+                'Water': { eye: 0x00b7eb, nose: 0x66ffff },
+                'Earth': { eye: 0xff6f00, nose: 0xffa500 },
+                'Wind': { eye: 0xffffff, nose: 0x87ceeb },
+                'Magic': { eye: 0x9400d3, nose: 0x9400d3, noseEmissive: 0x330066 }
+            };
+            leftEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: colors[type].eye }));
+            rightEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: colors[type].eye }));
+            nose = new THREE.Mesh(noseGeom, new THREE.MeshStandardMaterial({ 
+                color: colors[type].nose,
+                emissive: colors[type].noseEmissive || 0x000000
+            }));
+            mouth = new THREE.Mesh(mouthGeom, new THREE.MeshBasicMaterial({ color: 0x552200 }));
+            leftEye.position.set(-0.3, 3.7, 0.9);
+            rightEye.position.set(0.3, 3.7, 0.9);
+            nose.position.set(0, 3.5, 1);
+            nose.rotation.x = Math.PI / 2;
+            mouth.position.set(0, 3.2, 0.9);
+            facialFeaturesGroup.add(leftEye, rightEye, nose, mouth);
+        }
+        playerGroup.add(facialFeaturesGroup);
+
+        // Player arms and legs
+        const armGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.5);
+        const leftArm = new THREE.Mesh(armGeometry, playerMaterial);
+        leftArm.position.set(-1.5, 1.5, 0);
+        leftArm.castShadow = true;
+        playerGroup.add(leftArm);
+        const rightArm = new THREE.Mesh(armGeometry, playerMaterial);
+        rightArm.position.set(1.5, 1.5, 0);
+        rightArm.castShadow = true;
+        playerGroup.add(rightArm);
+        const legGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.5);
+        const leftLeg = new THREE.Mesh(legGeometry, playerMaterial);
+        leftLeg.position.set(-0.75, -0.75, 0);
+        leftLeg.castShadow = true;
+        playerGroup.add(leftLeg);
+        const rightLeg = new THREE.Mesh(legGeometry, playerMaterial);
+        rightLeg.position.set(0.75, -0.75, 0);
+        rightLeg.castShadow = true;
+        playerGroup.add(rightLeg);
+        playerGroup.position.set(-5, -2, 0);
+        scene.add(playerGroup);
+
+        // Elemental effects
+        const playerEffectGroup = new THREE.Group();
+        scene.add(playerEffectGroup);
+        let leftParticleSystem, rightParticleSystem, leftSpeeds = [], rightSpeeds = [];
+        function createParticleEffect(type, armPosition) {
+            const particleCount = 25;
+            const positions = new Float32Array(particleCount * 3);
+            const speeds = [];
+            const colors = {
+                'Fire': 0xffa500,
+                'Water': 0x00b7eb,
+                'Earth': 0xff6f00,
+                'Wind': 0x87ceeb,
+                'Magic': 0x9400d3
+            };
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = armPosition.x + (Math.random() - 0.5) * 0.3;
+                positions[i * 3 + 1] = armPosition.y + (Math.random() - 0.5) * 0.3;
+                positions[i * 3 + 2] = armPosition.z + (Math.random() - 0.5) * 0.3;
+                speeds[i] = type === 'Fire' ? 0.02 + Math.random() * 0.02 :
+                            type === 'Water' ? 0.01 + Math.random() * 0.01 :
+                            type === 'Earth' ? 0.01 + Math.random() * 0.01 :
+                            type === 'Wind' ? 0.03 + Math.random() * 0.02 :
+                            0.01 + Math.random() * 0.01;
+            }
+            const particleGeometry = new THREE.BufferGeometry();
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particleMaterial = new THREE.PointsMaterial({
+                color: colors[type],
+                size: type === 'Magic' ? 0.2 : 0.3,
+                transparent: true,
+                blending: type === 'Fire' ? THREE.AdditiveBlending : THREE.NormalBlending,
+                depthWrite: false
+            });
+            const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+            particleSystem.position.set(-5, -2, 0);
+            return { particleSystem, speeds };
+        }
+
+        function updatePlayerEffect() {
+            playerEffectGroup.children.forEach(child => {
+                playerEffectGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+            const type = playerMonsters[currentMonster].type;
+            const leftArmPos = { x: -1.5, y: 1.5, z: 0 };
+            const rightArmPos = { x: 1.5, y: 1.5, z: 0 };
+            const leftEffect = createParticleEffect(type, leftArmPos);
+            const rightEffect = createParticleEffect(type, rightArmPos);
+            leftParticleSystem = leftEffect.particleSystem;
+            rightParticleSystem = rightEffect.particleSystem;
+            leftSpeeds = leftEffect.speeds;
+            rightSpeeds = rightEffect.speeds;
+            playerEffectGroup.add(leftParticleSystem, rightParticleSystem);
+        }
+
+        // Player accessories
+        const accessoryGroup = new THREE.Group();
+        playerGroup.add(accessoryGroup);
+
+        // Enemy character
+        const enemyGroup = new THREE.Group();
+        const enemyBodyGeometry = new THREE.BoxGeometry(2.5, 3.5, 2.5);
+        const enemyMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const enemyBody = new THREE.Mesh(enemyBodyGeometry, enemyMaterial);
+        enemyBody.position.set(0, 1.75, 0);
+        enemyBody.castShadow = true;
+        enemyGroup.add(enemyBody);
+
+        // Enemy head
+        const enemyHeadGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+        const enemyHead = new THREE.Mesh(enemyHeadGeometry, enemyMaterial);
+        enemyHead.position.set(0, 4, 0);
+        enemyHead.castShadow = true;
+        enemyGroup.add(enemyHead);
+
+        // Enemy facial features
+        const enemyFacialFeaturesGroup = new THREE.Group();
+        let enemyLeftEye, enemyRightEye, enemyNose, enemyMouth;
+        function updateEnemyFacialFeatures() {
+            enemyFacialFeaturesGroup.children.forEach(child => {
+                enemyFacialFeaturesGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+            const eyeGeom = new THREE.SphereGeometry(0.15, 8, 8);
+            const noseGeom = new THREE.ConeGeometry(0.2, 0.4, 8);
+            const mouthGeom = new THREE.BoxGeometry(0.6, 0.1, 0.1);
+            enemyLeftEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+            enemyRightEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+            enemyNose = new THREE.Mesh(noseGeom, new THREE.MeshStandardMaterial({ color: 0x000000 }));
+            enemyMouth = new THREE.Mesh(mouthGeom, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            enemyLeftEye.position.set(-0.4, 4.2, 1.1);
+            enemyRightEye.position.set(0.4, 4.2, 1.1);
+            enemyNose.position.set(0, 3.8, 1.2);
+            enemyNose.rotation.x = Math.PI / 2;
+            enemyMouth.position.set(0, 3.5, 1.1);
+            enemyMouth.rotation.z = Math.PI / 8;
+            enemyFacialFeaturesGroup.add(enemyLeftEye, enemyRightEye, enemyNose, enemyMouth);
+        }
+        enemyGroup.add(enemyFacialFeaturesGroup);
+
+        // Enemy arms and legs
+        const enemyArmGeometry = new THREE.BoxGeometry(0.6, 1.8, 0.6);
+        const enemyLeftArm = new THREE.Mesh(enemyArmGeometry, enemyMaterial);
+        enemyLeftArm.position.set(-1.8, 1.8, 0);
+        enemyLeftArm.castShadow = true;
+        enemyGroup.add(enemyLeftArm);
+        const enemyRightArm = new THREE.Mesh(enemyArmGeometry, enemyMaterial);
+        enemyRightArm.position.set(1.8, 1.8, 0);
+        enemyRightArm.castShadow = true;
+        enemyGroup.add(enemyRightArm);
+        const enemyLegGeometry = new THREE.BoxGeometry(0.6, 1.8, 0.6);
+        const enemyLeftLeg = new THREE.Mesh(enemyLegGeometry, enemyMaterial);
+        enemyLeftLeg.position.set(-0.9, -0.9, 0);
+        enemyLeftLeg.castShadow = true;
+        enemyGroup.add(enemyLeftLeg);
+        const enemyRightLeg = new THREE.Mesh(enemyLegGeometry, enemyMaterial);
+        enemyRightLeg.position.set(0.9, -0.9, 0);
+        enemyRightLeg.castShadow = true;
+        enemyGroup.add(enemyRightLeg);
+        enemyGroup.position.set(5, -2, 0);
+        scene.add(enemyGroup);
+
+        // Enemy accessories
+        const enemyAccessoryGroup = new THREE.Group();
+        enemyGroup.add(enemyAccessoryGroup);
+
+        // Attack orbs
+        const orbGroup = new THREE.Group();
+        scene.add(orbGroup);
+
+        // Audio setup
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let ambientOscillator = null;
+        let musicOn = true;
+        function playAmbientSound() {
+            if (!musicOn) return;
+            ambientOscillator = audioCtx.createOscillator();
+            ambientOscillator.type = 'sine';
+            ambientOscillator.frequency.value = 100;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.05;
+            ambientOscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            ambientOscillator.start();
+        }
+        function stopAmbientSound() {
+            if (ambientOscillator) {
+                ambientOscillator.stop();
+                ambientOscillator = null;
+            }
+        }
+        window.toggleMusic = function() {
+            musicOn = !musicOn;
+            if (musicOn) {
+                playAmbientSound();
+                document.getElementById('musicButton').textContent = 'Music: On';
+            } else {
+                stopAmbientSound();
+                document.getElementById('musicButton').textContent = 'Music: Off';
+            }
+        };
+        function playAttackSound(type) {
+            const osc = audioCtx.createOscillator();
+            osc.type = type === 'Fire' ? 'sine' : type === 'Water' ? 'triangle' : type === 'Wind' ? 'square' : type === 'Magic' ? 'sine' : 'sawtooth';
+            osc.frequency.value = type === 'Magic' ? 500 : 300;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.2;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), 200);
+        }
+        function playRewardSound() {
+            const osc = audioCtx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.value = 800;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.2;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), 200);
+        }
+        function playExplosionSound() {
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = 200;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.3;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), 300);
+        }
+        function playHitSound() {
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = 150;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.2;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), 200);
+        }
+
+        // Game variables
+        let gradeLevel = 2;
+        let problemsToSolve = 9;
+        let enemyHealth = 100;
+        let playerHealth = 100;
+        let lives = 3;
+        let playerMonsters = [
+            { name: 'Flame Kai', type: 'Fire', color: 0xff4500, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
+            { name: 'Aqua Kai', type: 'Water', color: 0x00b7eb, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
+            { name: 'Earth Kai', type: 'Earth', color: 0xff6f00, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
+            { name: 'Wind Kai', type: 'Wind', color: 0x87ceeb, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
+            { name: 'Magic Kai', type: 'Magic', color: 0x9400d3, accessory: 'none', level: 1, xp: 0, maxXp: 50 }
+        ];
+        let enemies = [
+            { name: 'Stone Golem', color: 0x00ff00, accessory: 'horns', taunts: ["I’ll crush you!", "Your math is weak!"] },
+            { name: 'Frost Queen', color: 0x00ffff, accessory: 'none', taunts: ["Freeze in my grasp!", "Solve this, child!"] },
+            { name: 'Lava Fiend', color: 0xff3333, accessory: 'none', taunts: ["Burn to ashes!", "You’ll melt away!"] },
+            { name: 'Tempest Harpy', color: 0xffff00, accessory: 'wings', taunts: ["Ride the storm!", "You’re too slow!"] },
+            { name: 'Ocean King', color: 0x00b7eb, accessory: 'none', taunts: ["Drown in my waves!", "Sink to the depths!"] },
+            { name: 'Shadow Phantom', color: 0xff00ff, accessory: 'none', taunts: ["Fear the dark!", "You’ll never see me!"] },
+            { name: 'Arcane Sorcerer', color: 0x9400d3, accessory: 'none', taunts: ["Magic is my power!", "Solve or perish!"] },
+            { name: 'Cybernetic Titan', color: 0x33ff33, accessory: 'none', taunts: ["System overload!", "Compute this!"] },
+            { name: 'Celestial Dragon', color: 0xffff66, accessory: 'none', taunts: ["Stars align against you!", "Cosmic defeat awaits!"] },
+            { name: 'Eternal Hydra', color: 0xff66ff, accessory: 'horns', taunts: ["All elements unite!", "You cannot win!"] }
+        ];
+        let currentMonster = 0;
+        let currentEnemy = 0;
+        let problem, correctAnswer, operation;
+        let attackTimer = 0;
+        let hitTimer = 0;
+        let level = 1;
+        let correctAnswersThisLevel = 0;
+        const maxLevel = 10;
+        let inTutorial = true;
+        let score = 0;
+        let answerTimeout = null;
+        let cameraShakeTimer = 0;
+
+        // Enter key to submit answer
+        document.getElementById('answerInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkAnswer();
+            }
+        });
+
+        // Full-screen toggle
+        window.toggleFullScreen = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error enabling full-screen: ${err.message}`);
+                });
+                document.getElementById('fullscreenButton').textContent = 'Exit Full Screen';
+            } else {
+                document.exitFullscreen();
+                document.getElementById('fullscreenButton').textContent = 'Full Screen';
+            }
+        };
+
+        // Esc key to exit full-screen
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('fullscreenButton').textContent = 'Full Screen';
+            }
+        });
+
+        // Generate math problem
+        function generateProblem() {
+            if (answerTimeout) clearTimeout(answerTimeout);
+
+            const opsByGrade = {
+                1: ['+', '-'],
+                2: ['+', '-'],
+                3: ['+', '-', '*'],
+                4: ['+', '-', '*'],
+                5: ['+', '-', '*', '/'],
+                6: ['+', '-', '*', '/']
+            };
+            const operations = opsByGrade[gradeLevel];
+            operation = operations[Math.floor(Math.random() * operations.length)];
+
+            const baseMax = {1: 10, 2: 20, 3: 50, 4: 100, 5: 200, 6: 500}[gradeLevel];
+            const maxNum = baseMax + level * 5;
+
+            let n1 = 1 + Math.floor(Math.random() * maxNum);
+            let n2 = 1 + Math.floor(Math.random() * maxNum);
+
+            if (operation === '/') {
+                n2 = 1 + Math.floor(Math.random() * Math.min(maxNum, 10));
+                n1 = n2 * (1 + Math.floor(Math.random() * Math.min(maxNum, 10)));
+            }
+
+            switch (operation) {
+                case '+': correctAnswer = n1 + n2; break;
+                case '-': correctAnswer = n1 - n2; break;
+                case '*': correctAnswer = n1 * n2; break;
+                case '/': correctAnswer = n1 / n2; break;
+            }
+
+            problem = `${n1} ${operation} ${n2} = ?`;
+            document.getElementById('mathProblem').textContent = problem;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('hintButton').disabled = false;
+            const blocksDiv = document.getElementById('countingBlocks');
+            blocksDiv.innerHTML = '';
+            if (operation === '+' || operation === '-') {
+                for (let i = 0; i < n1; i++) {
+                    const block = document.createElement('div');
+                    block.className = 'block';
+                    block.style.background = 'red';
+                    blocksDiv.appendChild(block);
+                }
+                if (operation === '+') {
+                    for (let i = 0; i < n2; i++) {
+                        const block = document.createElement('div');
+                        block.className = 'block';
+                        block.style.background = 'blue';
+                        blocksDiv.appendChild(block);
+                    }
+                }
+            }
+            showDialogue(`${enemies[currentEnemy].name}: ${enemies[currentEnemy].taunts[Math.floor(Math.random() * enemies[currentEnemy].taunts.length)]}`);
+
+            answerTimeout = setTimeout(() => {
+                if (playerHealth > 0 && lives > 0) {
+                    const bossDamage = 11.11 * (1 + 0.06 * (level - 1));
+                    playerHealth = Math.max(0, playerHealth - bossDamage);
+                    document.getElementById('playerHealthFill').style.width = `${playerHealth}%`;
+                    document.getElementById('playerHealthFill').style.background = playerHealth > 30 ? 'green' : 'red';
+                    spawnBossAttack();
+                    showDialogue(`${enemies[currentEnemy].name}: Too slow! Take this!`);
+                    if (playerHealth <= 0) {
+                        loseLife();
+                    } else {
+                        generateProblem();
+                    }
+                }
+            }, 15000);
+        }
+
+        // Lose a life
+        function loseLife() {
+            lives--;
+            const livesDisplay = document.getElementById('livesDisplay');
+            if (livesDisplay.children.length > 0) {
+                livesDisplay.removeChild(livesDisplay.lastChild);
+            }
+            if (lives <= 0) {
+                document.getElementById('feedback').textContent = 'Game Over! No lives left!';
+                setTimeout(() => location.reload(), 5000);
+            } else {
+                playerHealth = 100;
+                document.getElementById('playerHealthFill').style.width = '100%';
+                document.getElementById('playerHealthFill').style.background = 'green';
+                document.getElementById('feedback').textContent = `Lost a life! ${lives} lives remaining.`;
+                setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
+                generateProblem();
+            }
+        }
+
+        // Boss attack animation
+        function spawnBossAttack() {
+            const orbColor = enemies[currentEnemy].color;
+            const startPos = new THREE.Vector3(5, -1, 0);
+            const endPos = new THREE.Vector3(-5, -1, 0);
+            const numOrbs = 3;
+            let orbDelay = 0;
+
+            for (let i = 0; i < numOrbs; i++) {
+                setTimeout(() => {
+                    const orbGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+                    const orbMaterial = new THREE.MeshStandardMaterial({ color: orbColor, emissive: orbColor, emissiveIntensity: 0.5 });
+                    const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+                    orb.position.copy(startPos);
+                    orbGroup.add(orb);
+                    playAttackSound('Fire');
+
+                    const trailPoints = [];
+                    let t = 0;
+                    const orbInterval = setInterval(() => {
+                        t += 0.04;
+                        if (t >= 1) {
+                            clearInterval(orbInterval);
+                            orbGroup.remove(orb);
+                            orb.geometry.dispose();
+                            orb.material.dispose();
+                            trailPoints.forEach(trail => {
+                                orbGroup.remove(trail);
+                                trail.geometry.dispose();
+                                trail.material.dispose();
+                            });
+                            if (i === numOrbs - 1) {
+                                hitTimer = 20;
+                                cameraShakeTimer = 10;
+                                spawnHitParticles(endPos);
+                                playHitSound();
+                            }
+                            return;
+                        }
+                        const prevPos = orb.position.clone();
+                        orb.position.lerpVectors(startPos, endPos, t);
+                        const trailGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+                        const trailMaterial = new THREE.MeshBasicMaterial({ color: orbColor, transparent: true, opacity: 0.5 });
+                        const trail = new THREE.Mesh(trailGeometry, trailMaterial);
+                        trail.position.copy(prevPos);
+                        orbGroup.add(trail);
+                        trailPoints.push(trail);
+                        setTimeout(() => {
+                            orbGroup.remove(trail);
+                            trail.geometry.dispose();
+                            trail.material.dispose();
+                        }, 300);
+                    }, 20);
+                }, orbDelay);
+                orbDelay += 100;
+            }
+        }
+
+        // Kai attack orbs
+        function spawnAttackOrbs() {
+            const type = playerMonsters[currentMonster].type;
+            const orbColor = type === 'Fire' ? 0xffa500 : type === 'Water' ? 0x00b7eb : type === 'Earth' ? 0xff6f00 : type === 'Wind' ? 0x87ceeb : 0x9400d3;
+            const startPos = new THREE.Vector3(-5, -1, 0);
+            const endPos = new THREE.Vector3(5, -1, 0);
+            const numOrbs = 5;
+            let orbDelay = 0;
+            let orbsCompleted = 0;
+
+            for (let i = 0; i < numOrbs; i++) {
+                setTimeout(() => {
+                    const orbGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+                    const orbMaterial = new THREE.MeshStandardMaterial({ color: orbColor, emissive: orbColor, emissiveIntensity: 0.5 });
+                    const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+                    orb.position.copy(startPos);
+                    orbGroup.add(orb);
+                    playAttackSound(type);
+
+                    const trailPoints = [];
+                    let t = 0;
+                    const orbInterval = setInterval(() => {
+                        t += 0.04;
+                        if (t >= 1) {
+                            clearInterval(orbInterval);
+                            orbGroup.remove(orb);
+                            orb.geometry.dispose();
+                            orb.material.dispose();
+                            trailPoints.forEach(trail => {
+                                orbGroup.remove(trail);
+                                trail.geometry.dispose();
+                                trail.material.dispose();
+                            });
+                            orbsCompleted++;
+                            if (orbsCompleted === numOrbs) {
+                                hitTimer = 20;
+                                cameraShakeTimer = 10;
+                                const damage = 10 + playerMonsters[currentMonster].level * 2;
+                                const willDefeat = correctAnswersThisLevel >= problemsToSolve;
+                                enemyHealth = Math.max(0, enemyHealth - damage);
+                                spawnHitParticles(endPos, willDefeat);
+                                showDialogue(`${playerMonsters[currentMonster].name}: Take that, ${enemies[currentEnemy].name}!`);
+                                showDamageIndicator(damage);
+                                document.getElementById('healthFill').style.width = `${enemyHealth}%`;
+                                document.getElementById('healthFill').style.background = enemyHealth > 30 ? 'green' : 'red';
+                                if (willDefeat) {
+                                    explodeEnemy();
+                                    enemyHealth = 100;
+                                    level++;
+                                    correctAnswersThisLevel = 0;
+                                    if (level > maxLevel) {
+                                        document.getElementById('feedback').textContent = 'You Win! Game Over!';
+                                        setTimeout(() => location.reload(), 5000);
+                                        return;
+                                    }
+                                    currentEnemy = (currentEnemy + 1) % enemies.length;
+                                    updateEnemy();
+                                    showLevelMessage();
+                                }
+                            }
+                            return;
+                        }
+                        const prevPos = orb.position.clone();
+                        orb.position.lerpVectors(startPos, endPos, t);
+                        const trailGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+                        const trailMaterial = new THREE.MeshBasicMaterial({ color: orbColor, transparent: true, opacity: 0.5 });
+                        const trail = new THREE.Mesh(trailGeometry, trailMaterial);
+                        trail.position.copy(prevPos);
+                        orbGroup.add(trail);
+                        trailPoints.push(trail);
+                        setTimeout(() => {
+                            orbGroup.remove(trail);
+                            trail.geometry.dispose();
+                            trail.material.dispose();
+                        }, 300);
+                    }, 20);
+                }, orbDelay);
+                orbDelay += 100;
+            }
+        }
+
+        // Particle effects for hit
+        function spawnHitParticles(position, isFinalBlow = false) {
+            const particleGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(isFinalBlow ? 600 : 300);
+            const directions = [];
+            const particleCount = isFinalBlow ? 200 : 100;
+            for (let i = 0; i < particleCount; i++) {
+                directions.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize());
+                positions[i * 3] = position.x;
+                positions[i * 3 + 1] = position.y;
+                positions[i * 3 + 2] = position.z;
+            }
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particleMaterial = new THREE.PointsMaterial({ color: 0xffff00, size: isFinalBlow ? 0.3 : 0.2 });
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
+            particles.directions = directions;
+            scene.add(particles);
+            let particleTime = 0;
+            const particleInterval = setInterval(() => {
+                particleTime += 0.02;
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i] += directions[i / 3].x * (isFinalBlow ? 0.15 : 0.1);
+                    positions[i + 1] += directions[i / 3].y * (isFinalBlow ? 0.15 : 0.1);
+                    positions[i + 2] += directions[i / 3].z * (isFinalBlow ? 0.15 : 0.1);
+                }
+                particleGeometry.attributes.position.needsUpdate = true;
+                if (particleTime > 1) {
+                    clearInterval(particleInterval);
+                    scene.remove(particles);
+                    particles.geometry.dispose();
+                    particleMaterial.dispose();
+                }
+            }, 20);
+        }
+
+        // Level-up sparkle effect
+        function spawnLevelUpSparkles() {
+            const sparkleGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(300);
+            const directions = [];
+            for (let i = 0; i < 100; i++) {
+                directions.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize());
+                positions[i * 3] = playerGroup.position.x;
+                positions[i * 3 + 1] = playerGroup.position.y + 1;
+                positions[i * 3 + 2] = playerGroup.position.z;
+            }
+            sparkleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const sparkleMaterial = new THREE.PointsMaterial({ color: 0xffff00, size: 0.2 });
+            const sparkles = new THREE.Points(sparkleGeometry, sparkleMaterial);
+            sparkles.directions = directions;
+            scene.add(sparkles);
+            let sparkleTime = 0;
+            const sparkleInterval = setInterval(() => {
+                sparkleTime += 0.02;
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i] += directions[i / 3].x * 0.1;
+                    positions[i + 1] += directions[i / 3].y * 0.1;
+                    positions[i + 2] += directions[i / 3].z * 0.1;
+                }
+                sparkleGeometry.attributes.position.needsUpdate = true;
+                if (sparkleTime > 1) {
+                    clearInterval(sparkleInterval);
+                    scene.remove(sparkles);
+                    sparkles.geometry.dispose();
+                    sparkleMaterial.dispose();
+                }
+            }, 20);
+        }
+
+        // Enemy explosion effect
+        function explodeEnemy() {
+            const pieces = [];
+            for (let i = 0; i < 20; i++) {
+                const pieceGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                const pieceMaterial = new THREE.MeshBasicMaterial({ color: enemies[currentEnemy].color });
+                const piece = new THREE.Mesh(pieceGeometry, pieceMaterial);
+                piece.position.copy(enemyGroup.position);
+                piece.direction = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+                piece.velocity = piece.direction.clone().multiplyScalar(0.2);
+                piece.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+                pieces.push(piece);
+                scene.add(piece);
+            }
+            playExplosionSound();
+
+            let t = 0;
+            const g = new THREE.Vector3(0, -0.01, 0);
+            const iv = setInterval(() => {
+                t += 0.02;
+                pieces.forEach(piece => {
+                    piece.velocity.add(g);
+                    piece.position.add(piece.velocity);
+                    piece.rotation.x += 0.1;
+                    piece.rotation.y += 0.1;
+                });
+                if (t > 2) {
+                    clearInterval(iv);
+                    pieces.forEach(p => {
+                        scene.remove(p);
+                        p.geometry.dispose();
+                        p.material.dispose();
+                    });
+                }
+            }, 20);
+        }
+
+        // Show damage indicator
+        function showDamageIndicator(damage) {
+            const damageDiv = document.getElementById('damageIndicator');
+            damageDiv.innerText = `-${damage}`;
+            damageDiv.style.display = 'block';
+            setTimeout(() => damageDiv.style.display = 'none', 1000);
+        }
+
+        // Monster selection
+        window.selectMonster = function(index) {
+            currentMonster = index;
+            playerMaterial.color.setHex(playerMonsters[currentMonster].color);
+            updatePlayerEffect();
+            updateFacialFeatures(playerMonsters[currentMonster].type);
+            updateAccessory();
+            showDialogue(`${playerMonsters[currentMonster].name}: I’m ready to fight!`);
+            document.getElementById('feedback').textContent = `Selected ${playerMonsters[currentMonster].name}!`;
+            setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
+            document.getElementById('customizeMenu').style.display = 'block';
+            document.getElementById('colorSelect').value = '0x' + playerMonsters[currentMonster].color.toString(16).padStart(6, '0');
+            document.getElementById('accessorySelect').value = playerMonsters[currentMonster].accessory;
+        };
+
+        // Customization
+        window.openCustomizeMenu = function() {
+            document.getElementById('customizeMenu').style.display = 'block';
+            document.getElementById('colorSelect').value = '0x' + playerMonsters[currentMonster].color.toString(16).padStart(6, '0');
+            document.getElementById('accessorySelect').value = playerMonsters[currentMonster].accessory;
+        };
+
+        window.closeCustomizeMenu = function() {
+            document.getElementById('customizeMenu').style.display = 'none';
+        };
+
+        window.applyCustomization = function() {
+            playerMonsters[currentMonster].color = parseInt(document.getElementById('colorSelect').value);
+            playerMonsters[currentMonster].accessory = document.getElementById('accessorySelect').value;
+            playerMaterial.color.setHex(playerMonsters[currentMonster].color);
+            updateFacialFeatures(playerMonsters[currentMonster].type);
+            updateAccessory();
+            closeCustomizeMenu();
+            document.getElementById('monsterRoster').innerHTML = `
+                <h3>Your Monsters</h3>
+                ${playerMonsters.map((m, i) => `<div onclick="selectMonster(${i})">${m.name} (${m.type}, Lv. ${m.level})</div>`).join('')}
+            `;
+            showDialogue(`${playerMonsters[currentMonster].name}: I look awesome now!`);
+        };
+
+        // Grade level selection
+        window.openGradeMenu = function() {
+            document.getElementById('gradeMenu').style.display = 'block';
+            document.getElementById('gradeSelect').value = gradeLevel;
+        };
+
+        window.closeGradeMenu = function() {
+            document.getElementById('gradeMenu').style.display = 'none';
+        };
+
+        window.applyGradeLevel = function() {
+            gradeLevel = +document.getElementById('gradeSelect').value;
+            closeGradeMenu();
+            document.getElementById('feedback').textContent = `Grade ${gradeLevel} selected!`;
+            setTimeout(() => document.getElementById('feedback').textContent = '', 1500);
+            if (!inTutorial) generateProblem();
+        };
+
+        function updateAccessory() {
+            accessoryGroup.children.forEach(child => {
+                accessoryGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+            const accessory = playerMonsters[currentMonster].accessory;
+            const type = playerMonsters[currentMonster].type;
+            if (accessory === 'horns') {
+                const hornGeometry = new THREE.ConeGeometry(0.5, 1, 8);
+                const hornMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const horn1 = new THREE.Mesh(hornGeometry, hornMaterial);
+                horn1.position.set(-0.5, 5, 0);
+                const horn2 = new THREE.Mesh(hornGeometry, hornMaterial);
+                horn2.position.set(0.5, 5, 0);
+                accessoryGroup.add(horn1, horn2);
+            } else if (accessory === 'wings') {
+                const wingGeometry = new THREE.PlaneGeometry(2, 1);
+                const wingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+                const wing1 = new THREE.Mesh(wingGeometry, wingMaterial);
+                wing1.position.set(-1.5, 1, 0);
+                wing1.rotation.z = Math.PI / 4;
+                const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
+                wing2.position.set(1.5, 1, 0);
+                wing2.rotation.z = -Math.PI / 4;
+                accessoryGroup.add(wing1, wing2);
+            }
+            if (type === 'Magic') {
+                const cape = new THREE.Mesh(
+                    new THREE.PlaneGeometry(2.5, 3.5),
+                    new THREE.MeshBasicMaterial({
+                        color: 0x9400d3,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.8
+                    })
+                );
+                cape.position.set(0, 1.5, -1.6);
+                cape.rotation.y = Math.PI;
+                accessoryGroup.add(cape);
+            }
+        }
+
+        function updateEnemy() {
+            enemyMaterial.color.setHex(enemies[currentEnemy].color);
+            updateEnemyFacialFeatures();
+            enemyAccessoryGroup.children.forEach(child => {
+                enemyAccessoryGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+            const accessory = enemies[currentEnemy].accessory;
+            if (accessory === 'horns') {
+                const hornGeometry = new THREE.ConeGeometry(0.5, 1, 8);
+                const hornMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const horn1 = new THREE.Mesh(hornGeometry, hornMaterial);
+                horn1.position.set(-0.6, 5.5, 0);
+                const horn2 = new THREE.Mesh(hornGeometry, hornMaterial);
+                horn2.position.set(0.6, 5.5, 0);
+                enemyAccessoryGroup.add(horn1, horn2);
+            } else if (accessory === 'wings') {
+                const wingGeometry = new THREE.PlaneGeometry(2, 1);
+                const wingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+                const wing1 = new THREE.Mesh(wingGeometry, wingMaterial);
+                wing1.position.set(-1.8, 1, 0);
+                wing1.rotation.z = Math.PI / 4;
+                const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
+                wing2.position.set(1.8, 1, 0);
+                wing2.rotation.z = -Math.PI / 4;
+                enemyAccessoryGroup.add(wing1, wing2);
+            }
+            const scale = 1 + (level - 1) * 0.1;
+            enemyGroup.scale.set(scale, scale, scale);
+        }
+
+        // Dialogue
+        function showDialogue(message) {
+            const dialogueDiv = document.getElementById('dialogue');
+            dialogueDiv.innerText = message;
+            dialogueDiv.style.display = 'block';
+            setTimeout(() => dialogueDiv.style.display = 'none', 2000);
+        }
+
+        // Level progression message
+        function showLevelMessage() {
+            problemsToSolve = 9 + (level - 1) * 3;
+            correctAnswersThisLevel = 0;
+
+            if ([3, 6, 9].includes(level)) {
+                playerHealth = 100;
+                document.getElementById('playerHealthFill').style.width = '100%';
+                document.getElementById('playerHealthFill').style.background = 'green';
+                document.getElementById('feedback').textContent = 'Health restored!';
+                setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
+            }
+
+            document.getElementById('storyMessage').innerText =
+                `Level ${level}: ${enemies[currentEnemy].name} appears! Solve ${problemsToSolve} problems to defeat them!`;
+            document.getElementById('storyMessage').style.display = 'block';
+
+            const preset = sceneryPresets[level - 1];
+            ambientLight.color.setHex(preset.ambient);
+            terrainMaterial.color.setHex(preset.terrain);
+            starMaterial.color.setHex(preset.stars);
+            scene.fog = new THREE.FogExp2(preset.fog, 0.002);
+            updateEnvironment(level);
+
+            setTimeout(() => {
+                document.getElementById('storyMessage').style.display = 'none';
+                if (!inTutorial) generateProblem();
+            }, 4000);
+            document.getElementById('levelIndicator').innerText = `Level ${level}`;
+        }
+
+        // Tutorial
+        window.closeTutorial = function() {
+            document.getElementById('tutorialMenu').style.display = 'none';
+            inTutorial = false;
+            document.getElementById('ui').style.display = 'block';
+            document.getElementById('monsterRoster').style.display = 'block';
+            document.getElementById('healthBar').style.display = 'block';
+            document.getElementById('playerHealthBar').style.display = 'block';
+            document.getElementById('livesDisplay').style.display = 'flex';
+            document.getElementById('levelIndicator').style.display = 'block';
+            playAmbientSound();
+            updatePlayerEffect();
+            updateFacialFeatures(playerMonsters[currentMonster].type);
+            updateEnemy();
+            generateProblem();
+            document.getElementById('answerInput').focus();
+        };
+
+        // Hint system
+        window.showHint = function() {
+            if (!problem) {
+                document.getElementById('feedback').textContent = 'No problem yet! Start playing first.';
+                setTimeout(() => document.getElementById('feedback').textContent = '', 3000);
+                return;
+            }
+            const hint = operation === '+' ? `Count all the red and blue blocks together.` :
+                        operation === '-' ? `Count the red blocks, then take away the blue ones.` :
+                        operation === '*' ? `Try counting ${problem.split(' ')[0]} groups of ${problem.split(' ')[2]}.` :
+                        `How many times does ${problem.split(' ')[2]} go into ${problem.split(' ')[0]}?`;
+            document.getElementById('feedback').textContent = hint;
+            setTimeout(() => document.getElementById('feedback').textContent = '', 3000);
+        };
+
+        // Check answer
+        window.checkAnswer = function() {
+            if (answerTimeout) clearTimeout(answerTimeout);
+
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const uiDiv = document.getElementById('ui');
+            if (userAnswer === correctAnswer) {
+                uiDiv.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
+                setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204,
+                  setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204, 0.8)', 300);
+                document.getElementById('feedback').textContent = 'Correct!';
+                score += 10;
+                document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
+                correctAnswersThisLevel++;
+                playerMonsters[currentMonster].xp += 10;
+                playRewardSound();
+
+                spawnAttackOrbs();
+                attackTimer = 20;
+
+                if (correctAnswersThisLevel >= problemsToSolve) {
+                    document.getElementById('feedback').textContent = `Boss defeated! Moving to Level ${level + 1}!`;
+                    setTimeout(generateProblem, 3000);
+                } else {
+                    document.getElementById('feedback').textContent = `Correct! ${problemsToSolve - correctAnswersThisLevel} more to defeat the boss!`;
+                    setTimeout(generateProblem, 2000);
+                }
+
+                if (playerMonsters[currentMonster].xp >= playerMonsters[currentMonster].maxXp) {
+                    playerMonsters[currentMonster].level++;
+                    playerMonsters[currentMonster].xp = 0;
+                    playerMonsters[currentMonster].maxXp += 20;
+                    document.getElementById('feedback').textContent = `${playerMonsters[currentMonster].name} leveled up to Lv. ${playerMonsters[currentMonster].level}!`;
+                    showDialogue(`${playerMonsters[currentMonster].name}: I’m stronger now!`);
+                    spawnLevelUpSparkles();
+                    document.getElementById('monsterRoster').innerHTML = `
+                        <h3>Your Monsters</h3>
+                        ${playerMonsters.map((m, i) => `<div onclick="selectMonster(${i})">${m.name} (${m.type}, Lv. ${m.level})</div>`).join('')}
+                    `;
+                    setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
+                }
+            } else {
+                uiDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+                setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204, 0.8)', 300);
+                document.getElementById('feedback').textContent = 'Wrong! Try again.';
+                showDialogue(`${enemies[currentEnemy].name}: Ha! You’ll never defeat me!`);
+                const bossDamage = 11.11 * (1 + 0.06 * (level - 1));
+                playerHealth = Math.max(0, playerHealth - bossDamage);
+                document.getElementById('playerHealthFill').style.width = `${playerHealth}%`;
+                document.getElementById('playerHealthFill').style.background = playerHealth > 30 ? 'green' : 'red';
+                spawnBossAttack();
+                if (playerHealth <= 0) {
+                    loseLife();
+                } else {
+                    setTimeout(generateProblem, 2000);
+                }
+            }
+        };
+
+        // Animation loop
+        let time = 0;
+        let lastTime = performance.now();
+        function animate() {
+            try {
+                requestAnimationFrame(animate);
+                const now = performance.now();
+                const delta = Math.min((now - lastTime) / 1000, 0.1);
+                lastTime = now;
+                time += delta;
+
+                // Animate player
+                playerGroup.position.y = -2 + Math.sin(time * 2) * 0.2;
+
+                // Animate player facial features
+                if (leftEye && rightEye) {
+                    const blink = Math.sin(time * 2) > 0.8 ? 0.7 : 1;
+                    leftEye.scale.set(1, blink, 1);
+                    rightEye.scale.set(1, blink, 1);
+                }
+                if (mouth) {
+                    mouth.rotation.x = Math.sin(time * 3) * 0.1;
+                }
+
+                // Animate enemy
+                enemyGroup.position.y = -2 + Math.cos(time * 2) * 0.2;
+
+                // Animate enemy facial features
+                if (enemyLeftEye && enemyRightEye) {
+                    const blink = Math.sin(time * 2) > 0.9 ? 0.6 : 1; // Narrower blink for menacing look
+                    enemyLeftEye.scale.set(1, blink, 1);
+                    enemyRightEye.scale.set(1, blink, 1);
+                }
+                if (enemyMouth) {
+                    enemyMouth.rotation.z = Math.PI / 8 + Math.sin(time * 2) * 0.05; // Menacing grin
+                }
+
+                // Animate elemental effects for left arm
+                if (leftParticleSystem) {
+                    const pos = leftParticleSystem.geometry.attributes.position;
+                    const type = playerMonsters[currentMonster].type;
+                    for (let i = 0; i < 25; i++) {
+                        if (type === 'Fire') {
+                            pos.array[i * 3 + 1] += leftSpeeds[i]; // Rise upward
+                            if (pos.array[i * 3 + 1] > 3.5) {
+                                pos.array[i * 3] = -1.5 + (Math.random() - 0.5) * 0.3; // Left arm
+                                pos.array[i * 3 + 1] = 1.5; // Reset to arm height
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                leftSpeeds[i] = 0.02 + Math.random() * 0.02;
+                            }
+                        } else if (type === 'Water') {
+                            pos.array[i * 3 + 1] += leftSpeeds[i]; // Flow upward
+                            if (pos.array[i * 3 + 1] > 3.5) {
+                                pos.array[i * 3] = -1.5 + (Math.random() - 0.5) * 0.3;
+                                pos.array[i * 3 + 1] = 1.5;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                leftSpeeds[i] = 0.01 + Math.random() * 0.01;
+                            }
+                        } else if (type === 'Earth') {
+                            pos.array[i * 3 + 1] += leftSpeeds[i]; // Rise upward
+                            if (pos.array[i * 3 + 1] > 3.5) {
+                                pos.array[i * 3] = -1.5 + (Math.random() - 0.5) * 0.3;
+                                pos.array[i * 3 + 1] = 1.5;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                leftSpeeds[i] = 0.01 + Math.random() * 0.01;
+                            }
+                        } else if (type === 'Wind') {
+                            pos.array[i * 3] += leftSpeeds[i]; // Move horizontally
+                            if (Math.abs(pos.array[i * 3] + 5) > 2) { // Relative to playerGroup
+                                pos.array[i * 3] = -1.5;
+                                pos.array[i * 3 + 1] = 1.5 + (Math.random() - 0.5) * 0.3;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                leftSpeeds[i] = 0.03 + Math.random() * 0.02;
+                            }
+                        } else if (type === 'Magic') {
+                            pos.array[i * 3] += leftSpeeds[i] * Math.sin(time + i);
+                            pos.array[i * 3 + 1] += leftSpeeds[i] * Math.cos(time + i);
+                            if (Math.hypot(pos.array[i * 3] + 1.5, pos.array[i * 3 + 1] - 1.5) > 1.5) {
+                                pos.array[i * 3] = -1.5;
+                                pos.array[i * 3 + 1] = 1.5;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                leftSpeeds[i] = 0.01 + Math.random() * 0.01;
+                            }
+                        }
+                    }
+                    pos.needsUpdate = true;
+                }
+
+                // Animate elemental effects for right arm
+                if (rightParticleSystem) {
+                    const pos = rightParticleSystem.geometry.attributes.position;
+                    const type = playerMonsters[currentMonster].type;
+                    for (let i = 0; i < 25; i++) {
+                        if (type === 'Fire') {
+                            pos.array[i * 3 + 1] += rightSpeeds[i]; // Rise upward
+                            if (pos.array[i * 3 + 1] > 3.5) {
+                                pos.array[i * 3] = 1.5 + (Math.random() - 0.5) * 0.3; // Right arm
+                                pos.array[i * 3 + 1] = 1.5; // Reset to arm height
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                rightSpeeds[i] = 0.02 + Math.random() * 0.02;
+                            }
+                        } else if (type === 'Water') {
+                            pos.array[i * 3 + 1] += rightSpeeds[i]; // Flow upward
+                            if (pos.array[i * 3 + 1] > 3.5) {
+                                pos.array[i * 3] = 1.5 + (Math.random() - 0.5) * 0.3;
+                                pos.array[i * 3 + 1] = 1.5;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                rightSpeeds[i] = 0.01 + Math.random() * 0.01;
+                            }
+                        } else if (type === 'Earth') {
+                            pos.array[i * 3 + 1] += rightSpeeds[i]; // Rise upward
+                            if (pos.array[i * 3 + 1] > 3.5) {
+                                pos.array[i * 3] = 1.5 + (Math.random() - 0.5) * 0.3;
+                                pos.array[i * 3 + 1] = 1.5;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                rightSpeeds[i] = 0.01 + Math.random() * 0.01;
+                            }
+                        } else if (type === 'Wind') {
+                            pos.array[i * 3] += rightSpeeds[i]; // Move horizontally
+                            if (Math.abs(pos.array[i * 3] - 5) > 2) { // Relative to playerGroup
+                                pos.array[i * 3] = 1.5;
+                                pos.array[i * 3 + 1] = 1.5 + (Math.random() - 0.5) * 0.3;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                rightSpeeds[i] = 0.03 + Math.random() * 0.02;
+                            }
+                        } else if (type === 'Magic') {
+                            pos.array[i * 3] += rightSpeeds[i] * Math.sin(time + i);
+                            pos.array[i * 3 + 1] += rightSpeeds[i] * Math.cos(time + i);
+                            if (Math.hypot(pos.array[i * 3] - 1.5, pos.array[i * 3 + 1] - 1.5) > 1.5) {
+                                pos.array[i * 3] = 1.5;
+                                pos.array[i * 3 + 1] = 1.5;
+                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+                                rightSpeeds[i] = 0.01 + Math.random() * 0.01;
+                            }
+                        }
+                    }
+                    pos.needsUpdate = true;
+                }
+
+                // Attack animation
+                if (attackTimer > 0) {
+                    playerGroup.position.x = -5 + Math.sin(attackTimer) * 0.2;
+                    attackTimer--;
+                    if (attackTimer <= 0) playerGroup.position.x = -5;
+                }
+
+                // Hit animation
+                if (hitTimer > 0) {
+                    enemyGroup.position.x = 5 + Math.sin(hitTimer * 2) * 0.2;
+                    hitTimer--;
+                    if (hitTimer <= 0) enemyGroup.position.x = 5;
+                }
+
+                // Camera shake
+                if (cameraShakeTimer > 0) {
+                    camera.position.set(
+                        0 + (Math.random() - 0.5) * 0.5,
+                        5 + (Math.random() - 0.5) * 0.5,
+                        20 + (Math.random() - 0.5) * 0.5
+                    );
+                    cameraShakeTimer--;
+                    if (cameraShakeTimer <= 0) {
+                        camera.position.set(0, 5, 20);
+                    }
+                }
+                camera.lookAt(0, 0, 0);
+
+                renderer.render(scene, camera);
+            } catch (e) {
+                console.error('Animation error:', e);
+            }
+        }
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start animation
+        animate();
+
+        // Initialize game
+        document.getElementById('tutorialMenu').style.display = 'block';
+        document.getElementById('answerInput').focus();
+    </script>
+</body>
+</html>
