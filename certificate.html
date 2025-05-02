@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create and download your Fractal Hunters certificate inspired by Mr. Ito's Fractal Adventure.">
+    <title>Fractal Hunters Certificate</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            background: linear-gradient(to bottom, #0a0a23, #1c2526);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 0;
+            z-index: 3;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #000;
+        }
+        nav a:hover {
+            color: #FFD700;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            min-width: 160px;
+            z-index: 1;
+            border-radius: 5px;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .dropdown-content a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            margin: 80px 20px 20px;
+        }
+        h1 {
+            color: #FFD700;
+            text-shadow: 0 0 10px #000;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #C0C0C0;
+            text-shadow: 0 0 5px #000;
+            margin-bottom: 20px;
+        }
+        .certificate-preview {
+            background: #fff;
+            border: 5px solid #FFD700;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .certificate-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 10px solid transparent;
+            border-image: linear-gradient(45deg, #FFD700, #00f, #FFD700, #00f) 1;
+            pointer-events: none;
+        }
+        .certificate-content {
+            color: #0a0a23;
+            text-align: center;
+            padding: 20px;
+        }
+        .certificate-content h2 {
+            font-size: 2rem;
+            margin: 0;
+            color: #0a0a23;
+        }
+        .certificate-content p {
+            font-size: 1.2rem;
+            color: #0a0a23;
+            margin: 10px 0;
+        }
+        .certificate-content .name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 20px 0;
+        }
+        .certificate-content .signature {
+            font-style: italic;
+            margin-top: 20px;
+            color: #0a0a23;
+        }
+        .input-box {
+            margin: 20px 0;
+        }
+        .input-box label {
+            display: block;
+            color: #C0C0C0;
+            margin-bottom: 10px;
+        }
+        .input-box input {
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .input-box input:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #FFD700;
+            color: #0a0a23;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.3s;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .cta-button:hover {
+            transform: scale(1.1);
+        }
+        @media (max-width: 768px) {
+            .certificate-preview {
+                max-width: 90%;
+            }
+            .certificate-content h2 {
+                font-size: 1.5rem;
+            }
+            .certificate-content p {
+                font-size: 1rem;
+            }
+            .certificate-content .name {
+                font-size: 1.2rem;
+            }
+            nav a { margin: 0 10px; font-size: 1rem; }
+            .dropdown-content { min-width: 120px; }
+            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <div class="dropdown">
+            <a href="#">Kid's Zone</a>
+            <div class="dropdown-content">
+                <a href="kais-wisdom-fighters.html">Kai's Wisdom Fighters</a>
+                <a href="certificate.html">Certificates</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Fractal Hunters Certificate</h1>
+        <p>Enter your name to create your very own Fractal Hunters certificate, just like Kai and Marie!</p>
+        <div class="input-box">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Enter your name">
+        </div>
+        <div class="certificate-preview" id="certificate">
+            <div class="certificate-content">
+                <h2>Fractal Hunters Certificate</h2>
+                <p>Congratulations on becoming a fractal hunter, just like Kai and Marie!</p>
+                <p>This certificate is awarded to</p>
+                <p class="name" id="certificate-name">[Your Name]</p>
+                <p>for discovering the magic of fractals. Keep hunting for patterns, and let your curiosity shine like a fractal star!</p>
+                <p class="signature">Signed: Mr. Ito</p>
+            </div>
+        </div>
+        <button class="cta-button" onclick="downloadCertificate()">Download Certificate</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const nameInput = document.getElementById('name');
+        const certificateName = document.getElementById('certificate-name');
+
+        nameInput.addEventListener('input', () => {
+            certificateName.textContent = nameInput.value || '[Your Name]';
+        });
+
+        function downloadCertificate() {
+            const certificate = document.getElementById('certificate');
+            html2canvas(certificate).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Fractal_Hunters_Certificate.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
