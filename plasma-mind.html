@@ -114,6 +114,7 @@
     <button id="startMeditation">Start Meditation</button>
     <button id="toggleGuide">Toggle Guide</button>
     <button id="vrMode">VR Mode</button>
+    <button id="toggleFullscreen">Enter Fullscreen</button>
   </div>
   <div id="guidance"></div>
   <footer>
@@ -285,6 +286,25 @@
         }
       }
 
+      toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+              console.error(`Error attempting to enable fullscreen: ${err.message}`);
+              document.body.innerHTML += `<div id="error">Error enabling fullscreen: ${err.message}</div>`;
+            });
+          } else {
+            document.exitFullscreen().catch(err => {
+              console.error(`Error attempting to exit fullscreen: ${err.message}`);
+              document.body.innerHTML += `<div id="error">Error exiting fullscreen: ${err.message}</div>`;
+            });
+          }
+        } catch (error) {
+          console.error('Error in toggleFullscreen:', error);
+          document.body.innerHTML += `<div id="error">Error in fullscreen toggle: ${error.message}</div>`;
+        }
+      }
+
       bindUI() {
         try {
           console.log('Binding UI...');
@@ -301,6 +321,14 @@
             document.getElementById('state').innerText = this.guideActive ? 'Guided' : 'Exploring';
           });
           document.getElementById('vrMode').addEventListener('click', () => this.startVR());
+          document.getElementById('toggleFullscreen').addEventListener('click', () => {
+            this.toggleFullscreen();
+          });
+          // Update button text based on fullscreen state
+          document.addEventListener('fullscreenchange', () => {
+            const fullscreenButton = document.getElementById('toggleFullscreen');
+            fullscreenButton.innerText = document.fullscreenElement ? 'Exit Fullscreen' : 'Enter Fullscreen';
+          });
           window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
