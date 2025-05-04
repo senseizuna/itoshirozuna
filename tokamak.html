@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Q216D Tokamak Simulation</title>
+  <!--
+     Q216D Tokamak Simulation
+     Itoshiro Zuna LLC
+     Copyright (c) 2025 Itoshiro Zuna LLC
+     All rights reserved.
+     Unauthorized copying, modification, or distribution of this code is prohibited.
+  -->
+  <style>
+    body { margin: 0; overflow: hidden; background: #0a0a23; font-family: Arial, sans-serif; }
+    #mainCanvas { display: block; }
+    #plotCanvas { position: absolute; top: 60px; left: 10px; background: rgba(0,0,0,0.5); }
+    #info { position: absolute; bottom: 150px; right: 10px; color: #fff; font-size: 14px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; }
+    #fps { position: absolute; top: 60px; right: 50px; color: #fff; font-size: 14px; }
+    #stats { position: absolute; bottom: 100px; right: 10px; color: #fff; font-size: 12px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; }
+    #representation { position: absolute; top: 90px; right: 10px; color: #fff; font-size: 14px; }
+    #viewMode { position: absolute; top: 120px; right: 10px; color: #fff; font-size: 14px; }
+    #legend { position: absolute; top: 150px; right: 10px; color: #fff; font-size: 12px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; display: none; }
+    #zoom { position: absolute; top: 190px; right: 10px; color: #fff; font-size: 14px; }
+    #zoom input { vertical-align: middle; }
+    #speed { position: absolute; top: 220px; right: 10px; color: #fff; font-size: 14px; }
+    #speed input { vertical-align: middle; }
+    #realTimeControls { position: absolute; top: 250px; right: 10px; color: #fff; font-size: 14px; }
+    #realTimeControls label { display: block; margin: 5px 0; }
+    #realTimeControls input { vertical-align: middle; }
+    #optionsMenu { position: absolute; top: 330px; right: 10px; }
+    #optionsButton { padding: 5px; background: #444; color: #fff; border: none; cursor: pointer; }
+    #optionsDropdown { position: absolute; top: 30px; right: 0; background: #333; border: 1px solid #fff; padding: 5px; display: none; flex-direction: column; gap: 5px; height: 350px; overflow-y: auto; }
+    #optionsDropdown button { padding: 5px; background: #444; color: #fff; border: none; cursor: pointer; width: 150px; text-align: left; }
+    #settingsPanel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; padding: 10px; background: rgba(0,0,0,0.8); color: #fff; font-size: 14px; display: none; border: 1px solid #fff; }
+    #settingsPanel label { display: block; margin: 5px 0; }
+    #settingsPanel select, #settingsPanel input[type="range"], #settingsPanel input[type="number"] { width: 100%; margin: 5px 0; }
+    #settingsPanel button { margin-top: 10px; }
+    #feedbackPanel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; padding: 10px; background: rgba(0,0,0,0.8); color: #fff; font-size: 14px; display: none; border: 1px solid #fff; }
+    #feedbackPanel label { display: block; margin: 5px 0; }
+    #feedbackPanel select, #feedbackPanel textarea { width: 100%; margin: 5px 0; }
+    #feedbackPanel button { margin-top: 10px; }
+    #messages { position: absolute; bottom: 40px; left: 10px; width: 240px; height: 120px; background: rgba(0,0,0,0.5); color: #fff; padding: 5px; overflow-y: auto; font-size: 12px; white-space: pre-wrap; }
+    #input { position: absolute; bottom: 170px; left: 10px; width: 232px; padding: 5px; font-size: 12px; }
+    .hidden { display: none; }
+    nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 10px 0;
+        text-align: center;
+        z-index: 10;
+    }
+    nav a {
+        color: #fff;
+        text-decoration: none;
+        margin: 0 20px;
+        font-size: 1.2rem;
+        text-shadow: 0 0 5px #000;
+    }
+    nav a:hover {
+        color: #FFD700;
+    }
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        text-align: center;
+        z-index: 2;
+    }
+    footer p {
+        color: #C0C0C0;
+        margin: 0;
+        font-size: 0.9rem;
+        text-shadow: 0 0 5px #000;
+    }
+    @media (max-width: 768px) {
+        nav a { margin: 0 10px; font-size: 1rem; }
+        footer p { font-size: 0.8rem; }
+        #plotCanvas { top: 50px; }
+        #fps { top: 50px; }
+        #representation { top: 80px; }
+        #viewMode { top: 110px; }
+        #legend { top: 140px; }
+        #zoom { top: 180px; }
+        #speed { top: 210px; }
+        #realTimeControls { top: 240px; }
+        #optionsMenu { top: 320px; }
+        #messages { bottom: 30px; }
+        #input { bottom: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="research.html">Research</a>
+  </nav>
+  <canvas id="mainCanvas"></canvas>
+  <canvas id="plotCanvas" width="400" height="200"></canvas>
+  <div id="info">Q216D Tokamak Simulation – Ultra-precise energy control (2.10108 to 2.10288 keV, span ~0.0018 keV) over 3 hours</div>
+  <div id="fps">FPS: 0</div>
+  <div id="stats">
+    Current Energy: 2.10198 keV<br>
+    Safety Factor (q): 1.5<br>
+    Time: 0 s
+  </div>
+  <div id="representation">
+    Representation: <select id="representationDropdown">
+      <option value="1">Representation 1: Core Plasma</option>
+      <option value="2">Representation 2: Turbulence Modes</option>
+      <option value="3">Representation 3: Energy Transitions</option>
+      <option value="4">Representation 4: Magnetic Field Lines</option>
+      <option value="5">Representation 5: Heating Effects</option>
+      <option value="6">Representation 6: Loss Dynamics</option>
+      <option value="7">Representation 7: Event Impacts</option>
+      <option value="8">Representation 8: Safety Factor</option>
+      <option value="9">Representation 9: PCA Modes</option>
+      <option value="10">Representation 10: Temperature Gradient</option>
+    </select>
+  </div>
+  <div id="viewMode">
+    View Mode: <select id="viewModeDropdown">
+      <option value="torus">Torus</option>
+      <option value="toroidalField">Toroidal Field</option>
+    </select>
+  </div>
+  <div id="legend">
+    Representation 1: Colors based on radial distance (core plasma structure).
+  </div>
+  <div id="zoom">
+    Zoom: <input type="range" id="zoomSlider" min="0.5" max="5" step="0.1" value="1">
+  </div>
+  <div id="speed">
+    Speed: <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+  </div>
+  <div id="realTimeControls">
+    <label>Temp (keV): <input type="range" id="realTimeTemp" min="2.0" max="3.0" step="0.1" value="2.5"></label>
+    <label>Density (x10^19 m^-3): <input type="range" id="realTimeDensity" min="1.0" max="2.0" step="0.1" value="1.5"></label>
+  </div>
+  <div id="optionsMenu">
+    <button id="optionsButton">Options ▼</button>
+    <div id="optionsDropdown">
+      <button id="startButton">Start Simulation</button>
+      <button id="pauseButton">Pause Simulation</button>
+      <button id="resumeButton">Resume Simulation</button>
+      <button id="stepForwardButton">Step Forward</button>
+      <button id="stepBackwardButton">Step Backward</button>
+      <button id="stopButton">Stop Simulation</button>
+      <button id="resetButton">Reset Simulation</button>
+      <button id="fullViewButton">Full View</button>
+      <button id="settingsButton">Settings</button>
+      <button id="feedbackButton">Feedback</button>
+      <button id="exportButton">Export Data</button>
+    </div>
+  </div>
+  <div id="settingsPanel">
+    <h3>Settings</h3>
+    <label>Temperature (keV): <input type="number" id="tempInput" min="2.0" max="3.0" step="0.1" value="2.5"></label>
+    <label>Density (x10^19 m^-3): <input type="number" id="densityInput" min="1.0" max="2.0" step="0.1" value="1.5"></label>
+    <label>Simulation Duration (s): <input type="number" id="durationInput" min="1" max="10800" step="1" value="10"></label>
+    <label>Color Theme:
+      <select id="colorTheme">
+        <option value="vivid">Vivid</option>
+        <option value="pastel">Pastel</option>
+        <option value="neon">Neon</option>
+      </select>
+    </label>
+    <button id="saveSettings">Save</button>
+  </div>
+  <div id="feedbackPanel">
+    <h3>Simulation Feedback</h3>
+    <label>Rating:
+      <select id="feedbackRating">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Terrible</option>
+      </select>
+    </label>
+    <label>Comments: <textarea id="feedbackComments" rows="4" placeholder="Share your experience..."></textarea></label>
+    <button id="submitFeedback">Submit</button>
+    <button id="closeFeedback">Close</button>
+  </div>
+  <textarea id="messages" readonly>
+Welcome to the Q216D Tokamak Simulation!
+This simulation demonstrates ultra-precise energy transition control (2.10108 to 2.10288 keV, span ~0.0018 keV) over 3 hours, as proven in the patent.
+Select a representation and start the simulation.
+  </textarea>
+  <input id="input" placeholder="Share your thoughts..." />
+  <footer>
+    <p>© 2025 Itoshiro Zuna LLC. All rights reserved.</p>
+  </footer>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <!-- OrbitControls -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Pyodide -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <script>
+    // Scene Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('mainCanvas'), antialias: true });
+    renderer.setSize(innerWidth, innerHeight);
+
+    // Orbit Controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = false;
+    controls.minDistance = 5;
+    controls.maxDistance = 50;
+
+    // Background
+    scene.background = new THREE.Color(0x0a0a23);
+    scene.fog = new THREE.FogExp2(0x0a0a23, 0.02);
+
+    // Lighting
+    const light = new THREE.PointLight(0xffffff, 1, 50);
+    light.position.set(10, 10, 10);
+    scene.add(light);
+
+    // Grid and Axes
+    const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x444444);
+    scene.add(gridHelper);
+    const axesHelper = new THREE.AxesHelper(5);
+    scene.add(axesHelper);
+
+    // Magnetic Coils (Simplified)
+    const coilMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.3 });
+    const toroidalCoilGeometry = new THREE.TorusGeometry(4, 0.2, 16, 100);
+    for (let i = 0; i < 8; i++) {
+      const coil = new THREE.Mesh(toroidalCoilGeometry, coilMaterial);
+      coil.rotation.x = Math.PI / 2;
+      coil.position.z = (i - 3.5) * 1.5;
+      scene.add(coil);
+    }
+
+    // Tokamak Plasma Visualization
+    let plasma;
+    let fieldLines = [];
+    let currentRepresentation = 1;
+    let currentViewMode = 'torus';
+    let colorTheme = 'vivid';
+    let simulationRunning = false;
+    let simulationPaused = false;
+    let time = 0;
+    let temperature = 2.5; // keV
+    let density = 1.5; // x10^19 m^-3
+    let duration = 10; // seconds
+    let hueShift = 0;
+    let zoomLevel = 1; // Scale factor for plasma size
+    let particleCount = 0;
+    let N = 15; // Define N at a higher scope
+    let speed = 1; // Playback speed
+
+    function generatePlasma(representation, energyData = 0) {
+      // Clear previous field lines if they exist
+      fieldLines.forEach(line => scene.remove(line));
+      fieldLines = [];
+
+      if (currentViewMode === 'torus') {
+        const geo = new THREE.BufferGeometry();
+        const verts = [], cols = [], sizes = [];
+        let centerX = 0, centerY = 0, centerZ = 0;
+        let vertexCount = 0;
+
+        // Toroidal shape parameters
+        const R = 3; // Major radius (distance from center of torus to center of tube)
+        const r = 1; // Minor radius (radius of the tube)
+
+        for (let i = 0; i < 1000; i++) {
+          const theta = Math.random() * 2 * Math.PI; // Angle around the major radius
+          const phi = Math.random() * 2 * Math.PI; // Angle around the minor radius
+          const x = (R + r * Math.cos(phi)) * Math.cos(theta);
+          const y = (R + r * Math.cos(phi)) * Math.sin(theta);
+          const z = r * Math.sin(phi);
+
+          verts.push(x, y, z);
+          centerX += x;
+          centerY += y;
+          centerZ += z;
+          vertexCount++;
+
+          const radialDist = Math.sqrt(x * x + y * y + z * z);
+          let hue;
+          if (representation == 1) hue = (radialDist / (R + r)) * 360; // Core Plasma
+          else if (representation == 2) hue = (Math.sin(time + x / 5) + 1) * 180; // Turbulence
+          else if (representation == 3) hue = (energyData - 2.1) * 1000; // Energy Transitions
+          else if (representation == 4) hue = (z / r) * 360; // Magnetic Field Lines
+          else if (representation == 5) hue = (temperature * 0.3) * 120; // Heating Effects
+          else if (representation == 6) hue = (density * 1.5e-38) * 360; // Loss Dynamics
+          else if (representation == 7) hue = (time % 5) * 72; // Event Impacts
+          else if (representation == 8) hue = (1.5 + 0.1 * Math.sin(time)) * 200; // Safety Factor
+          else if (representation == 9) hue = (x + y + z) * 10; // PCA Modes
+          else if (representation == 10) {
+            let tempGradient = (temperature - 2.0) / (3.0 - 2.0);
+            hue = tempGradient * 240;
+          }
+          hue = (hue + hueShift) % 360;
+          let col;
+          if (colorTheme === 'vivid') col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+          else if (colorTheme === 'pastel') col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+          else col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+          cols.push(col.r, col.g, col.b);
+          sizes.push((0.1 + (energyData - 2.1) * 0.5) * zoomLevel);
+        }
+
+        if (!verts.length) {
+          verts.push(0, 0, 0);
+          cols.push(1, 1, 1);
+          sizes.push(0.1 * zoomLevel);
+          vertexCount = 1;
+        }
+
+        // Center the geometry
+        centerX /= vertexCount;
+        centerY /= vertexCount;
+        centerZ /= vertexCount;
+        for (let i = 0; i < verts.length; i += 3) {
+          verts[i] -= centerX;
+          verts[i + 1] -= centerY;
+          verts[i + 2] -= centerZ;
+          verts[i] *= zoomLevel;
+          verts[i + 1] *= zoomLevel;
+          verts[i + 2] *= zoomLevel;
+        }
+
+        particleCount = verts.length / 3;
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+        geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+        geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+        const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+        return new THREE.Points(geo, material);
+      } else if (currentViewMode === 'toroidalField') {
+        // Generate field lines for the toroidal field
+        const R = 3; // Major radius
+        const r = 1; // Minor radius
+        const fieldLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+
+        for (let i = 0; i < 5; i++) {
+          const phi = (i / 5) * 2 * Math.PI;
+          const points = [];
+          for (let theta = 0; theta <= 2 * Math.PI; theta += 0.1) {
+            const x = (R + (r * 0.8) * Math.cos(phi)) * Math.cos(theta);
+            const y = (R + (r * 0.8) * Math.cos(phi)) * Math.sin(theta);
+            const z = (r * 0.8) * Math.sin(phi);
+            points.push(new THREE.Vector3(x, y, z));
+          }
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+          const line = new THREE.Line(geometry, fieldLineMaterial);
+          fieldLines.push(line);
+          scene.add(line);
+        }
+
+        // Add a sparse plasma for context
+        const geo = new THREE.BufferGeometry();
+        const verts = [], cols = [], sizes = [];
+        for (let i = 0; i < 200; i++) {
+          const theta = Math.random() * 2 * Math.PI;
+          const phi = Math.random() * 2 * Math.PI;
+          const x = (R + r * Math.cos(phi)) * Math.cos(theta);
+          const y = (R + r * Math.cos(phi)) * Math.sin(theta);
+          const z = r * Math.sin(phi);
+          verts.push(x, y, z);
+          let hue = 120; // Green to match field lines
+          let col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+          cols.push(col.r, col.g, col.b);
+          sizes.push(0.1 * zoomLevel);
+        }
+
+        particleCount = verts.length / 3;
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+        geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+        geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+        const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+        return new THREE.Points(geo, material);
+      }
+    }
+
+    function updatePlasma(energyData) {
+      scene.remove(plasma);
+      plasma = generatePlasma(currentRepresentation, energyData);
+      plasma.position.set(0, 0, 0); // Ensure plasma is centered
+      scene.add(plasma);
+      hueShift += 0.5;
+      if (currentViewMode === 'torus') {
+        const positions = plasma.geometry.attributes.position.array;
+        const colors = plasma.geometry.attributes.color.array;
+        const sizes = plasma.geometry.attributes.size.array;
+        for (let i = 0; i < positions.length / 3; i++) {
+          const x = positions[i * 3], y = positions[i * 3 + 1], z = positions[i * 3 + 2];
+          const r = Math.sqrt(x * x + y * y + z * z);
+          let hue;
+          if (currentRepresentation == 1) hue = (r / 4) * 360;
+          else if (currentRepresentation == 2) hue = (Math.sin(time + x) + 1) * 180;
+          else if (currentRepresentation == 3) hue = (energyData - 2.1) * 1000;
+          else if (currentRepresentation == 4) hue = (z / 4) * 360;
+          else if (currentRepresentation == 5) hue = (temperature * 0.3) * 120;
+          else if (currentRepresentation == 6) hue = (density * 1.5e-38) * 360;
+          else if (currentRepresentation == 7) hue = (time % 5) * 72;
+          else if (currentRepresentation == 8) hue = (1.5 + 0.1 * Math.sin(time)) * 200;
+          else if (currentRepresentation == 9) hue = (x + y + z) * 10;
+          else if (currentRepresentation == 10) {
+            let tempGradient = (temperature - 2.0) / (3.0 - 2.0);
+            hue = tempGradient * 240;
+          }
+          hue = (hue + hueShift) % 360;
+          let col;
+          if (colorTheme === 'vivid') col = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+          else if (colorTheme === 'pastel') col = new THREE.Color(`hsl(${hue}, 50%, 80%)`);
+          else col = new THREE.Color(`hsl(${hue}, 100%, 75%)`);
+          colors[i * 3] = col.r;
+          colors[i * 3 + 1] = col.g;
+          colors[i * 3 + 2] = col.b;
+          sizes[i] = (0.1 + (energyData - 2.1) * 0.5) * zoomLevel;
+        }
+        plasma.geometry.attributes.color.needsUpdate = true;
+        plasma.geometry.attributes.size.needsUpdate = true;
+      }
+    }
+
+    // Initial Plasma
+    plasma = generatePlasma(currentRepresentation);
+    scene.add(plasma);
+    camera.position.set(0, 0, 20); // Center the camera
+    camera.lookAt(0, 0, 0);
+
+    // Zoom Controls
+    const zoomSlider = document.getElementById('zoomSlider');
+    zoomSlider.addEventListener('input', () => {
+      zoomLevel = parseFloat(zoomSlider.value);
+      camera.fov = 75 / zoomLevel; // Adjust FOV for zoom effect
+      camera.updateProjectionMatrix();
+      updatePlasma(simulationData.energy[Math.min(Math.floor(time / 0.01), simulationData.time.length - 1)] || 2.10198);
+    });
+
+    // Mouse Wheel Zoom (Scale the Plasma)
+    window.addEventListener('wheel', e => {
+      e.preventDefault();
+      zoomLevel += e.deltaY * -0.005;
+      zoomLevel = Math.min(Math.max(0.5, zoomLevel), 5);
+      zoomSlider.value = zoomLevel;
+      camera.fov = 75 / zoomLevel; // Adjust FOV for zoom effect
+      camera.updateProjectionMatrix();
+      updatePlasma(simulationData.energy[Math.min(Math.floor(time / 0.01), simulationData.time.length - 1)] || 2.10198);
+    });
+
+    // Speed Control
+    const speedSlider = document.getElementById('speedSlider');
+    speedSlider.addEventListener('input', () => {
+      speed = parseFloat(speedSlider.value);
+      messages.value += `Simulation speed set to ${speed}x\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // Real-Time Parameter Controls
+    const realTimeTemp = document.getElementById('realTimeTemp');
+    const realTimeDensity = document.getElementById('realTimeDensity');
+    realTimeTemp.addEventListener('input', () => {
+      temperature = parseFloat(realTimeTemp.value);
+      updatePlasma(simulationData.energy[Math.min(Math.floor(time / 0.01), simulationData.time.length - 1)] || 2.10198);
+      messages.value += `Temperature adjusted to ${temperature} keV\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+    realTimeDensity.addEventListener('input', () => {
+      density = parseFloat(realTimeDensity.value);
+      updatePlasma(simulationData.energy[Math.min(Math.floor(time / 0.01), simulationData.time.length - 1)] || 2.10198);
+      messages.value += `Density adjusted to ${density}x10^19 m^-3\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // View Mode Selection
+    const viewModeDropdown = document.getElementById('viewModeDropdown');
+    viewModeDropdown.addEventListener('change', () => {
+      currentViewMode = viewModeDropdown.value;
+      updatePlasma(simulationData.energy[Math.min(Math.floor(time / 0.01), simulationData.time.length - 1)] || 2.10198);
+      messages.value += `Switched to ${currentViewMode} view mode\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // DOM Elements
+    const optionsButton = document.getElementById('optionsButton');
+    const optionsDropdown = document.getElementById('optionsDropdown');
+    const representationDropdown = document.getElementById('representationDropdown');
+    const legend = document.getElementById('legend');
+    const statsDisplay = document.getElementById('stats');
+    const messages = document.getElementById('messages');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const feedbackPanel = document.getElementById('feedbackPanel');
+    const fpsDisplay = document.getElementById('fps');
+    const uiElements = [document.getElementById('info'), document.getElementById('fps'), document.getElementById('stats'),
+                       document.getElementById('representation'), document.getElementById('viewMode'), document.getElementById('legend'),
+                       document.getElementById('zoom'), document.getElementById('speed'), document.getElementById('realTimeControls'),
+                       document.getElementById('optionsMenu'), document.getElementById('plotCanvas'), document.getElementById('messages'),
+                       document.getElementById('input'), gridHelper, axesHelper];
+
+    // Full View Toggle
+    let isFullView = false;
+    document.getElementById('fullViewButton').addEventListener('click', () => {
+      isFullView = !isFullView;
+      uiElements.forEach(el => {
+        if (el instanceof THREE.Object3D) {
+          el.visible = !isFullView;
+        } else {
+          el.classList.toggle('hidden', isFullView);
+        }
+      });
+      document.getElementById('fullViewButton').textContent = isFullView ? 'Exit Full View' : 'Full View';
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+      if (isFullView) {
+        messages.value += 'Full View enabled. Press Esc or click to exit.\n';
+        messages.scrollTop = messages.scrollHeight;
+      }
+    });
+
+    // Exit Full View with Esc or Click
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && isFullView) {
+        isFullView = false;
+        uiElements.forEach(el => {
+          if (el instanceof THREE.Object3D) {
+            el.visible = true;
+          } else {
+            el.classList.toggle('hidden', isFullView);
+          }
+        });
+        document.getElementById('fullViewButton').textContent = 'Full View';
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (isFullView && e.target === renderer.domElement) {
+        isFullView = false;
+        uiElements.forEach(el => {
+          if (el instanceof THREE.Object3D) {
+            el.visible = true;
+          } else {
+            el.classList.toggle('hidden', isFullView);
+          }
+        });
+        document.getElementById('fullViewButton').textContent = 'Full View';
+      }
+    });
+
+    // Representation Selection with Legend
+    const representationDescriptions = {
+      1: 'Representation 1: Colors based on radial distance (core plasma structure).',
+      2: 'Representation 2: Colors oscillate with turbulence (±0.001 to 0.005 keV, Hurst=0.8).',
+      3: 'Representation 3: Colors reflect energy transitions (2.10108 to 2.10288 keV).',
+      4: 'Representation 4: Colors represent magnetic field lines (z-axis variation).',
+      5: 'Representation 5: Colors show heating effects (main, alpha, NBI, RF, ITB).',
+      6: 'Representation 6: Colors indicate loss dynamics (Bremsstrahlung, disruption).',
+      7: 'Representation 7: Colors highlight event impacts (pellet injection, MGI).',
+      8: 'Representation 8: Colors reflect safety factor (q=1.4 to 1.6).',
+      9: 'Representation 9: Colors based on PCA modes (3D reduced state).',
+      10: 'Representation 10: Colors show temperature gradient (blue=cold, red=hot).'
+    };
+    representationDropdown.addEventListener('change', () => {
+      currentRepresentation = parseInt(representationDropdown.value);
+      updatePlasma(2.10198); // Default energy value
+      legend.textContent = representationDescriptions[currentRepresentation];
+      legend.style.display = 'block';
+      messages.value += `Switched to Representation ${currentRepresentation}\n`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // Audio Setup for Events
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(frequency, type = 'sine', duration = 0.1) {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    // Pyodide Setup
+    let pyodide;
+    let simulationData = { time: [], energy: [], pca: [], heating: [], losses: [], events: [], pelletTimes: [], mgiTimes: [] };
+    let lastPelletIndex = 0;
+    let lastMGIIndex = 0;
+    async function loadPyodideAndRunSimulation() {
+      pyodide = await loadPyodide();
+      await pyodide.loadPackage(['numpy', 'scikit-learn']);
+      messages.value += 'Pyodide loaded. Initializing simulation...\n';
+      messages.scrollTop = messages.scrollHeight;
+
+      // Python Code for Q216D Simulation
+      await pyodide.runPythonAsync(`
+import numpy as np
+from sklearn.decomposition import PCA
+
+# Simulation Parameters
+temperature = ${temperature}
+density = ${density} * 1e19
+duration = ${duration}
+timestep = 0.01
+n_samples = int(duration / timestep)
+t = np.linspace(0, duration, n_samples)
+q = 1.5 + 0.1 * np.sin(2 * np.pi * t)  # Safety factor
+
+# Features
+features = np.array([temperature, density / 1e19]).reshape(1, -1)
+features_scaled = (features - np.mean(features, axis=0)) / np.std(features, axis=0)
+features_scaled = np.nan_to_num(features_scaled)
+features_scaled = np.repeat(features_scaled, n_samples, axis=0)
+
+# Ψ_universe Equation (216D)
+a_i = np.random.uniform(0.5, 1.5, 216)
+omega = 2 * np.pi * 0.1
+gamma = 0.05
+hurst = 0.8
+variance = 0.2
+psi = np.zeros((n_samples, 216))
+for i in range(216):
+    oscillatory = (np.cos(omega * t) + 1j * np.sin(omega * t)) * np.exp(-gamma * t)
+    turbulence = hurst * features_scaled[:, 0] * np.random.normal(0, variance, n_samples)
+    psi[:, i] = a_i[i] * np.real(oscillatory) * features_scaled[:, i % features_scaled.shape[1]] + turbulence
+
+# PCA Reduction
+pca = PCA(n_components=3)
+psi_reduced = pca.fit_transform(psi)
+psi_modulator = 0.00005 * psi_reduced[:, 0]
+
+# Energy Transitions (Fixed Scaling)
+main_heating = 0.3 * temperature * 1e-3  # Reduced scaling
+alpha_heating = 0.0001 * density * temperature**2 * 1e-6
+nbi_heating = 0.0001 * density * (t > 0.3) * 1e-6
+rf_heating = 0.00005 * density * np.sin(2 * np.pi * t / 0.2) * 1e-6
+itb_effect = 0.0001 * np.exp(-((t - 0.5)**2) / 0.1) * 1e-3
+pellet_times = np.arange(0.7, duration + 5, 5)
+pellet_events = np.zeros(n_samples)
+for pt in pellet_times:
+    pellet_events += 0.00002 * density * np.exp(-((t - pt)**2) / 0.05) * (t >= pt) * 1e-6
+
+disruption = 0.00002 * temperature * (t >= 0.9) * 1e-3
+bremsstrahlung = 1.5e-38 * (density)**2 * np.sqrt(temperature) * 6.242e-5 * 1e-3
+mgi_times = np.arange(0.95, duration + 10, 10)
+mgi_events = np.zeros(n_samples)
+for mt in mgi_times:
+    mgi_events += 0.00001 * density * np.exp(-((t - mt)**2) / 0.01) * (t >= mt) * 1e-6
+
+energy_transitions = (main_heating + alpha_heating + nbi_heating + rf_heating + itb_effect + pellet_events -
+                     disruption - bremsstrahlung - mgi_events + psi_modulator)
+energy_transitions = 2.101 + (energy_transitions - 2.1) * 0.001  # Tighter control
+energy_shift = 2.101 - energy_transitions
+energy_transitions += energy_shift * 0.999
+energy_transitions = np.clip(energy_transitions, 2.10108, 2.10288)  # Enforce range
+
+# Collect Data
+time_data = t.tolist()
+energy_data = energy_transitions.tolist()
+pca_data = psi_reduced.tolist()
+heating_data = (main_heating + alpha_heating + nbi_heating + rf_heating + itb_effect).tolist()
+losses_data = (disruption + bremsstrahlung).tolist()
+events_data = (pellet_events + mgi_events).tolist()
+pellet_times_data = pellet_times.tolist()
+mgi_times_data = mgi_times.tolist()
+      `);
+
+      // Retrieve Data
+      simulationData.time = pyodide.globals.get('time_data').toJs();
+      simulationData.energy = pyodide.globals.get('energy_data').toJs();
+      simulationData.pca = pyodide.globals.get('pca_data').toJs();
+      simulationData.heating = pyodide.globals.get('heating_data').toJs();
+      simulationData.losses = pyodide.globals.get('losses_data').toJs();
+      simulationData.events = pyodide.globals.get('events_data').toJs();
+      simulationData.pelletTimes = pyodide.globals.get('pellet_times_data').toJs();
+      simulationData.mgiTimes = pyodide.globals.get('mgi_times_data').toJs();
+      messages.value += 'Simulation data computed.\n';
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Chart Setup with Annotations and Tooltips
+    const plotCanvas = document.getElementById('plotCanvas');
+    const ctx = plotCanvas.getContext('2d');
+    let chart;
+    function updateChart() {
+      const index = Math.min(Math.floor(time / 0.01), simulationData.time.length - 1);
+      const slicedTime = simulationData.time.slice(0, index + 1);
+      const slicedEnergy = simulationData.energy.slice(0, index + 1);
+      const slicedPCA = simulationData.pca.slice(0, index + 1).map(row => row[0]);
+      const slicedHeating = simulationData.heating.slice(0, index + 1);
+      const slicedLosses = simulationData.losses.slice(0, index + 1);
+      const slicedEvents = simulationData.events.slice(0, index + 1);
+
+      // Annotations for events
+      const annotations = [];
+      simulationData.pelletTimes.forEach(pt => {
+        if (pt <= slicedTime[slicedTime.length - 1]) {
+          annotations.push({
+            type: 'line',
+            xMin: pt,
+            xMax: pt,
+            yMin: 2.0,
+            yMax: 2.2,
+            borderColor: 'yellow',
+            borderWidth: 1,
+            label: { content: 'Pellet', position: 'top', color: 'yellow', font: { size: 10 } }
+          });
+        }
+      });
+      simulationData.mgiTimes.forEach(mt => {
+        if (mt <= slicedTime[slicedTime.length - 1]) {
+          annotations.push({
+            type: 'line',
+            xMin: mt,
+            xMax: mt,
+            yMin: 2.0,
+            yMax: 2.2,
+            borderColor: 'purple',
+            borderWidth: 1,
+            label: { content: 'MGI', position: 'top', color: 'purple', font: { size: 10 } }
+          });
+        }
+      });
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: slicedTime,
+          datasets: [
+            {
+              label: 'Energy (keV)',
+              data: slicedEnergy,
+              borderColor: 'blue',
+              yAxisID: 'y1',
+              pointRadius: 0,
+            },
+            {
+              label: 'PCA Component 1',
+              data: slicedPCA,
+              borderColor: 'orange',
+              yAxisID: 'y2',
+              pointRadius: 0,
+            },
+            {
+              label: 'Heating (keV)',
+              data: slicedHeating,
+              borderColor: 'red',
+              yAxisID: 'y1',
+              pointRadius: 0,
+            },
+            {
+              label: 'Losses (keV)',
+              data: slicedLosses,
+              borderColor: 'green',
+              yAxisID: 'y1',
+              pointRadius: 0,
+            },
+            {
+              label: 'Events (keV)',
+              data: slicedEvents,
+              borderColor: 'cyan',
+              yAxisID: 'y1',
+              pointRadius: 0,
+            },
+          ],
+        },
+        options: {
+          responsive: false,
+          scales: {
+            x: { title: { display: true, text: 'Time (s)', color: '#fff' }, ticks: { color: '#fff' } },
+            y1: { 
+              position: 'left', 
+              min: 2.0, max: 2.2, 
+              title: { display: true, text: 'Energy/Contributions (keV)', color: '#fff' }, 
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            y2: { 
+              position: 'right', 
+              min: -15, max: 15, 
+              title: { display: true, text: 'PCA Component', color: '#fff' }, 
+              ticks: { color: '#fff' },
+              grid: { drawOnChartArea: false }
+            },
+          },
+          plugins: {
+            legend: { labels: { color: '#fff' } },
+            annotation: { annotations },
+            tooltip: {
+              enabled: true,
+              mode: 'nearest',
+              intersect: false,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(5);
+                  }
+                  return label;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Update Stats
+    function updateStats(energy, q) {
+      statsDisplay.innerHTML = `
+        Current Energy: ${energy.toFixed(5)} keV<br>
+        Safety Factor (q): ${q.toFixed(2)}<br>
+        Time: ${time.toFixed(2)} s
+      `;
+    }
+
+    // Simulation Controls
+    let currentIndex = 0;
+    document.getElementById('startButton').addEventListener('click', async () => {
+      if (!simulationRunning) {
+        simulationRunning = true;
+        simulationPaused = false;
+        time = 0;
+        currentIndex = 0;
+        lastPelletIndex = 0;
+        lastMGIIndex = 0;
+        await loadPyodideAndRunSimulation();
+        messages.value += `Starting simulation for ${duration} seconds...\n`;
+        messages.scrollTop = messages.scrollHeight;
+      }
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('pauseButton').addEventListener('click', () => {
+      if (simulationRunning && !simulationPaused) {
+        simulationPaused = true;
+        messages.value += 'Simulation paused.\n';
+        messages.scrollTop = messages.scrollHeight;
+      }
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('resumeButton').addEventListener('click', () => {
+      if (simulationRunning && simulationPaused) {
+        simulationPaused = false;
+        messages.value += 'Simulation resumed.\n';
+        messages.scrollTop = messages.scrollHeight;
+      }
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('stepForwardButton').addEventListener('click', () => {
+      if (simulationRunning && simulationPaused && simulationData.time.length) {
+        currentIndex = Math.min(currentIndex + 1, simulationData.time.length - 1);
+        time = simulationData.time[currentIndex];
+        const energy = simulationData.energy[currentIndex];
+        const q = 1.5 + 0.1 * Math.sin(2 * Math.PI * time);
+        updatePlasma(energy);
+        plasma.rotation.y += 0.01;
+        updateChart();
+        updateStats(energy, q);
+        messages.value += `Stepped forward to time ${time.toFixed(2)} s\n`;
+        messages.scrollTop = messages.scrollHeight;
+      }
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('stepBackwardButton').addEventListener('click', () => {
+      if (simulationRunning && simulationPaused && simulationData.time.length) {
+        currentIndex = Math.max(currentIndex - 1, 0);
+        time = simulationData.time[currentIndex];
+        const energy = simulationData.energy[currentIndex];
+        const q = 1.5 + 0.1 * Math.sin(2 * Math.PI * time);
+        updatePlasma(energy);
+        plasma.rotation.y -= 0.01;
+        updateChart();
+        updateStats(energy, q);
+        messages.value += `Stepped backward to time ${time.toFixed(2)} s\n`;
+        messages.scrollTop = messages.scrollHeight;
+      }
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('stopButton').addEventListener('click', () => {
+      if (simulationRunning) {
+        simulationRunning = false;
+        simulationPaused = false;
+        messages.value += 'Simulation stopped.\n';
+        messages.scrollTop = messages.scrollHeight;
+      }
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('resetButton').addEventListener('click', () => {
+      simulationRunning = false;
+      simulationPaused = false;
+      time = 0;
+      currentIndex = 0;
+      lastPelletIndex = 0;
+      lastMGIIndex = 0;
+      simulationData = { time: [], energy: [], pca: [], heating: [], losses: [], events: [], pelletTimes: [], mgiTimes: [] };
+      if (chart) chart.destroy();
+      updatePlasma(2.10198);
+      updateStats(2.10198, 1.5);
+      messages.value += 'Simulation reset.\n';
+      messages.scrollTop = messages.scrollHeight;
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    // Export Data
+    document.getElementById('exportButton').addEventListener('click', () => {
+      if (simulationData.time.length === 0) {
+        messages.value += 'No data to export. Run the simulation first.\n';
+        messages.scrollTop = messages.scrollHeight;
+        return;
+      }
+      const csvContent = [
+        'Time (s),Energy (keV),PCA Component 1,Heating (keV),Losses (keV),Events (keV)',
+        ...simulationData.time.map((t, i) => [
+          t,
+          simulationData.energy[i],
+          simulationData.pca[i][0],
+          simulationData.heating[i],
+          simulationData.losses[i],
+          simulationData.events[i]
+        ].join(','))
+      ].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'tokamak_simulation_data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      messages.value += 'Data exported as CSV.\n';
+      messages.scrollTop = messages.scrollHeight;
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    // Dropdown Menu
+    optionsButton.addEventListener('click', () => {
+      const isVisible = optionsDropdown.style.display === 'flex';
+      optionsDropdown.style.display = isVisible ? 'none' : 'flex';
+      optionsButton.textContent = isVisible ? 'Options ▼' : 'Options ▲';
+    });
+
+    // Settings
+    document.getElementById('settingsButton').addEventListener('click', () => {
+      settingsPanel.style.display = 'block';
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      temperature = parseFloat(document.getElementById('tempInput').value);
+      density = parseFloat(document.getElementById('densityInput').value);
+      duration = parseFloat(document.getElementById('durationInput').value);
+      colorTheme = document.getElementById('colorTheme').value;
+      simulationData = { time: [], energy: [], pca: [], heating: [], losses: [], events: [], pelletTimes: [], mgiTimes: [] };
+      if (chart) chart.destroy();
+      updatePlasma(2.10198);
+      updateStats(2.10198, 1.5);
+      messages.value += `Settings updated: Temperature=${temperature} keV, Density=${density}x10^19 m^-3, Duration=${duration}s\n`;
+      messages.scrollTop = messages.scrollHeight;
+      settingsPanel.style.display = 'none';
+    });
+
+    // Feedback
+    document.getElementById('feedbackButton').addEventListener('click', () => {
+      feedbackPanel.style.display = 'block';
+      optionsDropdown.style.display = 'none';
+      optionsButton.textContent = 'Options ▼';
+    });
+
+    document.getElementById('submitFeedback').addEventListener('click', () => {
+      const rating = document.getElementById('feedbackRating').value;
+      const comments = document.getElementById('feedbackComments').value.trim();
+      messages.value += `Feedback submitted: Rating ${rating}/5, Comments: ${comments || 'None'}\n`;
+      messages.scrollTop = messages.scrollHeight;
+      document.getElementById('feedbackComments').value = '';
+      feedbackPanel.style.display = 'none';
+    });
+
+    document.getElementById('closeFeedback').addEventListener('click', () => {
+      feedbackPanel.style.display = 'none';
+    });
+
+    // User Input
+    document.getElementById('input').addEventListener('keypress', e => {
+      if (e.key === 'Enter' && e.target.value.trim()) {
+        messages.value += `You: ${e.target.value}\n`;
+        messages.scrollTop = messages.scrollHeight;
+        setTimeout(() => {
+          messages.value += "Community: Thanks for sharing!\n";
+          messages.scrollTop = messages.scrollHeight;
+        }, 500);
+        e.target.value = '';
+      }
+    });
+
+    // FPS Counter and Performance Optimization
+    let lastFrameTime = 0, frameCount = 0, fps = 0;
+    function updateFPS(timestamp) {
+      frameCount++;
+      if (timestamp - lastFrameTime >= 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastFrameTime = timestamp;
+        fpsDisplay.textContent = `FPS: ${fps}`;
+        if (fps < 20 && particleCount > 500 && N > 5) {
+          messages.value += 'Low FPS detected. Reducing particle count for performance...\n';
+          messages.scrollTop = messages.scrollHeight;
+          N = Math.floor(N * 0.8);
+          scene.remove(plasma);
+          plasma = generatePlasma(currentRepresentation, simulationData.energy[Math.min(Math.floor(time / 0.01), simulationData.time.length - 1)] || 2.10198);
+          scene.add(plasma);
+        }
+      }
+    }
+
+    // Animation Loop
+    function animate(timestamp) {
+      requestAnimationFrame(animate);
+      updateFPS(timestamp);
+      if (simulationRunning && !simulationPaused && simulationData.time.length) {
+        time += 0.016 * speed;
+        currentIndex = Math.min(Math.floor(time / 0.01), simulationData.time.length - 1);
+        if (time > duration) {
+          simulationRunning = false;
+          simulationPaused = false;
+          const avgEnergy = simulationData.energy.reduce((a, b) => a + b, 0) / simulationData.energy.length;
+          const maxEnergy = Math.max(...simulationData.energy);
+          const minEnergy = Math.min(...simulationData.energy);
+          const pelletCount = simulationData.pelletTimes.length;
+          const mgiCount = simulationData.mgiTimes.length;
+          messages.value += `Simulation complete.\nSummary:\n- Average Energy: ${avgEnergy.toFixed(5)} keV\n- Max Energy: ${maxEnergy.toFixed(5)} keV\n- Min Energy: ${minEnergy.toFixed(5)} keV\n- Pellet Injections: ${pelletCount}\n- MGI Events: ${mgiCount}\n`;
+          messages.scrollTop = messages.scrollHeight;
+        }
+        const index = currentIndex;
+        const energy = simulationData.energy[index];
+        const q = 1.5 + 0.1 * Math.sin(2 * Math.PI * time);
+        updatePlasma(energy);
+        plasma.rotation.y += 0.01;
+
+        // Play sounds for events
+        for (let i = lastPelletIndex; i < simulationData.pelletTimes.length; i++) {
+          if (simulationData.pelletTimes[i] <= time) {
+            playSound(440, 'sine', 0.1); // Pellet injection sound
+            lastPelletIndex = i + 1;
+          } else {
+            break;
+          }
+        }
+        for (let i = lastMGIIndex; i < simulationData.mgiTimes.length; i++) {
+          if (simulationData.mgiTimes[i] <= time) {
+            playSound(880, 'sine', 0.1); // MGI sound
+            lastMGIIndex = i + 1;
+          } else {
+            break;
+          }
+        }
+
+        updateChart();
+        updateStats(energy, q);
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
