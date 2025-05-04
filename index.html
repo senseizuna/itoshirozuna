@@ -244,6 +244,12 @@
                 <a href="certificate.html">Certificates</a>
             </div>
         </div>
+        <div class="dropdown">
+            <a href="#" id="researchLink">Research</a>
+            <div class="dropdown-content">
+                <a href="#" onclick="promptPassword()">Access Research</a>
+            </div>
+        </div>
         <a href="#contact">Contact</a>
         <div class="dropdown">
             <a href="#">Social Media</a>
@@ -309,6 +315,17 @@
         <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
     </footer>
     <script>
+        // WARNING: Client-side password protection is NOT secure. The password can be viewed in the source code.
+        // For production, use server-side authentication (e.g., with Node.js, PHP, or a CMS).
+        function promptPassword() {
+            const password = prompt("Enter the password to access Research:");
+            if (password === "research2025") {
+                window.location.href = "research.html";
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+        }
+
         const canvas = document.getElementById('fractalCanvas');
         const ctx = canvas.getContext('2d');
 
