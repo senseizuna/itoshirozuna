@@ -12,9 +12,9 @@
 </head>
 <body class="bg-[#0a0a23] text-gray-200 min-h-screen flex flex-col font-sans">
   <!-- ===================== HEADER ===================== -->
-  <header class="sticky top-0 z-50 w-full bg-black/80 backdrop-blur border-b border-slate-800">
+  <header class="sticky top-0 z-50 w-full bg-black/80 backdrop-blur border-b border-slate-800 overflow-visible">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-      <a href="index.html#home" class="text-xl font-semibold text-yellow-400 drop-shadow">ITOSHIRO ZUNA</a>
+      <a href="index.html#home" class="text-xl font-semibold text-yellow-400 drop-shadow">ITOSHIRO ZUNA LLC</a>
 
       <!-- Desktop nav -->
       <nav class="space-x-6 hidden md:flex items-center">
@@ -22,14 +22,14 @@
         <a href="index.html#about" class="hover:text-yellow-400">About</a>
         <a href="books.html" class="text-yellow-400 font-bold">Books</a>
 
-        <!-- Apps: direct link + caret submenu -->
-        <div class="relative flex items-center group">
+        <!-- Apps: link + caret with robust dropdown -->
+        <div id="appsWrapBooks" class="relative flex items-center group">
           <a href="index.html#apps" class="hover:text-yellow-400">Apps</a>
-          <button id="appsCaretBooks" class="ml-1 hover:text-yellow-400" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop-books" title="Open app links">
-            ▾
-          </button>
-          <ul id="submenu-apps-desktop-books"
-              class="absolute left-0 mt-2 hidden group-hover:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
+          <button id="appsBtnBooks" type="button" class="ml-1 hover:text-yellow-400"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="appsMenuBooks" title="Open app links">▾</button>
+          <ul id="appsMenuBooks"
+              class="hidden group-hover:block absolute left-0 top-full translate-y-2 z-[60] min-w-[260px]
+                     rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
             <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
             <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="fractal-meditation.html">Fractal Meditation</a></li>
             <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
@@ -145,19 +145,20 @@
       });
     }
 
-    // Desktop caret toggle for Apps submenu
-    const appsCaretBooks = document.getElementById('appsCaretBooks');
-    const appsMenuBooks = document.getElementById('submenu-apps-desktop-books');
-    if (appsCaretBooks && appsMenuBooks){
-      appsCaretBooks.addEventListener('click', (e)=>{
+    // Desktop caret toggle for Apps submenu (Books page)
+    const appsBtnBooks = document.getElementById('appsBtnBooks');
+    const appsMenuBooks = document.getElementById('appsMenuBooks');
+    const appsWrapBooks = document.getElementById('appsWrapBooks');
+    if (appsBtnBooks && appsMenuBooks){
+      appsBtnBooks.addEventListener('click', (e)=>{
         e.preventDefault();
-        const open = appsMenuBooks.classList.toggle('hidden');
-        appsCaretBooks.setAttribute('aria-expanded', open ? 'false' : 'true');
+        appsMenuBooks.classList.toggle('hidden');
+        appsBtnBooks.setAttribute('aria-expanded', appsMenuBooks.classList.contains('hidden') ? 'false' : 'true');
       });
       document.addEventListener('click', (e)=>{
-        if (!appsMenuBooks.contains(e.target) && !appsCaretBooks.contains(e.target)){
+        if (!appsWrapBooks.contains(e.target)){
           appsMenuBooks.classList.add('hidden');
-          appsCaretBooks.setAttribute('aria-expanded','false');
+          appsBtnBooks.setAttribute('aria-expanded','false');
         }
       });
     }
