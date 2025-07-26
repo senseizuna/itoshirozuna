@@ -11,42 +11,79 @@
   <style>#bgCanvas{position:fixed;inset:0;z-index:-1}</style>
 </head>
 <body class="bg-[#0a0a23] text-gray-200 min-h-screen flex flex-col font-sans">
-  <!-- Header -->
+  <!-- ===================== HEADER ===================== -->
   <header class="sticky top-0 z-50 w-full bg-black/80 backdrop-blur border-b border-slate-800">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
       <a href="index.html#home" class="text-xl font-semibold text-yellow-400 drop-shadow">ITOSHIRO ZUNA LLC</a>
-      <nav class="space-x-6 hidden md:block">
+
+      <!-- Desktop nav -->
+      <nav class="space-x-6 hidden md:flex items-center">
         <a href="index.html#home" class="hover:text-yellow-400">Home</a>
         <a href="index.html#about" class="hover:text-yellow-400">About</a>
         <a href="books.html" class="text-yellow-400 font-bold">Books</a>
-        <a href="index.html#apps" class="hover:text-yellow-400">Apps</a>
+
+        <!-- Apps: direct link to Apps section on index + hover submenu -->
+        <div class="relative group">
+          <a href="index.html#apps" class="hover:text-yellow-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop">
+            Apps
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
+          </a>
+          <ul id="submenu-apps-desktop"
+              class="absolute left-0 mt-2 hidden group-hover:block group-focus-within:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
+            <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
+            <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="fractal-meditation.html">Fractal Meditation</a></li>
+            <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
+            <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a></li>
+            <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="fractal-racers.html">Fractal Racers: Tron Edition</a></li>
+            <li><a class="block px-4 py-2 hover:bg-yellow-400/10 hover:text-yellow-400" href="app-instructions.html">Instructions</a></li>
+          </ul>
+        </div>
+
         <a href="index.html#research" class="hover:text-yellow-400">Research</a>
         <a href="index.html#social" class="hover:text-yellow-400">Social</a>
         <a href="index.html#contact" class="hover:text-yellow-400">Contact</a>
       </nav>
+
       <!-- Mobile hamburger -->
       <button id="navBtn" class="md:hidden text-yellow-400 focus:outline-none" aria-expanded="false" aria-controls="mobileNav">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
     </div>
+
     <!-- Mobile menu -->
     <div id="mobileNav" class="hidden md:hidden flex-col gap-3 p-4 bg-black/90 border-t border-slate-800">
       <a href="index.html#home" class="hover:text-yellow-400">Home</a>
       <a href="index.html#about" class="hover:text-yellow-400">About</a>
       <a href="books.html" class="text-yellow-400 font-semibold">Books</a>
+      <!-- Direct Apps link -->
       <a href="index.html#apps" class="hover:text-yellow-400">Apps</a>
+      <!-- Optional: quick app links toggle -->
+      <div class="pt-1">
+        <button class="w-full text-left py-2 hover:text-yellow-400 flex items-center justify-between" data-dd-toggle="apps">
+          App Links <span>▾</span>
+        </button>
+        <ul id="submenu-apps-mobile" class="hidden pl-3 text-sm">
+          <li><a class="block py-2 hover:text-yellow-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
+          <li><a class="block py-2 hover:text-yellow-400" href="fractal-meditation.html">Fractal Meditation</a></li>
+          <li><a class="block py-2 hover:text-yellow-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
+          <li><a class="block py-2 hover:text-yellow-400" href="plasma-mind.html">PlasmaMind</a></li>
+          <li><a class="block py-2 hover:text-yellow-400" href="fractal-racers.html">Fractal Racers</a></li>
+          <li><a class="block py-2 hover:text-yellow-400" href="app-instructions.html">Instructions</a></li>
+        </ul>
+      </div>
+
       <a href="index.html#research" class="hover:text-yellow-400">Research</a>
       <a href="index.html#social" class="hover:text-yellow-400">Social</a>
       <a href="index.html#contact" class="hover:text-yellow-400">Contact</a>
     </div>
   </header>
 
-  <!-- Hero -->
+  <!-- ===================== HERO ===================== -->
   <section class="relative flex items-center justify-center h-48 bg-gradient-to-b from-[#0a0a23] to-[#1c2526]">
     <h1 class="text-3xl md:text-4xl font-bold text-yellow-400 drop-shadow">Books by Itoshiro Zuna</h1>
   </section>
 
-  <!-- Books Grid -->
+  <!-- ===================== BOOKS GRID ===================== -->
   <main class="flex-grow py-16 px-4">
     <div class="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
       <!-- The Fractal Symphony of Time -->
@@ -99,12 +136,12 @@
     </div>
   </main>
 
-  <!-- Footer -->
+  <!-- ===================== FOOTER ===================== -->
   <footer class="bg-black/80 text-center py-8 text-sm text-gray-400">
     <p>© 2025 Itoshiro Zuna LLC. All rights reserved.</p>
   </footer>
 
-  <!-- Background fractal -->
+  <!-- Background fractal (optional, matches index) -->
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
   <script>
     // Mobile menu toggle
@@ -116,6 +153,15 @@
         navBtn.setAttribute('aria-expanded', mobileNav.classList.contains('hidden') ? 'false' : 'true');
       });
     }
+
+    // Optional mobile quick app links toggle
+    document.querySelectorAll('[data-dd-toggle]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-dd-toggle');
+        const panel = document.getElementById(`submenu-${id}-mobile`);
+        if(panel) panel.classList.toggle('hidden');
+      });
+    });
 
     // Fractal background (lightweight)
     const canvas = document.getElementById('bgCanvas');
