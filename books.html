@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Books | Itoshiro Zuna</title>
+  <meta name="description" content="Explore the published works of Itoshiro Zuna – metaphysics, spirituality, and science‑inspired fiction." />
+  <link rel="icon" href="/assets/favicon.ico" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #bgCanvas{position:fixed;inset:0;z-index:-1}
+  </style>
+</head>
+<body class="bg-[#0a0a23] text-gray-200 min-h-screen flex flex-col font-sans">
+  <!-- Header (same nav, Books active) -->
+  <header class="sticky top-0 z-50 w-full bg-black/80 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+      <a href="index.html#home" class="text-xl font-semibold text-yellow-400 drop-shadow">ITOSHIRO ZUNA</a>
+      <nav class="space-x-6 hidden md:block">
+        <a href="index.html#home" class="hover:text-yellow-400">Home</a>
+        <a href="index.html#about" class="hover:text-yellow-400">About</a>
+        <a href="books.html" class="text-yellow-400 font-bold">Books</a>
+        <!-- Simple links back to index for Apps/Research/Social -->
+        <a href="index.html#apps" class="hover:text-yellow-400">Apps</a>
+        <a href="index.html#research" class="hover:text-yellow-400">Research</a>
+        <a href="index.html#social" class="hover:text-yellow-400">Social</a>
+        <a href="index.html#contact" class="hover:text-yellow-400">Contact</a>
+      </nav>
+      <!-- Mobile hamburger -->
+      <button id="navBtn" class="md:hidden text-yellow-400 focus:outline-none" aria-expanded="false" aria-controls="mobileNav">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mobileNav" class="hidden md:hidden flex-col gap-3 p-4 bg-black/90 border-t border-slate-800">
+      <a href="index.html#home" class="hover:text-yellow-400">Home</a>
+      <a href="index.html#about" class="hover:text-yellow-400">About</a>
+      <a href="books.html" class="text-yellow-400 font-semibold">Books</a>
+      <a href="index.html#apps" class="hover:text-yellow-400">Apps</a>
+      <a href="index.html#research" class="hover:text-yellow-400">Research</a>
+      <a href="index.html#social" class="hover:text-yellow-400">Social</a>
+      <a href="index.html#contact" class="hover:text-yellow-400">Contact</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="relative flex items-center justify-center h-48 bg-gradient-to-b from-[#0a0a23] to-[#1c2526]">
+    <h1 class="text-3xl md:text-4xl font-bold text-yellow-400 drop-shadow">Books by Itoshiro Zuna</h1>
+  </section>
+
+  <!-- Books Grid -->
+  <main class="flex-grow py-16 px-4">
+    <div class="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- The Fractal Symphony of Time -->
+      <article class="bg-black/60 rounded-2xl p-6 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/30 transition">
+        <img src="/assets/books/fractal-symphony-of-time.jpg" alt="Cover — The Fractal Symphony of Time" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h2 class="text-xl font-semibold text-yellow-300 mb-2">The Fractal Symphony of Time</h2>
+        <p class="text-sm mb-4">A Journey Through Dimensions, Imagination, and Creation</p>
+        <a href="https://a.co/d/ct5lST4" target="_blank" class="inline-flex items-center justify-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition">Buy on Amazon</a>
+      </article>
+
+      <!-- When Realms Bleed -->
+      <article class="bg-black/60 rounded-2xl p-6 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/30 transition">
+        <img src="/assets/books/when-realms-bleed.jpg" alt="Cover — When Realms Bleed: The World As I See It" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h2 class="text-xl font-semibold text-yellow-300 mb-2">When Realms Bleed: The World As I See It</h2>
+        <p class="text-sm mb-4">Book 1 of the upcoming trilogy journey into nine realms.</p>
+        <a href="https://a.co/d/ijwoPSi" target="_blank" class="inline-flex items-center justify-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition">Buy on Amazon</a>
+      </article>
+
+      <!-- In the Image of God -->
+      <article class="bg-black/60 rounded-2xl p-6 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/30 transition">
+        <img src="/assets/books/in-the-image-of-god.jpg" alt="Cover — In the Image of God" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h2 class="text-xl font-semibold text-yellow-300 mb-2">In the Image of God</h2>
+        <p class="text-sm mb-4">The Fractal Mirror of Creation</p>
+        <a href="https://a.co/d/hFYire8" target="_blank" class="inline-flex items-center justify-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition">Buy on Amazon</a>
+      </article>
+
+      <!-- The Spiritual Energy -->
+      <article class="bg-black/60 rounded-2xl p-6 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/30 transition">
+        <img src="/assets/books/the-spiritual-energy.jpg" alt="Cover — The Spiritual Energy" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h2 class="text-xl font-semibold text-yellow-300 mb-2">The Spiritual Energy</h2>
+        <p class="text-sm mb-4">A Path to Our Soul</p>
+        <a href="https://a.co/d/bejn1PV" target="_blank" class="inline-flex items-center justify-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition">Buy on Amazon</a>
+      </article>
+
+      <!-- The Inner Alchemy of Emotion -->
+      <article class="bg-black/60 rounded-2xl p-6 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/30 transition">
+        <img src="/assets/books/inner-alchemy-of-emotion.jpg" alt="Cover — The Inner Alchemy of Emotion" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h2 class="text-xl font-semibold text-yellow-300 mb-2">The Inner Alchemy of Emotion</h2>
+        <p class="text-sm mb-4">The Soul’s Path to Transmutation</p>
+        <a href="https://a.co/d/73qsznL" target="_blank" class="inline-flex items-center justify-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition">Buy on Amazon</a>
+      </article>
+
+      <!-- The Astral Enigma -->
+      <article class="bg-black/60 rounded-2xl p-6 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/30 transition">
+        <img src="/assets/books/the-astral-enigma.jpg" alt="Cover — The Astral Enigma" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h2 class="text-xl font-semibold text-yellow-300 mb-2">The Astral Enigma</h2>
+        <p class="text-sm mb-4">Imagination, Truth, and the Beyond</p>
+        <a href="https://a.co/d/fSJJinz" target="_blank" class="inline-flex items-center justify-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition">Buy on Amazon</a>
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black/80 text-center py-8 text-sm text-gray-400">
+    <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
+  </footer>
+
+  <!-- Background fractal (optional, matches index) -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <script>
+    // Mobile menu toggle
+    const navBtn = document.getElementById('navBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    if (navBtn && mobileNav){
+      navBtn.addEventListener('click', () => {
+        mobileNav.classList.toggle('hidden');
+        navBtn.setAttribute('aria-expanded', mobileNav.classList.contains('hidden') ? 'false' : 'true');
+      });
+    }
+
+    // Fractal background (lightweight)
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+    addEventListener('resize', resize); resize();
+    let t = 0;
+    function draw(){
+      ctx.fillStyle = 'rgba(10,10,35,0.07)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      const step = 120;
+      for(let x=0;x<canvas.width;x+=step){
+        for(let y=0;y<canvas.height;y+=step){
+          const r = 40 + 10*Math.sin(t + (x+y)/200);
+          ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+          ctx.strokeStyle = 'rgba(255,215,0,0.22)';
+          ctx.stroke();
+        }
+      }
+      t += 0.01; requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
