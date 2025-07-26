@@ -15,7 +15,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans">
   <!-- ===================== NAVIGATION ===================== -->
-  <header class="fixed w-full backdrop-blur bg-slate-900/70 border-b border-slate-800 z-50">
+  <header class="fixed w-full overflow-visible backdrop-blur bg-slate-900/70 border-b border-slate-800 z-50">
     <div class="mx-auto max-w-7xl px-4 flex items-center justify-between h-16">
       <a href="index.html#home" class="text-2xl font-bold tracking-wide text-amber-400">ITOSHIRO ZUNA LLC</a>
 
@@ -25,14 +25,14 @@
         <a href="index.html#about" class="hover:text-amber-400">About</a>
         <a href="books.html" class="hover:text-amber-400">Books</a>
 
-        <!-- Apps: word is a direct link; caret toggles submenu -->
-        <div class="relative flex items-center group">
+        <!-- Apps: link + caret with robust dropdown -->
+        <div id="appsWrapIdx" class="relative flex items-center group">
           <a href="index.html#apps" class="hover:text-amber-400">Apps</a>
-          <button id="appsCaret" class="ml-1 hover:text-amber-400" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop" title="Open app links">
-            ▾
-          </button>
-          <ul id="submenu-apps-desktop"
-              class="absolute left-0 mt-2 hidden group-hover:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
+          <button id="appsBtnIdx" type="button" class="ml-1 hover:text-amber-400"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="appsMenuIdx" title="Open app links">▾</button>
+          <ul id="appsMenuIdx"
+              class="hidden group-hover:block absolute left-0 top-full translate-y-2 z-[60] min-w-[260px]
+                     rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
@@ -42,7 +42,7 @@
           </ul>
         </div>
 
-        <!-- Research: no dropdown, goes directly to contact form area -->
+        <!-- Research: direct link to contact form area (no dropdown) -->
         <a href="index.html#research-contact" class="hover:text-amber-400">Research</a>
 
         <a href="index.html#social" class="hover:text-amber-400">Social Media</a>
@@ -212,20 +212,20 @@
       });
     });
 
-    // Caret toggle for desktop submenu (Apps)
-    const appsCaret = document.getElementById('appsCaret');
-    const appsMenu = document.getElementById('submenu-apps-desktop');
-    if (appsCaret && appsMenu){
-      appsCaret.addEventListener('click', (e)=>{
+    // Desktop caret toggle for Apps submenu
+    const appsBtnIdx = document.getElementById('appsBtnIdx');
+    const appsMenuIdx = document.getElementById('appsMenuIdx');
+    const appsWrapIdx = document.getElementById('appsWrapIdx');
+    if (appsBtnIdx && appsMenuIdx){
+      appsBtnIdx.addEventListener('click', (e)=>{
         e.preventDefault();
-        const open = appsMenu.classList.toggle('hidden');
-        appsCaret.setAttribute('aria-expanded', open ? 'false' : 'true');
+        appsMenuIdx.classList.toggle('hidden');
+        appsBtnIdx.setAttribute('aria-expanded', appsMenuIdx.classList.contains('hidden') ? 'false' : 'true');
       });
-      // Close when clicking outside
       document.addEventListener('click', (e)=>{
-        if (!appsMenu.contains(e.target) && !appsCaret.contains(e.target)) {
-          appsMenu.classList.add('hidden');
-          appsCaret.setAttribute('aria-expanded','false');
+        if (!appsWrapIdx.contains(e.target)){
+          appsMenuIdx.classList.add('hidden');
+          appsBtnIdx.setAttribute('aria-expanded','false');
         }
       });
     }
