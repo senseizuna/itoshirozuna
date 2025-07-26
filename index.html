@@ -1,388 +1,300 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Itoshiro Zuna, author of The Fractal Symphony of Time, weaves the thread of eras. Explore a metaphysical journey through dimensions and consciousness.">
-    <title>Itoshiro Zuna | The Fractal Symphony of Time</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-            overflow-x: hidden;
-            position: relative;
-        }
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background: linear-gradient(to bottom, #0a0a23, #1c2526);
-        }
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1;
-        }
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 10px;
-        }
-        h1 {
-            font-size: 3rem;
-            margin: 0;
-            text-shadow: 0 0 15px #FFD700, 0 0 5px #000;
-        }
-        .pen-name {
-            font-size: 1.5rem;
-            color: #C0C0C0;
-            margin: 10px 0;
-            text-shadow: 0 0 10px #000;
-        }
-        .book-title {
-            font-size: 2rem;
-            color: #FFD700;
-            margin: 20px 0;
-            text-shadow: 0 0 10px #000;
-        }
-        .cta-button {
-            display: inline-block;
-            padding: 15px 30px;
-            background: #FFD700;
-            color: #0a0a23;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-        .cta-button:hover {
-            transform: scale(1.1);
-        }
-        .book-cover {
-            max-width: 300px;
-            margin: 20px auto;
-            border: 2px solid #C0C0C0;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-        }
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 0;
-            z-index: 3;
-        }
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 20px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px #000;
-        }
-        nav a:hover {
-            color: #FFD700;
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            min-width: 160px;
-            z-index: 1;
-            border-radius: 5px;
-        }
-        .dropdown-content a {
-            color: #fff;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 1rem;
-            margin: 0;
-        }
-        .dropdown-content a:hover {
-            background: rgba(255, 215, 0, 0.2);
-            color: #FFD700;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        section {
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        section h2 {
-            color: #FFD700;
-            text-shadow: 0 0 10px #000;
-        }
-        section p {
-            color: #C0C0C0;
-            max-width: 800px;
-            margin: 0 auto;
-            text-shadow: 0 0 5px #000;
-        }
-        section .content-box {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .contact-form {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: left;
-        }
-        .contact-form label {
-            display: block;
-            margin: 10px 0 5px;
-            color: #C0C0C0;
-            text-shadow: 0 0 5px #000;
-        }
-        .contact-form input, .contact-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #fafafa;
-            color: #444;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-sizing: border-box;
-        }
-        .contact-form input:focus, .contact-form textarea:focus {
-            outline: none;
-            background: #fff;
-            border-color: #FFD700;
-        }
-        .contact-form button {
-            background: #FFD700;
-            color: #0a0a23;
-            border: none;
-            padding: 15px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            width: 100%;
-        }
-        .contact-form button:hover {
-            background: #e6c200;
-        }
-        footer {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        footer a {
-            color: #FFD700;
-            text-decoration: none;
-            margin: 0 10px;
-            text-shadow: 0 0 5px #000;
-        }
-        footer a:hover {
-            color: #e6c200;
-        }
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .book-title { font-size: 1.5rem; }
-            .pen-name { font-size: 1.2rem; }
-            .book-cover { max-width: 200px; }
-            nav a { margin: 0 10px; font-size: 1rem; }
-            .dropdown-content { min-width: 120px; }
-            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ITOSHIRO ZUNA LLC — research‑led publishing, interactive apps, and patent‑pending science at the intersection of technology and consciousness." />
+  <title>ITOSHIRO ZUNA LLC — Company Profile</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Canvas background sits behind everything */
+    #bgCanvas{position:fixed;inset:0;z-index:-1}
+    /* Strong, visible focus for keyboard users */
+    :focus-visible{outline:2px solid #f59e0b; outline-offset:2px}
+  </style>
 </head>
-<body>
-    <canvas id="fractalCanvas"></canvas>
-    <nav>
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#book">Books</a>
-        <a href="blog.html">Blog</a>
-        <div class="dropdown">
-            <a href="#">Apps</a>
-            <div class="dropdown-content">
-                <a href="fractal-ai-research.html">Fractal AI Research</a>
-                <a href="fractal-meditation.html">Fractal Meditation</a>
-                <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
-                <a href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a>
-                <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
-                <a href="app-instructions.html">Instructions</a>
-            </div>
+<body class="bg-slate-950 text-slate-100 font-sans">
+  <!-- ===================== NAVIGATION ===================== -->
+  <header class="fixed w-full backdrop-blur bg-slate-900/70 border-b border-slate-800 z-50">
+    <div class="mx-auto max-w-7xl px-4 flex items-center justify-between h-16">
+      <a href="#home" class="text-2xl font-bold tracking-wide text-amber-400">ITOSHIRO ZUNA LLC</a>
+
+      <!-- Desktop menu -->
+      <nav class="hidden md:flex items-center gap-6 text-slate-200">
+        <a href="#home" class="hover:text-amber-400">Home</a>
+        <a href="#about" class="hover:text-amber-400">About</a>
+        <a href="#books" class="hover:text-amber-400">Books</a>
+
+        <!-- Apps dropdown (desktop) -->
+        <div class="relative group">
+          <button class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop">
+            Apps
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
+          </button>
+          <ul id="submenu-apps-desktop"
+              class="absolute left-0 mt-2 hidden group-hover:block group-focus-within:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a></li>
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-racers.html">Fractal Racers: Tron Edition</a></li>
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="app-instructions.html">Instructions</a></li>
+          </ul>
         </div>
-        <div class="dropdown">
-            <a href="#">Kid's Zone</a>
-            <div class="dropdown-content">
-                <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
-                <a href="certificate.html">Certificates</a>
-            </div>
+
+        <!-- Research dropdown (desktop) -->
+        <div class="relative group">
+          <button class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-research-desktop">
+            Research
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
+          </button>
+          <ul id="submenu-research-desktop"
+              class="absolute left-0 mt-2 hidden group-hover:block group-focus-within:block min-w-[220px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
+            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="#research">Access Research</a></li>
+          </ul>
         </div>
-        <div class="dropdown">
-            <a href="#" id="researchLink">Research</a>
-            <div class="dropdown-content">
-                <a href="#" onclick="promptPassword()">Access Research</a>
-            </div>
+
+        <a href="#social" class="hover:text-amber-400">Social Media</a>
+      </nav>
+
+      <!-- Mobile hamburger -->
+      <button id="navBtn" class="md:hidden text-amber-400 focus:outline-none" aria-expanded="false" aria-controls="mobileNav">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileNav" class="hidden md:hidden flex-col gap-2 p-4 bg-slate-900/90 border-t border-slate-800">
+      <a class="py-2 hover:text-amber-400" href="#home">Home</a>
+      <a class="py-2 hover:text-amber-400" href="#about">About</a>
+      <a class="py-2 hover:text-amber-400" href="#books">Books</a>
+
+      <!-- Apps mobile dropdown -->
+      <div class="border-t border-slate-800 pt-2">
+        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="apps">
+          Apps <span>▾</span>
+        </button>
+        <ul id="submenu-apps-mobile" class="hidden pl-3 text-sm">
+          <li><a class="block py-2 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
+          <li><a class="block py-2 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
+          <li><a class="block py-2 hover:text-amber-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
+          <li><a class="block py-2 hover:text-amber-400" href="plasma-mind.html">PlasmaMind</a></li>
+          <li><a class="block py-2 hover:text-amber-400" href="fractal-racers.html">Fractal Racers</a></li>
+          <li><a class="block py-2 hover:text-amber-400" href="app-instructions.html">Instructions</a></li>
+        </ul>
+      </div>
+
+      <!-- Research mobile dropdown -->
+      <div class="border-t border-slate-800 pt-2">
+        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="research">
+          Research <span>▾</span>
+        </button>
+        <ul id="submenu-research-mobile" class="hidden pl-3 text-sm">
+          <li><a class="block py-2 hover:text-amber-400" href="#research">Access Research</a></li>
+        </ul>
+      </div>
+
+      <a class="py-2 hover:text-amber-400 border-t border-slate-800 mt-2" href="#social">Social Media</a>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center pt-20 px-6">
+    <h1 class="text-4xl md:text-6xl font-extrabold text-amber-400 drop-shadow">Company Profile</h1>
+    <p class="mt-4 max-w-xl text-lg text-slate-300">
+      Research‑led publishing and interactive software exploring science and consciousness.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-4 justify-center">
+      <a href="#about" class="px-6 py-3 bg-amber-400 text-slate-900 rounded-md font-semibold shadow hover:scale-105 transition">Learn More</a>
+      <a href="#books" class="px-6 py-3 border border-amber-400 text-amber-400 rounded-md hover:bg-amber-400 hover:text-slate-900 transition">Explore Books</a>
+    </div>
+  </section>
+
+  <!-- ===================== ABOUT / COMPANY PROFILE ===================== -->
+  <section id="about" class="py-20 px-6 bg-slate-900/70">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-bold text-amber-400 text-center mb-8">About</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="rounded-lg bg-slate-800/70 border border-slate-700 p-6">
+          <h3 class="text-xl font-semibold mb-2">Overview</h3>
+          <p class="text-slate-300">
+            ITOSHIRO ZUNA LLC is a research‑driven studio combining science, software, and storytelling.
+            We develop intellectual property, publish books, and build interactive applications aligned with human wellbeing.
+          </p>
         </div>
-        <a href="#contact">Contact</a>
-        <div class="dropdown">
-            <a href="#">Social Media</a>
-            <div class="dropdown-content">
-                <a href="https://x.com/senseizuna" target="_blank">X</a>
-                <a href="https://instagram.com/itoshirozuna" target="_blank">Instagram</a>
-                <a href="https://tiktok.com/@itoshirozuna" target="_blank">TikTok</a>
-            </div>
+
+        <div class="rounded-lg bg-slate-800/70 border border-slate-700 p-6">
+          <h3 class="text-xl font-semibold mb-2">Snapshot (What Exists Today)</h3>
+          <ul class="list-disc pl-5 text-slate-300 space-y-2">
+            <li><strong>Patent‑pending:</strong> A filed application in bio‑signal analytics (status: patent pending).</li>
+            <li><strong>Publishing:</strong> 8 books released across print, digital, and audio.</li>
+            <li><strong>Apps:</strong> A suite of interactive prototypes (research, meditation, education, gameplay).
+              See the <em>Apps</em> menu for links.</li>
+          </ul>
         </div>
-    </nav>
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <h1>Itoshiro Zuna</h1>
-            <p class="pen-name">One who weaves the thread of eras, carrying the name that arrives through hidden harbors</p>
-            <p class="book-title">The Fractal Symphony of Time</p>
-            <a href="https://amzn.to/44CdNom" class="cta-button">Buy Now on Kindle</a>
-        </div>
-    </section>
-    <section id="about">
-        <div class="content-box">
-            <h2>About Itoshiro Zuna</h2>
-            <p>Itoshiro Zuna, meaning ‘one who weaves the thread of eras,’ is a visionary author. Inspired by a childhood memory under a metal arch and a meditation vision with my boxer Akaya, I crafted *The Fractal Symphony of Time* to explore time as a living, fractal force. Dedicated to my wife, children, parents, and Akaya’s memory, this book is my invitation to see yourself as a creator in the cosmic melody.</p>
-        </div>
-    </section>
-    <section class="book-preview" id="book">
-        <div class="content-box">
-            <h2>Explore My Books</h2>
-            <div style="text-align: center; padding: 20px;">
-                <p style="font-size: 1.2rem; margin: 10px 0;">A metaphysical journey through dimensions and consciousness.</p>
-                <p style="font-size: 1.2rem; margin: 10px 0;">The Fractal Symphony of Time</p>
-                <a href="https://amzn.to/44CdNom" class="cta-button">Get Your Copy Now</a>
-                <p style="font-size: 1.2rem; margin: 20px 0 10px 0;">A Sci-Fi novel that takes you on an adventure into the 9 realms.</p>
-                <p style="font-size: 1.2rem; margin: 10px 0;">When Realms Bleed: The World As I See It</p>
-                <a href="https://amzn.to/443m18U" class="cta-button">Get Your Copy Now</a>
-                <p style="font-size: 1.2rem; margin: 20px 0 10px 0;">A children's adventure discovering fractal patterns in nature with Kai and Marie.</p>
-                <p style="font-size: 1.2rem; margin: 10px 0;">Mr. Ito's Fractal Adventure: A Puzzle of Patterns</p>
-                <a href="#" class="cta-button">Coming Soon</a>
-            </div>
-        </div>
-    </section>
-    <section id="contact">
-        <div class="content-box">
-            <h2>Contact Me</h2>
-            <p>Have a question or want to share your thoughts? Send me a message below.</p>
-            <div class="contact-form">
-                <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST">
-                    <label for="name">Name</label>
-                    <input type="text" name="name" id="name" required>
-                    <label for="email">Email</label>
-                    <input type="email" name="email" id="email" required>
-                    <label for="message">Message</label>
-                    <textarea name="message" id="message" rows="5" required></textarea>
-                    <button type="submit">Send Message</button>
-                </form>
-            </div>
-        </div>
-    </section>
-    <footer>
-        <p>Follow me on social media:</p>
-        <a href="https://x.com/senseizuna" target="_blank">@senseizuna on X</a>
-        <a href="https://instagram.com/itoshirozuna" target="_blank">@itoshirozuna on Instagram</a>
-        <a href="https://tiktok.com/@itoshirozuna" target="_blank">@itoshirozuna on TikTok</a>
-        <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
-    </footer>
-    <script>
-        // WARNING: Client-side password protection is NOT secure. The password can be viewed in the source code.
-        // For production, use server-side authentication (e.g., with Node.js, PHP, or a CMS).
-        function promptPassword() {
-            const password = prompt("Enter the password to access Research:");
-            if (password === "Wavesofloveneverfade2025!") {
-                window.location.href = "research.html";
-            } else {
-                alert("Incorrect password. Access denied.");
-            }
+      </div>
+
+      <div class="mt-6 grid md:grid-cols-3 gap-4">
+        <a href="#books" class="rounded-md bg-slate-800/60 border border-slate-700 p-4 hover:border-amber-400 transition">
+          <h4 class="font-semibold">Books</h4>
+          <p class="text-sm text-slate-300">Browse the current catalogue.</p>
+        </a>
+        <a href="#apps" class="rounded-md bg-slate-800/60 border border-slate-700 p-4 hover:border-amber-400 transition">
+          <h4 class="font-semibold">Apps</h4>
+          <p class="text-sm text-slate-300">Explore available prototypes and demos.</p>
+        </a>
+        <a href="#research" class="rounded-md bg-slate-800/60 border border-slate-700 p-4 hover:border-amber-400 transition">
+          <h4 class="font-semibold">Research Access</h4>
+          <p class="text-sm text-slate-300">Request materials or collaborate.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BOOKS ===================== -->
+  <section id="books" class="py-20 px-6">
+    <h2 class="text-3xl font-bold text-amber-400 text-center mb-10">Books</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/40 transition">
+        <img src="/assets/books/fractal-symphony.jpg" alt="The Fractal Symphony of Time" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
+        <h3 class="text-xl font-semibold mb-1">The Fractal Symphony of Time</h3>
+        <p class="text-sm text-slate-300 mb-3">Metaphysical exploration of time and consciousness.</p>
+        <a href="https://amzn.to/44CdNom" target="_blank" rel="noopener" class="inline-block px-4 py-2 bg-amber-400 text-slate-900 rounded font-semibold">Buy on Amazon</a>
+      </div>
+      <div class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/40 transition">
+        <h3 class="text-xl font-semibold mb-1">When Realms Bleed: The World As I See It</h3>
+        <p class="text-sm text-slate-300 mb-3">Sci‑fi Book 1 of a trilogy—journey across realms and choices.</p>
+        <a href="https://amzn.to/443m18U" target="_blank" rel="noopener" class="inline-block px-4 py-2 bg-amber-400 text-slate-900 rounded font-semibold">Buy on Amazon</a>
+      </div>
+      <div class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/40 transition">
+        <h3 class="text-xl font-semibold mb-1">Catalogue & Upcoming</h3>
+        <p class="text-sm text-slate-300 mb-3">8 books published; +2 releases every year. Request the full list.</p>
+        <a href="#contact" class="inline-block px-4 py-2 border border-amber-400 text-amber-400 rounded hover:bg-amber-400 hover:text-slate-900">Request Catalogue</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== APPS (brief, without disclosing plans) ===================== -->
+  <section id="apps" class="py-20 px-6 bg-slate-900/70">
+    <h2 class="text-3xl font-bold text-amber-400 text-center mb-10">Apps</h2>
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="text-slate-300">Explore our interactive prototypes and demos via the <strong>Apps</strong> menu in the navigation bar.</p>
+      <div class="mt-6 flex flex-wrap gap-3 justify-center text-amber-400">
+        <a class="underline" href="fractal-ai-research.html">Fractal AI Research</a>
+        <span>•</span>
+        <a class="underline" href="fractal-meditation.html">Fractal Meditation</a>
+        <span>•</span>
+        <a class="underline" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+        <span>•</span>
+        <a class="underline" href="plasma-mind.html">PlasmaMind</a>
+        <span>•</span>
+        <a class="underline" href="fractal-racers.html">Fractal Racers</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESEARCH (safe, generic) ===================== -->
+  <section id="research" class="py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-bold text-amber-400 text-center mb-8">Research</h2>
+      <p class="text-slate-300 max-w-3xl mx-auto text-center">
+        Our work explores applied science and computational methods connected to human physiology and wellbeing.
+        Public summaries are available on request. For access to non‑public materials, please submit the form below.
+      </p>
+
+      <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST" class="mt-8 max-w-xl mx-auto grid gap-3">
+        <input type="hidden" name="_subject" value="Research Access / Collaboration Request" />
+        <input name="name" type="text" placeholder="Name" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+        <input name="email" type="email" placeholder="Email" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+        <input name="affiliation" type="text" placeholder="Affiliation / Organization" class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+        <textarea name="message" rows="4" placeholder="Brief description of your interest" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none"></textarea>
+        <button type="submit" class="px-5 py-2 bg-amber-400 text-slate-900 font-semibold rounded hover:bg-amber-300 transition">Request Access</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== SOCIAL MEDIA ===================== -->
+  <section id="social" class="py-20 px-6 bg-slate-900/70">
+    <h2 class="text-3xl font-bold text-amber-400 text-center mb-6">Social Media</h2>
+    <div class="max-w-4xl mx-auto grid sm:grid-cols-3 gap-6">
+      <a href="https://x.com/senseizuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
+        <h3 class="font-semibold">X (Twitter)</h3>
+        <p class="text-slate-300 text-sm">@senseizuna</p>
+      </a>
+      <a href="https://instagram.com/itoshirozuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
+        <h3 class="font-semibold">Instagram</h3>
+        <p class="text-slate-300 text-sm">@itoshirozuna</p>
+      </a>
+      <a href="https://tiktok.com/@itoshirozuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
+        <h3 class="font-semibold">TikTok</h3>
+        <p class="text-slate-300 text-sm">@itoshirozuna</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT (optional, safe) ===================== -->
+  <section id="contact" class="py-20 px-6">
+    <h2 class="text-3xl font-bold text-amber-400 text-center mb-6">Contact</h2>
+    <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST" class="max-w-lg mx-auto grid gap-4">
+      <input type="text" name="name" placeholder="Name" required class="px-4 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+      <input type="email" name="email" placeholder="Email" required class="px-4 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+      <textarea name="message" rows="4" placeholder="Message" required class="px-4 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none"></textarea>
+      <button type="submit" class="px-6 py-3 bg-amber-400 text-slate-900 font-semibold rounded hover:bg-amber-300 transition">Send Message</button>
+    </form>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="bg-slate-900/80 py-6 text-center text-sm">
+    <p class="mb-2">© 2025 ITOSHIRO ZUNA LLC — All rights reserved.</p>
+    <p class="text-slate-400">Publishing • Apps • Research</p>
+  </footer>
+
+  <!-- Fractal background canvas -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <script>
+    // Mobile nav toggle
+    const navBtn = document.getElementById('navBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    navBtn.addEventListener('click', () => {
+      const hidden = mobileNav.classList.toggle('hidden');
+      navBtn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    });
+
+    // Mobile dropdown toggles
+    document.querySelectorAll('[data-dd-toggle]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-dd-toggle');
+        const panel = document.getElementById(`submenu-${id}-mobile`);
+        panel.classList.toggle('hidden');
+      });
+    });
+
+    // Lightweight fractal background
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+    addEventListener('resize', resize); resize();
+    let t = 0;
+    function draw(){
+      ctx.fillStyle = 'rgba(10,10,35,0.07)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      const step = 120;
+      for(let x=0;x<canvas.width;x+=step){
+        for(let y=0;y<canvas.height;y+=step){
+          const r = 40 + 10*Math.sin(t + (x+y)/200);
+          ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+          ctx.strokeStyle = 'rgba(255,215,0,0.22)';
+          ctx.stroke();
         }
-
-        const canvas = document.getElementById('fractalCanvas');
-        const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        let time = 0;
-        const colors = [
-            'rgba(0, 255, 0, 0.5)',    // Green
-            'rgba(255, 215, 0, 0.5)',  // Gold
-            'rgba(192, 192, 192, 0.5)' // Silver
-        ];
-
-        function drawFlowerOfLife(x, y, radius, depth) {
-            if (depth <= 0) return;
-
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
-            ctx.strokeStyle = colors[depth % colors.length];
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            const offset = radius * Math.sin(time + depth) * 0.5;
-            const newRadius = radius * 0.5;
-            const positions = [
-                [x + (radius + offset), y],
-                [x - (radius + offset), y],
-                [x + (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
-                [x + (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)],
-                [x - (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
-                [x - (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)]
-            ];
-
-            for (const [px, py] of positions) {
-                drawFlowerOfLife(px, py, newRadius, depth - 1);
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(10, 10, 35, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const gridSize = 150;
-            for (let x = 0; x < canvas.width + gridSize; x += gridSize) {
-                for (let y = 0; y < canvas.height + gridSize; y += gridSize) {
-                    drawFlowerOfLife(x, y, 50, 3);
-                }
-            }
-
-            time += 0.02;
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
+      }
+      t += 0.01; requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
 </body>
 </html>
