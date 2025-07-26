@@ -25,14 +25,14 @@
         <a href="index.html#about" class="hover:text-amber-400">About</a>
         <a href="books.html" class="hover:text-amber-400">Books</a>
 
-        <!-- Apps: clickable link to #apps + hover submenu -->
-        <div class="relative group">
-          <a href="index.html#apps" class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop">
-            Apps
-            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
-          </a>
+        <!-- Apps: word is a direct link; caret toggles submenu -->
+        <div class="relative flex items-center group">
+          <a href="index.html#apps" class="hover:text-amber-400">Apps</a>
+          <button id="appsCaret" class="ml-1 hover:text-amber-400" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop" title="Open app links">
+            ▾
+          </button>
           <ul id="submenu-apps-desktop"
-              class="absolute left-0 mt-2 hidden group-hover:block group-focus-within:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
+              class="absolute left-0 mt-2 hidden group-hover:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
@@ -42,17 +42,8 @@
           </ul>
         </div>
 
-        <!-- Research dropdown stays the same -->
-        <div class="relative group">
-          <button class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-research-desktop">
-            Research
-            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
-          </button>
-          <ul id="submenu-research-desktop"
-              class="absolute left-0 mt-2 hidden group-hover:block group-focus-within:block min-w-[220px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="index.html#research">Access Research</a></li>
-          </ul>
-        </div>
+        <!-- Research: no dropdown, goes directly to contact form area -->
+        <a href="index.html#research-contact" class="hover:text-amber-400">Research</a>
 
         <a href="index.html#social" class="hover:text-amber-400">Social Media</a>
       </nav>
@@ -68,11 +59,12 @@
       <a class="py-2 hover:text-amber-400" href="index.html#home">Home</a>
       <a class="py-2 hover:text-amber-400" href="index.html#about">About</a>
       <a class="py-2 hover:text-amber-400" href="books.html">Books</a>
-      <!-- Direct Apps link (no extra tap needed) -->
       <a class="py-2 hover:text-amber-400" href="index.html#apps">Apps</a>
-      <!-- Optional: show app links -->
-      <div class="border-t border-slate-800 pt-2">
-        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="apps">App Links <span>▾</span></button>
+      <!-- Optional quick app links -->
+      <div class="pt-1">
+        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="apps">
+          App Links <span>▾</span>
+        </button>
         <ul id="submenu-apps-mobile" class="hidden pl-3 text-sm">
           <li><a class="block py-2 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
           <li><a class="block py-2 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
@@ -82,31 +74,30 @@
           <li><a class="block py-2 hover:text-amber-400" href="app-instructions.html">Instructions</a></li>
         </ul>
       </div>
-
-      <a class="py-2 hover:text-amber-400" href="index.html#research">Research</a>
+      <a class="py-2 hover:text-amber-400" href="index.html#research-contact">Research</a>
       <a class="py-2 hover:text-amber-400" href="index.html#social">Social Media</a>
     </div>
   </header>
 
   <!-- ===================== HERO ===================== -->
-  <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center pt-20 px-6">
-    <!-- NEW strapline -->
-    <p class="uppercase tracking-wide text-amber-300/90 font-semibold text-sm md:text-base mb-2">
+  <section id="home" class="min-h-[75vh] flex flex-col items-center text-center pt-28 md:pt-36 gap-3">
+    <!-- Bigger & higher strapline -->
+    <p class="uppercase tracking-wide text-amber-300/95 font-extrabold text-2xl md:text-3xl">
       INNOVATING HUMAN WELLNESS FROM GROUNDING TO QUANTUM
     </p>
 
-    <h1 class="text-4xl md:text-6xl font-extrabold text-amber-400 drop-shadow">Company Profile</h1>
-    <p class="mt-4 max-w-xl text-lg text-slate-300">
+    <h1 class="text-5xl md:text-6xl font-extrabold text-amber-400 drop-shadow">Company Profile</h1>
+    <p class="mt-2 max-w-xl text-lg text-slate-300">
       Research‑led publishing and interactive software exploring science and consciousness.
     </p>
-    <div class="mt-8 flex flex-wrap gap-4 justify-center">
+    <div class="mt-6 flex flex-wrap gap-4 justify-center">
       <a href="#about" class="px-6 py-3 bg-amber-400 text-slate-900 rounded-md font-semibold shadow hover:scale-105 transition">Learn More</a>
       <a href="books.html" class="px-6 py-3 border border-amber-400 text-amber-400 rounded-md hover:bg-amber-400 hover:text-slate-900 transition">Browse Books</a>
     </div>
   </section>
 
   <!-- ===================== ABOUT ===================== -->
-  <section id="about" class="py-20 px-6 bg-slate-900/70">
+  <section id="about" class="py-20 px-6 bg-slate-900/70 scroll-mt-24">
     <div class="max-w-5xl mx-auto">
       <h2 class="text-3xl font-bold text-amber-400 text-center mb-8">About</h2>
 
@@ -131,32 +122,30 @@
     </div>
   </section>
 
-  <!-- ===================== FEATURED BOOKS (with images) ===================== -->
-  <section class="py-20 px-6">
-    <h2 class="text-3xl font-bold text-amber-400 text-center mb-10">Featured Books</h2>
-    <div class="grid sm:grid-cols-2 gap-8 max-w-5xl mx-auto">
-      <article class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/30 transition">
-        <img src="assets/images/fractal-symphony-of-time.jpg" alt="Cover — The Fractal Symphony of Time" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
-        <h3 class="text-xl font-semibold mb-1">The Fractal Symphony of Time</h3>
-        <p class="text-sm text-slate-300 mb-3">Metaphysical exploration of time and consciousness.</p>
-        <a href="https://a.co/d/ct5lST4" target="_blank" rel="noopener" class="inline-block px-4 py-2 bg-amber-400 text-slate-900 rounded font-semibold">Buy on Amazon</a>
-      </article>
-
-      <article class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/30 transition">
-        <img src="assets/images/when-realms-bleed.jpg" alt="Cover — When Realms Bleed: The World As I See It" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
-        <h3 class="text-xl font-semibold mb-1">When Realms Bleed: The World As I See It</h3>
-        <p class="text-sm text-slate-300 mb-3">Book 1 of a sci‑fi journey through nine realms.</p>
-        <a href="https://a.co/d/ijwoPSi" target="_blank" rel="noopener" class="inline-block px-4 py-2 bg-amber-400 text-slate-900 rounded font-semibold">Buy on Amazon</a>
-      </article>
-    </div>
-
-    <div class="text-center mt-8">
-      <a href="books.html" class="inline-block px-6 py-3 border border-amber-400 text-amber-400 rounded-md hover:bg-amber-400 hover:text-slate-900 transition">See All Books</a>
+  <!-- ===================== APPS ===================== -->
+  <section id="apps" class="py-20 px-6 bg-slate-900/70 scroll-mt-24">
+    <h2 class="text-3xl font-bold text-amber-400 text-center mb-10">Apps & Interactive</h2>
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
+      <div class="bg-slate-800/60 p-6 rounded-lg">
+        <h3 class="text-xl font-semibold mb-1">KAI‑WAVE™ Companion</h3>
+        <p class="text-slate-300 mb-3">Non‑regulated HRV insights & recovery coaching. Prototype in Year 2.</p>
+        <a href="#research-contact" class="text-amber-400 hover:underline">Join waitlist →</a>
+      </div>
+      <div class="bg-slate-800/60 p-6 rounded-lg">
+        <h3 class="text-xl font-semibold mb-1">Fractal Meditation</h3>
+        <p class="text-slate-300 mb-3">Guided visuals synchronizing breath with fractal rhythms.</p>
+        <a href="fractal-meditation.html" class="text-amber-400 hover:underline">Learn more →</a>
+      </div>
+      <div class="bg-slate-800/60 p-6 rounded-lg">
+        <h3 class="text-xl font-semibold mb-1">Virtual Fractal Sanctuary</h3>
+        <p class="text-slate-300 mb-3">Immersive well‑being space (web/desktop).</p>
+        <a href="virtual-fractal-sanctuary.html" class="text-amber-400 hover:underline">Learn more →</a>
+      </div>
     </div>
   </section>
 
-  <!-- ===================== RESEARCH (safe) ===================== -->
-  <section id="research" class="py-20 px-6 bg-slate-900/70">
+  <!-- ===================== RESEARCH ===================== -->
+  <section id="research" class="py-20 px-6 scroll-mt-24">
     <div class="max-w-5xl mx-auto">
       <h2 class="text-3xl font-bold text-amber-400 text-center mb-8">Research</h2>
       <p class="text-slate-300 max-w-3xl mx-auto text-center">
@@ -164,19 +153,22 @@
         Public summaries are available on request. For access to non‑public materials, please submit the form below.
       </p>
 
-      <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST" class="mt-8 max-w-xl mx-auto grid gap-3">
-        <input type="hidden" name="_subject" value="Research Access / Collaboration Request" />
-        <input name="name" type="text" placeholder="Name" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
-        <input name="email" type="email" placeholder="Email" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
-        <input name="affiliation" type="text" placeholder="Affiliation / Organization" class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
-        <textarea name="message" rows="4" placeholder="Brief description of your interest" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none"></textarea>
-        <button type="submit" class="px-5 py-2 bg-amber-400 text-slate-900 font-semibold rounded hover:bg-amber-300 transition">Request Access</button>
-      </form>
+      <!-- Anchor for direct nav -->
+      <div id="research-contact" class="mt-8 max-w-xl mx-auto">
+        <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST" class="grid gap-3">
+          <input type="hidden" name="_subject" value="Research Access / Collaboration Request" />
+          <input name="name" type="text" placeholder="Name" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          <input name="email" type="email" placeholder="Email" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          <input name="affiliation" type="text" placeholder="Affiliation / Organization" class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          <textarea name="message" rows="4" placeholder="Brief description of your interest (HRV analytics / composite material / apps)" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none"></textarea>
+          <button type="submit" class="px-5 py-2 bg-amber-400 text-slate-900 font-semibold rounded hover:bg-amber-300 transition">Request Access</button>
+        </form>
+      </div>
     </div>
   </section>
 
   <!-- ===================== SOCIAL ===================== -->
-  <section id="social" class="py-20 px-6">
+  <section id="social" class="py-20 px-6 bg-slate-900/70 scroll-mt-24">
     <h2 class="text-3xl font-bold text-amber-400 text-center mb-6">Social Media</h2>
     <div class="max-w-4xl mx-auto grid sm:grid-cols-3 gap-6">
       <a href="https://x.com/senseizuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
@@ -211,14 +203,32 @@
       navBtn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
     });
 
-    // Mobile dropdown toggles for app links
+    // Mobile quick app links toggle
     document.querySelectorAll('[data-dd-toggle]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const id = btn.getAttribute('data-dd-toggle');
         const panel = document.getElementById(`submenu-${id}-mobile`);
-        panel.classList.toggle('hidden');
+        if(panel) panel.classList.toggle('hidden');
       });
     });
+
+    // Caret toggle for desktop submenu (Apps)
+    const appsCaret = document.getElementById('appsCaret');
+    const appsMenu = document.getElementById('submenu-apps-desktop');
+    if (appsCaret && appsMenu){
+      appsCaret.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const open = appsMenu.classList.toggle('hidden');
+        appsCaret.setAttribute('aria-expanded', open ? 'false' : 'true');
+      });
+      // Close when clicking outside
+      document.addEventListener('click', (e)=>{
+        if (!appsMenu.contains(e.target) && !appsCaret.contains(e.target)) {
+          appsMenu.classList.add('hidden');
+          appsCaret.setAttribute('aria-expanded','false');
+        }
+      });
+    }
 
     // Lightweight fractal background
     const canvas = document.getElementById('bgCanvas');
