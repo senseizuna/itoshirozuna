@@ -25,12 +25,12 @@
         <a href="index.html#about" class="hover:text-amber-400">About</a>
         <a href="books.html" class="hover:text-amber-400">Books</a>
 
-        <!-- Apps dropdown -->
+        <!-- Apps: clickable link to #apps + hover submenu -->
         <div class="relative group">
-          <button class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop">
+          <a href="index.html#apps" class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-apps-desktop">
             Apps
             <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
-          </button>
+          </a>
           <ul id="submenu-apps-desktop"
               class="absolute left-0 mt-2 hidden group-hover:block group-focus-within:block min-w-[260px] rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
             <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
@@ -42,7 +42,7 @@
           </ul>
         </div>
 
-        <!-- Research dropdown -->
+        <!-- Research dropdown stays the same -->
         <div class="relative group">
           <button class="hover:text-amber-400 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="submenu-research-desktop">
             Research
@@ -68,9 +68,11 @@
       <a class="py-2 hover:text-amber-400" href="index.html#home">Home</a>
       <a class="py-2 hover:text-amber-400" href="index.html#about">About</a>
       <a class="py-2 hover:text-amber-400" href="books.html">Books</a>
-
+      <!-- Direct Apps link (no extra tap needed) -->
+      <a class="py-2 hover:text-amber-400" href="index.html#apps">Apps</a>
+      <!-- Optional: show app links -->
       <div class="border-t border-slate-800 pt-2">
-        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="apps">Apps <span>▾</span></button>
+        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="apps">App Links <span>▾</span></button>
         <ul id="submenu-apps-mobile" class="hidden pl-3 text-sm">
           <li><a class="block py-2 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
           <li><a class="block py-2 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
@@ -81,19 +83,18 @@
         </ul>
       </div>
 
-      <div class="border-t border-slate-800 pt-2">
-        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="research">Research <span>▾</span></button>
-        <ul id="submenu-research-mobile" class="hidden pl-3 text-sm">
-          <li><a class="block py-2 hover:text-amber-400" href="index.html#research">Access Research</a></li>
-        </ul>
-      </div>
-
-      <a class="py-2 hover:text-amber-400 border-t border-slate-800 mt-2" href="index.html#social">Social Media</a>
+      <a class="py-2 hover:text-amber-400" href="index.html#research">Research</a>
+      <a class="py-2 hover:text-amber-400" href="index.html#social">Social Media</a>
     </div>
   </header>
 
   <!-- ===================== HERO ===================== -->
   <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center pt-20 px-6">
+    <!-- NEW strapline -->
+    <p class="uppercase tracking-wide text-amber-300/90 font-semibold text-sm md:text-base mb-2">
+      INNOVATING HUMAN WELLNESS FROM GROUNDING TO QUANTUM
+    </p>
+
     <h1 class="text-4xl md:text-6xl font-extrabold text-amber-400 drop-shadow">Company Profile</h1>
     <p class="mt-4 max-w-xl text-lg text-slate-300">
       Research‑led publishing and interactive software exploring science and consciousness.
@@ -134,7 +135,6 @@
   <section class="py-20 px-6">
     <h2 class="text-3xl font-bold text-amber-400 text-center mb-10">Featured Books</h2>
     <div class="grid sm:grid-cols-2 gap-8 max-w-5xl mx-auto">
-      <!-- Fractal Symphony -->
       <article class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/30 transition">
         <img src="assets/images/fractal-symphony-of-time.jpg" alt="Cover — The Fractal Symphony of Time" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
         <h3 class="text-xl font-semibold mb-1">The Fractal Symphony of Time</h3>
@@ -142,7 +142,6 @@
         <a href="https://a.co/d/ct5lST4" target="_blank" rel="noopener" class="inline-block px-4 py-2 bg-amber-400 text-slate-900 rounded font-semibold">Buy on Amazon</a>
       </article>
 
-      <!-- When Realms Bleed -->
       <article class="bg-slate-800/70 p-4 rounded-lg shadow hover:shadow-amber-400/30 transition">
         <img src="assets/images/when-realms-bleed.jpg" alt="Cover — When Realms Bleed: The World As I See It" class="rounded mb-4 mx-auto w-48 h-64 object-cover" />
         <h3 class="text-xl font-semibold mb-1">When Realms Bleed: The World As I See It</h3>
@@ -212,7 +211,7 @@
       navBtn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
     });
 
-    // Mobile dropdown toggles
+    // Mobile dropdown toggles for app links
     document.querySelectorAll('[data-dd-toggle]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const id = btn.getAttribute('data-dd-toggle');
