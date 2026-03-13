@@ -1,254 +1,170 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="ITOSHIRO ZUNA LLC — research‑led publishing, interactive apps, and patent‑pending science at the intersection of technology and consciousness." />
-  <title>ITOSHIRO ZUNA LLC — Company Profile</title>
-  <link rel="icon" href="assets/favicon.ico" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Itoshiro Zuna • Fractal Stories, Apps & Kid’s Zone</title>
+  <meta name="description" content="Books, interactive apps, and magical Kid’s Zone adventures by Itoshiro Zuna.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    #bgCanvas{position:fixed;inset:0;z-index:-1}
-    :focus-visible{outline:2px solid #f59e0b; outline-offset:2px}
+    :root { --accent: #ffd700; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a23;
+      color: #fff;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; }
+    nav {
+      position:fixed; top:0; width:100%; background:rgba(10,10,35,0.95);
+      padding:15px 0; z-index:100; text-align:center;
+    }
+    nav a {
+      color:#fff; margin:0 20px; text-decoration:none; font-size:1.1rem;
+    }
+    nav a:hover { color:var(--accent); }
+    header {
+      height:100vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; position:relative;
+    }
+    h1 {
+      font-size:4.5rem; color:var(--accent); text-shadow:0 0 30px #000;
+    }
+    .tagline { font-size:1.8rem; margin:20px 0; opacity:0.9; }
+    .main-grid {
+      max-width:1200px; margin:80px auto; padding:0 20px;
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:30px;
+    }
+    .card {
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,215,0,0.2);
+      padding:30px; border-radius:15px; text-align:center; transition:0.3s;
+    }
+    .card:hover { transform:translateY(-10px); box-shadow:0 0 30px rgba(255,215,0,0.3); }
+    .card h2 { color:var(--accent); margin-bottom:15px; }
+    .cta {
+      display:inline-block; padding:12px 30px; background:var(--accent);
+      color:#000; font-weight:bold; border-radius:8px; margin-top:15px;
+    }
+    footer {
+      text-align:center; padding:40px 20px; background:rgba(0,0,0,0.8);
+      font-size:0.9rem;
+    }
+    .x-follow {
+      background:#1DA1F2; color:white; padding:10px 20px; border-radius:999px;
+      text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans">
-  <!-- ===================== NAVIGATION ===================== -->
-  <header class="fixed w-full overflow-visible backdrop-blur bg-slate-900/70 border-b border-slate-800 z-50">
-    <div class="mx-auto max-w-7xl px-4 flex items-center justify-between h-16">
-      <a href="index.html#home" class="text-2xl font-bold tracking-wide text-amber-400">ITOSHIRO ZUNA LLC</a>
+<body>
 
-      <!-- Desktop -->
-      <nav class="hidden md:flex items-center gap-6 text-slate-200">
-        <a href="index.html#home" class="hover:text-amber-400">Home</a>
-        <a href="index.html#about" class="hover:text-amber-400">About</a>
-        <a href="books.html" class="hover:text-amber-400">Books</a>
+  <!-- Background fractal canvas -->
+  <canvas id="bg"></canvas>
 
-        <!-- Apps: link + caret with robust dropdown -->
-        <div id="appsWrapIdx" class="relative flex items-center group">
-          <a href="index.html#apps" class="hover:text-amber-400">Apps</a>
-          <button id="appsBtnIdx" type="button" class="ml-1 hover:text-amber-400"
-                  aria-haspopup="true" aria-expanded="false" aria-controls="appsMenuIdx" title="Open app links">▾</button>
-          <ul id="appsMenuIdx"
-              class="hidden group-hover:block absolute left-0 top-full translate-y-2 z-[60] min-w-[260px]
-                     rounded-md border border-white/10 bg-black/90 shadow-xl ring-1 ring-white/10">
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a></li>
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="fractal-racers.html">Fractal Racers: Tron Edition</a></li>
-            <li><a class="block px-4 py-2 hover:bg-amber-400/10 hover:text-amber-400" href="app-instructions.html">Instructions</a></li>
-          </ul>
-        </div>
+  <nav>
+    <a href="#books">Books</a>
+    <a href="#apps">Apps</a>
+    <a href="#kids">Kid’s Zone</a>
+    <a href="#x">X</a>
+    <a href="#contact">Message Me</a>
+  </nav>
 
-        <!-- Research: direct link to contact form area (no dropdown) -->
-        <a href="index.html#research-contact" class="hover:text-amber-400">Research</a>
-
-        <a href="index.html#social" class="hover:text-amber-400">Social Media</a>
-      </nav>
-
-      <!-- Mobile hamburger -->
-      <button id="navBtn" class="md:hidden text-amber-400 focus:outline-none" aria-expanded="false" aria-controls="mobileNav">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-    </div>
-
-    <!-- Mobile menu -->
-    <div id="mobileNav" class="hidden md:hidden flex-col gap-2 p-4 bg-slate-900/90 border-t border-slate-800">
-      <a class="py-2 hover:text-amber-400" href="index.html#home">Home</a>
-      <a class="py-2 hover:text-amber-400" href="index.html#about">About</a>
-      <a class="py-2 hover:text-amber-400" href="books.html">Books</a>
-      <a class="py-2 hover:text-amber-400" href="index.html#apps">Apps</a>
-      <!-- Optional quick app links -->
-      <div class="pt-1">
-        <button class="w-full text-left py-2 hover:text-amber-400 flex items-center justify-between" data-dd-toggle="apps">
-          App Links <span>▾</span>
-        </button>
-        <ul id="submenu-apps-mobile" class="hidden pl-3 text-sm">
-          <li><a class="block py-2 hover:text-amber-400" href="fractal-ai-research.html">Fractal AI Research</a></li>
-          <li><a class="block py-2 hover:text-amber-400" href="fractal-meditation.html">Fractal Meditation</a></li>
-          <li><a class="block py-2 hover:text-amber-400" href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a></li>
-          <li><a class="block py-2 hover:text-amber-400" href="plasma-mind.html">PlasmaMind</a></li>
-          <li><a class="block py-2 hover:text-amber-400" href="fractal-racers.html">Fractal Racers</a></li>
-          <li><a class="block py-2 hover:text-amber-400" href="app-instructions.html">Instructions</a></li>
-        </ul>
-      </div>
-      <a class="py-2 hover:text-amber-400" href="index.html#research-contact">Research</a>
-      <a class="py-2 hover:text-amber-400" href="index.html#social">Social Media</a>
+  <header>
+    <div>
+      <h1>Itoshiro Zuna</h1>
+      <p class="tagline">Fractal Stories • Magical Apps • Kid’s Adventures</p>
     </div>
   </header>
 
-  <!-- ===================== HERO ===================== -->
-  <section id="home" class="min-h-[75vh] flex flex-col items-center text-center pt-28 md:pt-36 gap-3">
-    <!-- Bigger & higher strapline -->
-    <p class="uppercase tracking-wide text-amber-300/95 font-extrabold text-2xl md:text-3xl">
-      INNOVATING HUMAN WELLNESS FROM GROUNDING TO QUANTUM
-    </p>
+  <main class="main-grid">
 
-    <h1 class="text-5xl md:text-6xl font-extrabold text-amber-400 drop-shadow">Company Profile</h1>
-    <p class="mt-2 max-w-xl text-lg text-slate-300">
-      Research‑led publishing and interactive software exploring science and consciousness.
-    </p>
-    <div class="mt-6 flex flex-wrap gap-4 justify-center">
-      <a href="#about" class="px-6 py-3 bg-amber-400 text-slate-900 rounded-md font-semibold shadow hover:scale-105 transition">Learn More</a>
-      <a href="books.html" class="px-6 py-3 border border-amber-400 text-amber-400 rounded-md hover:bg-amber-400 hover:text-slate-900 transition">Browse Books</a>
+    <!-- BOOKS -->
+    <div id="books" class="card">
+      <h2>Books</h2>
+      <p>All my published works — now live on Amazon.</p>
+      <a href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6?ref=sr_ntt_srch_lnk_8&qid=1773362388&sr=1-8&shoppingPortalEnabled=true&ccs_id=c11fefcd-a1e4-4496-b815-70cb7d7b1213" 
+         target="_blank" class="cta">Browse All Books on Amazon →</a>
     </div>
-  </section>
 
-  <!-- ===================== ABOUT ===================== -->
-  <section id="about" class="py-20 px-6 bg-slate-900/70 scroll-mt-24">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-3xl font-bold text-amber-400 text-center mb-8">About</h2>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="rounded-lg bg-slate-800/70 border border-slate-700 p-6">
-          <h3 class="text-xl font-semibold mb-2">Overview</h3>
-          <p class="text-slate-300">
-            ITOSHIRO ZUNA LLC is a research‑driven studio combining science, software, and storytelling.
-            We develop intellectual property, publish books, and build interactive applications aligned with human wellbeing.
-          </p>
-        </div>
-
-        <div class="rounded-lg bg-slate-800/70 border border-slate-700 p-6">
-          <h3 class="text-xl font-semibold mb-2">Snapshot (Today)</h3>
-          <ul class="list-disc pl-5 text-slate-300 space-y-2">
-            <li><strong>Patent‑pending (2):</strong> (1) a method/software for HRV (bio‑signal) analysis; (2) a composite material engineered for durability with electrical/EMI‑shielding and antimicrobial properties.</li>
-            <li><strong>Publishing:</strong> 8 books in <em>digital and print</em> formats.</li>
-            <li><strong>Apps:</strong> interactive prototypes for research, meditation, education, and gameplay (see Apps menu).</li>
-          </ul>
-        </div>
+    <!-- APPS -->
+    <div id="apps" class="card">
+      <h2>Apps</h2>
+      <p>Interactive experiences that bring fractals to life.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:15px; justify-content:center; margin:20px 0;">
+        <a href="fractal-meditation.html" style="color:#ffd700;">Fractal Meditation</a>
+        <a href="virtual-fractal-sanctuary.html" style="color:#ffd700;">Virtual Sanctuary</a>
+        <a href="plasma-mind.html" style="color:#ffd700;">PlasmaMind</a>
+        <a href="fractal-racers.html" style="color:#ffd700;">Fractal Racers</a>
       </div>
+      <a href="app-instructions.html" class="cta">All Apps & Instructions →</a>
     </div>
-  </section>
 
-  <!-- ===================== APPS ===================== -->
-  <section id="apps" class="py-20 px-6 bg-slate-900/70 scroll-mt-24">
-    <h2 class="text-3xl font-bold text-amber-400 text-center mb-10">Apps & Interactive</h2>
-    <div class="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
-      <div class="bg-slate-800/60 p-6 rounded-lg">
-        <h3 class="text-xl font-semibold mb-1">HRV Companion</h3>
-        <p class="text-slate-300 mb-3">Non‑regulated HRV insights & recovery coaching. Prototype in Year 2.</p>
-        <a href="#research-contact" class="text-amber-400 hover:underline">Join waitlist →</a>
+    <!-- KID’S ZONE -->
+    <div id="kids" class="card">
+      <h2>Kid’s Zone</h2>
+      <p>Fun, educational adventures for young fractal hunters.</p>
+      <div style="margin:20px 0;">
+        <a href="kai-wisdom-fighters.html" style="color:#ffd700; display:block; margin:10px 0;">Kai Wisdom Fighters (Math Battles)</a>
+        <a href="certificate.html" style="color:#ffd700; display:block; margin:10px 0;">Fractal Hunters Certificate</a>
       </div>
-      <div class="bg-slate-800/60 p-6 rounded-lg">
-        <h3 class="text-xl font-semibold mb-1">Fractal Meditation</h3>
-        <p class="text-slate-300 mb-3">Guided visuals synchronizing breath with fractal rhythms.</p>
-        <a href="fractal-meditation.html" class="text-amber-400 hover:underline">Learn more →</a>
-      </div>
-      <div class="bg-slate-800/60 p-6 rounded-lg">
-        <h3 class="text-xl font-semibold mb-1">Virtual Fractal Sanctuary</h3>
-        <p class="text-slate-300 mb-3">Immersive well‑being space (web/desktop).</p>
-        <a href="virtual-fractal-sanctuary.html" class="text-amber-400 hover:underline">Learn more →</a>
-      </div>
+      <a href="#" onclick="alert('More Kid’s Zone games coming soon!')" class="cta">Explore Kid’s Zone →</a>
     </div>
-  </section>
 
-  <!-- ===================== RESEARCH ===================== -->
-  <section id="research" class="py-20 px-6 scroll-mt-24">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-3xl font-bold text-amber-400 text-center mb-8">Research</h2>
-      <p class="text-slate-300 max-w-3xl mx-auto text-center">
-        Our work explores applied science and computational methods connected to human physiology and wellbeing.
-        Public summaries are available on request. For access to non‑public materials, please submit the form below.
-      </p>
-
-      <!-- Anchor for direct nav -->
-      <div id="research-contact" class="mt-8 max-w-xl mx-auto">
-        <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST" class="grid gap-3">
-          <input type="hidden" name="_subject" value="Research Access / Collaboration Request" />
-          <input name="name" type="text" placeholder="Name" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
-          <input name="email" type="email" placeholder="Email" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
-          <input name="affiliation" type="text" placeholder="Affiliation / Organization" class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none" />
-          <textarea name="message" rows="4" placeholder="Brief description of your interest (HRV analytics / composite material / apps)" required class="px-3 py-2 rounded bg-slate-800 border border-slate-700 focus:border-amber-400 focus:outline-none"></textarea>
-          <button type="submit" class="px-5 py-2 bg-amber-400 text-slate-900 font-semibold rounded hover:bg-amber-300 transition">Request Access</button>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== SOCIAL ===================== -->
-  <section id="social" class="py-20 px-6 bg-slate-900/70 scroll-mt-24">
-    <h2 class="text-3xl font-bold text-amber-400 text-center mb-6">Social Media</h2>
-    <div class="max-w-4xl mx-auto grid sm:grid-cols-3 gap-6">
-      <a href="https://x.com/senseizuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
-        <h3 class="font-semibold">X (Twitter)</h3>
-        <p class="text-slate-300 text-sm">@senseizuna</p>
-      </a>
-      <a href="https://instagram.com/itoshirozuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
-        <h3 class="font-semibold">Instagram</h3>
-        <p class="text-slate-300 text-sm">@itoshirozuna</p>
-      </a>
-      <a href="https://tiktok.com/@itoshirozuna" target="_blank" rel="noopener" class="rounded-lg border border-slate-700 p-6 bg-slate-800/60 hover:border-amber-400 hover:shadow-amber-400/30 transition">
-        <h3 class="font-semibold">TikTok</h3>
-        <p class="text-slate-300 text-sm">@itoshirozuna</p>
+    <!-- X -->
+    <div id="x" class="card">
+      <h2>Follow on X</h2>
+      <p>Latest thoughts, fractal insights, and behind-the-scenes.</p>
+      <a href="https://x.com/senseizuna" target="_blank" class="x-follow">
+        <i class="fab fa-x-twitter"></i> @senseizuna
       </a>
     </div>
-  </section>
 
-  <!-- ===================== FOOTER ===================== -->
-  <footer class="bg-slate-900/80 py-6 text-center text-sm">
-    <p class="mb-2">© 2025 ITOSHIRO ZUNA LLC — All rights reserved.</p>
-    <p class="text-slate-400">Publishing • Apps • Research</p>
+    <!-- CONTACT -->
+    <div id="contact" class="card">
+      <h2>Message Me</h2>
+      <p>Questions? Collaborations? Just say hello.</p>
+      <form action="https://formsubmit.co/itoshirozuna@gmail.com" method="POST" style="margin-top:20px;">
+        <input type="text" name="name" placeholder="Your Name" required style="width:100%; padding:10px; margin:8px 0; border-radius:5px;">
+        <input type="email" name="email" placeholder="Your Email" required style="width:100%; padding:10px; margin:8px 0; border-radius:5px;">
+        <textarea name="message" placeholder="Your Message" required style="width:100%; height:120px; padding:10px; margin:8px 0; border-radius:5px;"></textarea>
+        <button type="submit" class="cta" style="width:100%;">Send Message</button>
+      </form>
+    </div>
+
+  </main>
+
+  <footer>
+    © 2026 Itoshiro Zuna • All rights reserved<br>
+    <a href="https://x.com/senseizuna" target="_blank">@senseizuna on X</a>
   </footer>
 
-  <!-- Background fractal canvas -->
-  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <!-- Background fractal animation -->
   <script>
-    // Mobile nav toggle
-    const navBtn = document.getElementById('navBtn');
-    const mobileNav = document.getElementById('mobileNav');
-    navBtn.addEventListener('click', () => {
-      const hidden = mobileNav.classList.toggle('hidden');
-      navBtn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-    });
-
-    // Mobile quick app links toggle
-    document.querySelectorAll('[data-dd-toggle]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const id = btn.getAttribute('data-dd-toggle');
-        const panel = document.getElementById(`submenu-${id}-mobile`);
-        if(panel) panel.classList.toggle('hidden');
-      });
-    });
-
-    // Desktop caret toggle for Apps submenu
-    const appsBtnIdx = document.getElementById('appsBtnIdx');
-    const appsMenuIdx = document.getElementById('appsMenuIdx');
-    const appsWrapIdx = document.getElementById('appsWrapIdx');
-    if (appsBtnIdx && appsMenuIdx){
-      appsBtnIdx.addEventListener('click', (e)=>{
-        e.preventDefault();
-        appsMenuIdx.classList.toggle('hidden');
-        appsBtnIdx.setAttribute('aria-expanded', appsMenuIdx.classList.contains('hidden') ? 'false' : 'true');
-      });
-      document.addEventListener('click', (e)=>{
-        if (!appsWrapIdx.contains(e.target)){
-          appsMenuIdx.classList.add('hidden');
-          appsBtnIdx.setAttribute('aria-expanded','false');
-        }
-      });
-    }
-
-    // Lightweight fractal background
-    const canvas = document.getElementById('bgCanvas');
+    const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
-    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
-    addEventListener('resize', resize); resize();
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
     let t = 0;
-    function draw(){
-      ctx.fillStyle = 'rgba(10,10,35,0.07)';
+    function draw() {
+      ctx.fillStyle = 'rgba(10,10,35,0.08)';
       ctx.fillRect(0,0,canvas.width,canvas.height);
-      const step = 120;
-      for(let x=0;x<canvas.width;x+=step){
-        for(let y=0;y<canvas.height;y+=step){
-          const r = 40 + 10*Math.sin(t + (x+y)/200);
-          ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-          ctx.strokeStyle = 'rgba(255,215,0,0.22)';
+      for(let x = 0; x < canvas.width; x += 80) {
+        for(let y = 0; y < canvas.height; y += 80) {
+          ctx.beginPath();
+          ctx.arc(x, y, 25 + 10*Math.sin(t + (x+y)/100), 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(255,215,0,0.15)';
+          ctx.lineWidth = 1;
           ctx.stroke();
         }
       }
-      t += 0.01; requestAnimationFrame(draw);
+      t += 0.02;
+      requestAnimationFrame(draw);
     }
     draw();
   </script>
