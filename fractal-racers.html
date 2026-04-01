@@ -403,6 +403,7 @@ showCM("FRACTAL RACERS");updHUD();animate();
 window.addEventListener("resize",function(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloomPass.setSize(Math.floor(innerWidth*.5),Math.floor(innerHeight*.5));});
 </script>
 
+<a href="index.html" style="position:fixed;bottom:20px;left:20px;z-index:200;background:rgba(0,8,20,.82);border:1px solid rgba(0,255,255,.35);color:#00ffff;font-family:'Orbitron',monospace;font-size:.65rem;padding:6px 10px;border-radius:4px;text-decoration:none;pointer-events:all;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='rgba(0,255,255,.15)'" onmouseout="this.style.background='rgba(0,8,20,.82)'">&#9664; HOME</a>
 <div style="position:fixed;bottom:6px;left:50%;transform:translateX(-50%);z-index:200;font-family:'Orbitron',monospace;font-size:0.55rem;color:rgba(0,255,255,0.35);letter-spacing:2px;pointer-events:none;white-space:nowrap;">
     &copy; 2026 ITOSHIRO ZUNA LLC &nbsp;&mdash;&nbsp; ALL RIGHTS RESERVED
 </div>
