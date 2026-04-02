@@ -403,6 +403,155 @@ showCM("FRACTAL RACERS");updHUD();animate();
 window.addEventListener("resize",function(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloomPass.setSize(Math.floor(innerWidth*.5),Math.floor(innerHeight*.5));});
 </script>
 
+<!-- TOUCH CONTROLS — only visible on touch devices -->
+<div id="tc" style="display:none;position:fixed;inset:0;z-index:90;pointer-events:none;">
+  <div id="tj" style="position:absolute;bottom:24px;left:24px;width:180px;height:180px;pointer-events:all;touch-action:none;">
+    <canvas id="tjc" width="180" height="180" style="width:180px;height:180px;opacity:0.6;"></canvas>
+  </div>
+  <div style="position:absolute;bottom:24px;right:24px;display:flex;flex-direction:column;gap:14px;align-items:center;pointer-events:all;touch-action:none;">
+    <div id="tbNova" style="width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,204,51,.5);background:rgba(255,204,51,.08);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.55rem;color:#ffcc33;letter-spacing:1px;user-select:none;">NOVA</div>
+    <div id="tbBoost" style="width:70px;height:70px;border-radius:50%;border:2px solid rgba(0,255,255,.5);background:rgba(0,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.5rem;color:#00ffff;letter-spacing:1px;user-select:none;">BOOST</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  if(!isTouchDevice) return;
+
+  document.getElementById('tc').style.display = 'block';
+  var chEl = document.getElementById('ch');
+  if(chEl) chEl.style.display = 'none';
+
+  // Landscape prompt
+  function checkOrientation(){
+    if(window.innerHeight > window.innerWidth && window.innerWidth < 700){
+      if(!document.getElementById('rotateMsg')){
+        var d = document.createElement('div');
+        d.id = 'rotateMsg';
+        d.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,8,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Orbitron,monospace;color:#00ffff;text-align:center;padding:40px;';
+        d.innerHTML = '<div style="font-size:2.5rem;margin-bottom:20px;">&#x1F504;</div><div style="font-size:.9rem;letter-spacing:3px;">ROTATE TO LANDSCAPE</div><div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:12px;">For the best racing experience</div>';
+        document.body.appendChild(d);
+      }
+    } else {
+      var rm = document.getElementById('rotateMsg');
+      if(rm) rm.remove();
+    }
+  }
+  window.addEventListener('resize', checkOrientation);
+  checkOrientation();
+
+  // ─── VIRTUAL JOYSTICK ───
+  var jCanvas = document.getElementById('tjc');
+  var jCtx = jCanvas.getContext('2d');
+  var jCenter = {x:90, y:90};
+  var jRadius = 70;
+  var jKnob = {x:90, y:90};
+  var jActive = false;
+  var jTouchId = null;
+  var DEADZONE = 0.2;
+
+  function drawJoystick(){
+    jCtx.clearRect(0,0,180,180);
+    jCtx.beginPath();
+    jCtx.arc(jCenter.x, jCenter.y, jRadius, 0, Math.PI*2);
+    jCtx.strokeStyle = 'rgba(0,255,255,0.3)';
+    jCtx.lineWidth = 2;
+    jCtx.stroke();
+    jCtx.strokeStyle = 'rgba(0,255,255,0.1)';
+    jCtx.lineWidth = 1;
+    jCtx.beginPath(); jCtx.moveTo(jCenter.x,jCenter.y-jRadius); jCtx.lineTo(jCenter.x,jCenter.y+jRadius); jCtx.stroke();
+    jCtx.beginPath(); jCtx.moveTo(jCenter.x-jRadius,jCenter.y); jCtx.lineTo(jCenter.x+jRadius,jCenter.y); jCtx.stroke();
+    jCtx.beginPath();
+    jCtx.arc(jKnob.x, jKnob.y, 22, 0, Math.PI*2);
+    jCtx.fillStyle = jActive ? 'rgba(0,255,255,0.35)' : 'rgba(0,255,255,0.15)';
+    jCtx.fill();
+    jCtx.strokeStyle = 'rgba(0,255,255,0.6)';
+    jCtx.lineWidth = 2;
+    jCtx.stroke();
+  }
+  drawJoystick();
+
+  function jGetPos(touch){
+    var rect = jCanvas.getBoundingClientRect();
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
+  function jUpdate(pos){
+    var dx = pos.x - jCenter.x;
+    var dy = pos.y - jCenter.y;
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist > jRadius){ dx = dx/dist*jRadius; dy = dy/dist*jRadius; }
+    jKnob.x = jCenter.x + dx;
+    jKnob.y = jCenter.y + dy;
+    var nx = dx / jRadius;
+    var ny = dy / jRadius;
+    keys['KeyA'] = nx < -DEADZONE;
+    keys['KeyD'] = nx > DEADZONE;
+    keys['KeyW'] = ny < -DEADZONE;
+    keys['KeyS'] = ny > DEADZONE;
+    drawJoystick();
+  }
+
+  function jReset(){
+    jKnob.x = jCenter.x; jKnob.y = jCenter.y;
+    keys['KeyA'] = false; keys['KeyD'] = false;
+    keys['KeyW'] = false; keys['KeyS'] = false;
+    jActive = false; jTouchId = null;
+    drawJoystick();
+  }
+
+  jCanvas.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    var t = e.changedTouches[0];
+    jTouchId = t.identifier; jActive = true;
+    jUpdate(jGetPos(t)); startAudio();
+  }, {passive:false});
+
+  jCanvas.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    for(var i=0;i<e.changedTouches.length;i++){
+      if(e.changedTouches[i].identifier === jTouchId) jUpdate(jGetPos(e.changedTouches[i]));
+    }
+  }, {passive:false});
+
+  jCanvas.addEventListener('touchend', function(e){
+    for(var i=0;i<e.changedTouches.length;i++){
+      if(e.changedTouches[i].identifier === jTouchId) jReset();
+    }
+  });
+  jCanvas.addEventListener('touchcancel', function(){ jReset(); });
+
+  // ─── ACTION BUTTONS ───
+  var boostBtn = document.getElementById('tbBoost');
+  var novaBtn = document.getElementById('tbNova');
+
+  boostBtn.addEventListener('touchstart', function(e){
+    e.preventDefault(); keys['ShiftLeft'] = true;
+    this.style.background = 'rgba(0,255,255,.25)'; startAudio();
+  }, {passive:false});
+  boostBtn.addEventListener('touchend', function(e){
+    e.preventDefault(); keys['ShiftLeft'] = false;
+    this.style.background = 'rgba(0,255,255,.08)';
+  }, {passive:false});
+  boostBtn.addEventListener('touchcancel', function(){
+    keys['ShiftLeft'] = false; this.style.background = 'rgba(0,255,255,.08)';
+  });
+
+  novaBtn.addEventListener('touchstart', function(e){
+    e.preventDefault(); keys['Space'] = true;
+    this.style.background = 'rgba(255,204,51,.25)'; startAudio();
+  }, {passive:false});
+  novaBtn.addEventListener('touchend', function(e){
+    e.preventDefault(); keys['Space'] = false;
+    this.style.background = 'rgba(255,204,51,.08)';
+  }, {passive:false});
+  novaBtn.addEventListener('touchcancel', function(){
+    keys['Space'] = false; this.style.background = 'rgba(255,204,51,.08)';
+  });
+})();
+</script>
+
 <a href="index.html" style="position:fixed;bottom:20px;left:20px;z-index:200;background:rgba(0,8,20,.82);border:1px solid rgba(0,255,255,.35);color:#00ffff;font-family:'Orbitron',monospace;font-size:.65rem;padding:6px 10px;border-radius:4px;text-decoration:none;pointer-events:all;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='rgba(0,255,255,.15)'" onmouseout="this.style.background='rgba(0,8,20,.82)'">&#9664; HOME</a>
 <div style="position:fixed;bottom:6px;left:50%;transform:translateX(-50%);z-index:200;font-family:'Orbitron',monospace;font-size:0.55rem;color:rgba(0,255,255,0.35);letter-spacing:2px;pointer-events:none;white-space:nowrap;">
     &copy; 2026 ITOSHIRO ZUNA LLC &nbsp;&mdash;&nbsp; ALL RIGHTS RESERVED
