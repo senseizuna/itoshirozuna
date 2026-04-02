@@ -11,7 +11,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Fractal Racers: TRON ARENA</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/three@0.139.0/build/three.min.js"></script>
@@ -295,7 +298,7 @@ window.addEventListener("keydown",function(e){keys[e.code]=true;if(e.code==="Spa
 window.addEventListener("keyup",function(e){keys[e.code]=false;});
 window.addEventListener("pointerdown",startAudio,{once:true});
 function onDiffChange(){resetEnemies();}
-function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+function toggleFS(){var d=document.documentElement;var isFS=document.fullscreenElement||document.webkitFullscreenElement||document.msFullscreenElement;if(!isFS){if(d.requestFullscreen)d.requestFullscreen().catch(function(){});else if(d.webkitRequestFullscreen)d.webkitRequestFullscreen();else if(d.msRequestFullscreen)d.msRequestFullscreen();}else{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();else if(document.msExitFullscreen)document.msExitFullscreen();}}
 
 function updPlayer(dt){
     if(G.over)return;
