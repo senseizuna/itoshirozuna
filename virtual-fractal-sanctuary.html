@@ -27,7 +27,8 @@
       position: fixed;
       top: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(4, 8, 20, 0.78);
+      backdrop-filter: blur(10px);
       padding: 10px 0;
       z-index: 3;
       display: flex;
@@ -63,39 +64,42 @@
       position: absolute; 
       top: 60px; 
       left: 10px; 
-      color: #fff; 
+      color: rgba(255,255,255,0.82); 
       font: 14px sans-serif;
     }
     #fps {
       position: absolute; 
       top: 60px; 
       right: 50px; 
-      color: #fff; 
+      color: rgba(255,255,255,0.82); 
       font: 14px sans-serif;
     }
     #dimension {
       position: absolute; 
       top: 90px; 
       left: 10px; 
-      color: #fff; 
+      color: rgba(255,255,255,0.82); 
       font: 14px sans-serif;
     }
     #profile {
       position: absolute; 
       top: 120px; 
       left: 10px; 
-      color: #fff; 
+      color: rgba(255,255,255,0.82); 
       font: 14px sans-serif;
     }
     #progress {
       position: absolute; 
       top: 150px; 
       left: 10px; 
-      color: #fff; 
+      color: rgba(255,255,255,0.82); 
       font: 14px sans-serif;
     }
     #messages {
       position: absolute; 
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+
       bottom: 10px; 
       left: 10px; 
       width: 240px; 
@@ -138,6 +142,9 @@
     }
     #settingsPanel {
       position: absolute; 
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+
       top: 50%; 
       left: 50%; 
       transform: translate(-50%, -50%); 
@@ -170,6 +177,9 @@
     }
     #feedbackPanel {
       position: absolute; 
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+
       top: 50%; 
       left: 50%; 
       transform: translate(-50%, -50%); 
@@ -294,12 +304,12 @@
       <a href="index.html">Home</a>
     </div>
     <div class="nav-center">
-      <h1>Fractal Sanctuary</h1>
+      <h1>Fractal Sanctuary · Premium</h1>
     </div>
     <div class="nav-right">
     </div>
   </nav>
-  <div id="info">Virtual Fractal Sanctuary v7 – Choose a mode to begin</div>
+  <div id="info">A space to slow down, breathe deeply, and feel your mind open</div>
   <div id="fps">FPS: 0</div>
   <div id="dimension">Density 1, Dimension 1</div>
   <div id="profile">Profile: 0/108 stages reached</div>
@@ -386,8 +396,9 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   // — Scene & renderer —
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.xr.enabled = true;
   document.body.appendChild(renderer.domElement);
 
@@ -460,7 +471,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     const verts = [];
     const cols = [];
     const velocities = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 12; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 2;
       const x = position.x + Math.cos(angle) * radius;
@@ -483,6 +494,12 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     const particles = new THREE.Points(geo, mat);
     scene.add(particles);
     interactionParticles.push({ mesh: particles, opacity: 1 });
+    if (interactionParticles.length > 18) {
+      const old = interactionParticles.shift();
+      scene.remove(old.mesh);
+      old.mesh.geometry.dispose();
+      old.mesh.material.dispose();
+    }
     console.log("Interaction particles created at position:", position);
   }
 
@@ -512,7 +529,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   function generateFractal(density) {
     const geo = new THREE.BufferGeometry();
     const verts = [], cols = [], offsets = [], distances = [];
-    const N = 40; // Increased resolution for better detail
+    const N = 26; // Premium balance: smoother performance, still detailed
     const baseHue = (density - 1) * 30;
     for (let x = -N; x < N; x++) {
       for (let y = -N; y < N; y++) {
@@ -563,11 +580,10 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
         void main() {
           vColor = color;
           vec3 pos = position;
-          float wave = sin(time + offset) * 0.3;
-          float ripple = sin(time * 0.8 + distance * 3.0) * 0.2;
-          float breathe = cos(time * 0.4 + distance * 1.5) * 0.15;
-          pos.x += wave + ripple + breathe;
-          pos.y += wave + ripple + breathe;
+          float wave = sin(time * 0.8 + offset) * 0.18;
+          float breathe = cos(time * 0.45) * 0.08;
+          pos.x += wave + breathe;
+          pos.y += wave + breathe;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           gl_PointSize = (10.0 / zoom) * (1.0 + sin(time + offset) * 0.5); // Increased point size
         }
@@ -595,7 +611,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   function generateFractalOverlay(density) {
     const geo = new THREE.BufferGeometry();
     const verts = [], cols = [], offsets = [], distances = [];
-    const N = 50;
+    const N = 30;
     const baseHue = (density - 1) * 30 + 180;
     for (let x = -N; x < N; x++) {
       for (let y = -N; y < N; y++) {
@@ -648,11 +664,10 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
         void main() {
           vColor = color;
           vec3 pos = position;
-          float wave = sin(time + offset) * 0.4;
-          float ripple = sin(time * 0.8 + distance * 3.0) * 0.25;
-          float breathe = cos(time * 0.4 + distance * 1.5) * 0.2;
-          pos.x += wave + ripple + breathe;
-          pos.y += wave + ripple + breathe;
+          float wave = sin(time * 0.9 + offset) * 0.22;
+          float breathe = cos(time * 0.45) * 0.09;
+          pos.x += wave + breathe;
+          pos.y += wave + breathe;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           gl_PointSize = (8.0 / zoom) * (1.0 + sin(time + offset) * 0.8); // Increased point size
         }
@@ -679,7 +694,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
 
   let lastColorUpdate = 0;
   function updateFractalColors(timestamp) {
-    if (timestamp - lastColorUpdate < 100) return;
+    if (timestamp - lastColorUpdate < 220) return;
     lastColorUpdate = timestamp;
     hueShift += 1;
     const baseHueMain = (currentDensity - 1) * 30;
@@ -731,14 +746,6 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   function animateFractalParameters(timestamp) {
     cReal += Math.sin(timestamp * 0.0001) * 0.001;
     cImag += Math.cos(timestamp * 0.0001) * 0.001;
-    if (fractal && Math.random() < 0.01) {
-      scene.remove(fractal);
-      scene.remove(fractalOverlay);
-      fractal = generateFractal(currentDensity);
-      fractalOverlay = generateFractalOverlay(currentDensity);
-      scene.add(fractal);
-      scene.add(fractalOverlay);
-    }
   }
 
   function createGlowEffect() {
@@ -792,7 +799,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     weatherParticles.forEach(p => scene.remove(p.mesh));
     weatherParticles.length = 0;
     if (weatherType === 'none') return;
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 80; i++) {
       const geo = new THREE.BufferGeometry();
       const verts = [];
       const cols = [];
@@ -946,7 +953,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   // — Bubbles & enhanced pop effect with ripple —
   const bubbles = [];
   function spawnBubbles() {
-    const bubbleCount = isFunMode ? 20 : 10;
+    const bubbleCount = isFunMode ? 14 : 8;
     for (let i = 0; i < bubbleCount; i++) {
       const hue = isFunMode ? (currentDensity - 1) * 30 + Math.random() * 60 : Math.random() * 360;
       const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
@@ -969,6 +976,15 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
   spawnBubbles();
 
   // — Audio Setup (Bubble Pop Sound Only) —
+  // — Signature pulse for memorable transitions —
+  function triggerSanctuaryPulse(strength = 0.55, duration = 280) {
+    const startZ = camera.position.z;
+    camera.position.z = startZ - strength;
+    setTimeout(() => {
+      camera.position.z = startZ;
+    }, duration);
+  }
+
   function createBurstEffect(pos, isFunMode) {
     const light = new THREE.PointLight(0xffffff, 1, 10);
     light.position.copy(pos);
@@ -1041,6 +1057,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       }
     }, 50);
 
+    triggerSanctuaryPulse(isFunMode ? 0.35 : 0.2, isFunMode ? 180 : 140);
     if (isFunMode) {
       const rippleGeo = new THREE.BufferGeometry();
       const rippleVerts = [];
@@ -1076,6 +1093,7 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
       }, 50);
 
       fractalPulse = 1.2;
+    triggerSanctuaryPulse(0.75, 320);
     }
 
     createInteractionParticles(pos);
@@ -1672,16 +1690,16 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     if (fractal) {
       // Smooth, natural rotation
       const time = timestamp * 0.001;
-      fractal.rotation.x = Math.sin(time * 0.2) * 0.5;
-      fractal.rotation.y = Math.cos(time * 0.3) * 0.5;
-      fractalOverlay.rotation.x = Math.sin(time * 0.2) * 0.5;
-      fractalOverlay.rotation.y = Math.cos(time * 0.3) * 0.5;
+      fractal.rotation.x = Math.sin(time * 0.12) * 0.22;
+      fractal.rotation.y = Math.cos(time * 0.16) * 0.26;
+      fractalOverlay.rotation.x = Math.sin(time * 0.12) * 0.22;
+      fractalOverlay.rotation.y = Math.cos(time * 0.16) * 0.26;
       if (isFunMode) {
         fractal.position.set(0, 0, 0);
         fractalOverlay.position.set(0, 0, 0);
       }
       // Breathing effect
-      fractalPulse = 1 + Math.sin(time * 0.5) * 0.1; // Continuous breathing
+      fractalPulse = 1 + Math.sin(time * 0.38) * 0.06; // calmer premium breathing
       fractal.scale.set(fractalPulse / fractalZoom, fractalPulse / fractalZoom, 1); // 2D scaling
       fractalOverlay.scale.set(fractalPulse / fractalZoom, fractalPulse / fractalZoom, 1);
       fractal.material.uniforms.time.value = time;
@@ -1744,9 +1762,8 @@ Choose a mode: Fun Mode for bubble popping, or Meditation Mode for a guided jour
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
   </script>
-</body>
 <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); color: #fff; text-align: center; padding: 0.5px; font-size: 0.6rem; z-index: 8;">
   Itoshiro Zuna LLC © 2025. All rights reserved.
 </footer>
-</footer>
+</body>
 </html>
