@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FracTile · APEX ARENA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c:#00f5ff;--m:#ff00aa;--g:#ffd700;--p:#aa44ff;--w:#ffffff;
+  --bg:#000408;--panel:rgba(0,12,20,0.88);
+  --gc:0 0 8px #00f5ff,0 0 20px #00f5ff60;
+  --gm:0 0 8px #ff00aa,0 0 20px #ff00aa60;
+}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;
+  font-family:'Orbitron',monospace;color:var(--c);cursor:none}
+#wrap{position:relative;width:100%;height:100%;display:flex;flex-direction:column}
+canvas{display:block;width:100%;height:100%;flex:1}
+
+#nav{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:10px;pointer-events:auto}
+.nav-btn{padding:6px 12px;border:1px solid rgba(0,255,255,.35);background:rgba(0,8,20,.62);color:#00ffff;text-decoration:none;font-size:12px;border-radius:4px;letter-spacing:2px;box-shadow:0 0 10px rgba(0,245,255,.15)}
+.nav-btn:hover{background:rgba(0,245,255,.12);border-color:rgba(0,255,255,.6)}
+#footer{position:fixed;bottom:6px;left:50%;transform:translateX(-50%);font-size:9px;opacity:.34;pointer-events:none;z-index:25;letter-spacing:2px;color:#ffffff70}
+.legal-box{margin-top:26px;max-width:760px;padding:14px 18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,8,16,.58);font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.8;letter-spacing:1px;color:rgba(255,255,255,.42);text-align:center}
+@media (max-width: 900px){
+  #sideinfo{width:150px}
+  #controls{width:144px;bottom:92px}
+}
+@media (max-width: 700px){
+  #nav{top:8px}
+  .nav-btn{font-size:10px;padding:5px 10px}
+  #sideinfo,#controls,#minimap-wrap{display:none}
+  #inventory{bottom:34px}
+  #topbar{padding:0 10px;height:52px;top:34px}
+  .brand-title{font-size:12px;letter-spacing:3px}
+  .top-stats{gap:10px}
+  .stat-val{font-size:10px}
+  .biome-badge{font-size:7px;letter-spacing:1px;padding:2px 6px}
+  .ov-title{font-size:46px}
+  .ov-desc{font-size:10px;max-width:90%;line-height:1.7}
+  .seed-wrap{flex-direction:column}
+  .legal-box{max-width:90%;font-size:8px;margin-top:18px}
+}
+
+/* HUD */
+#hud{position:absolute;inset:0;pointer-events:none;z-index:10}
+
+/* Top bar */
+#topbar{position:absolute;top:0;left:0;right:0;height:48px;
+  background:linear-gradient(180deg,rgba(0,4,8,.95) 0%,transparent 100%);
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.brand-title{font-size:16px;font-weight:900;letter-spacing:5px;
+  background:linear-gradient(90deg,var(--c),var(--m));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.apex-tag{font-size:8px;letter-spacing:4px;color:rgba(255,255,255,.3);margin-top:2px}
+.top-stats{display:flex;gap:24px;align-items:center}
+.stat{text-align:right}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:8px;
+  letter-spacing:2px;color:rgba(255,255,255,.3);display:block}
+.stat-val{font-size:13px;font-weight:700;color:var(--g);text-shadow:0 0 8px var(--g)}
+.biome-badge{font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;padding:3px 10px;border:1px solid rgba(0,245,255,.3);
+  color:var(--c);text-shadow:var(--gc)}
+
+/* Side info */
+#sideinfo{position:absolute;left:16px;top:60px;width:180px}
+.info-panel{background:var(--panel);border:1px solid rgba(0,245,255,.2);
+  padding:10px 14px;margin-bottom:8px}
+.info-title{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.3);
+  text-transform:uppercase;border-bottom:1px solid rgba(0,245,255,.1);
+  padding-bottom:5px;margin-bottom:8px}
+.info-row{font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:rgba(255,255,255,.6);display:flex;justify-content:space-between;
+  margin-bottom:3px}
+.info-row span{color:var(--c)}
+
+/* Inventory */
+#inventory{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;pointer-events:all}
+.inv-slot{width:52px;height:52px;background:rgba(0,10,18,.85);
+  border:1px solid rgba(0,245,255,.25);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  transition:all .15s;position:relative;font-size:9px}
+.inv-slot:hover,.inv-slot.active{border-color:var(--c);
+  box-shadow:0 0 12px rgba(0,245,255,.5),inset 0 0 12px rgba(0,245,255,.08)}
+.inv-slot.active{background:rgba(0,245,255,.06)}
+.inv-slot canvas{width:32px;height:32px;image-rendering:pixelated}
+.inv-count{position:absolute;bottom:3px;right:5px;font-family:'Share Tech Mono',monospace;
+  font-size:9px;color:rgba(255,255,255,.5)}
+.inv-key{position:absolute;top:2px;left:4px;font-family:'Share Tech Mono',monospace;
+  font-size:7px;color:rgba(255,255,255,.25)}
+.inv-label{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,.4);
+  margin-top:2px;text-align:center;line-height:1.2}
+
+/* Minimap */
+#minimap-wrap{position:absolute;right:16px;top:60px;
+  border:1px solid rgba(0,245,255,.25);background:rgba(0,8,16,.9)}
+#minimap{display:block}
+.minimap-label{font-family:'Share Tech Mono',monospace;font-size:7px;
+  letter-spacing:2px;text-align:center;padding:3px;
+  color:rgba(0,245,255,.4);border-top:1px solid rgba(0,245,255,.15)}
+
+/* Controls hint */
+#controls{position:absolute;right:16px;bottom:80px;width:160px;
+  background:var(--panel);border:1px solid rgba(0,245,255,.15);padding:10px 12px}
+.ctrl-line{font-family:'Share Tech Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,.3);margin-bottom:4px;letter-spacing:1px}
+.ctrl-key{color:var(--c)}
+
+/* Notifications */
+#notif{position:absolute;top:60px;left:50%;transform:translateX(-50%);
+  pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.notif{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;
+  color:var(--g);text-shadow:0 0 12px var(--g);opacity:0;
+  transition:opacity .3s;white-space:nowrap}
+.notif.show{opacity:1}
+
+/* Crosshair */
+#crosshair{position:absolute;width:20px;height:20px;pointer-events:none;
+  transform:translate(-50%,-50%)}
+
+/* Overlay */
+#overlay{position:absolute;inset:0;background:rgba(0,4,8,.9);z-index:30;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:all}
+#overlay.hidden{display:none}
+.ov-title{font-size:64px;font-weight:900;letter-spacing:8px;
+  background:linear-gradient(135deg,var(--c) 0%,var(--p) 50%,var(--m) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:.9;text-align:center}
+.ov-apex{font-size:10px;letter-spacing:8px;color:rgba(255,255,255,.2);
+  margin-top:6px;margin-bottom:40px}
+.ov-desc{font-family:'Share Tech Mono',monospace;font-size:12px;
+  color:rgba(255,255,255,.4);letter-spacing:2px;text-align:center;
+  max-width:500px;line-height:2;margin-bottom:36px}
+.seed-wrap{display:flex;gap:10px;align-items:center;margin-bottom:28px}
+.seed-label{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.3)}
+.seed-input{font-family:'Share Tech Mono',monospace;font-size:13px;
+  background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);
+  color:var(--c);padding:8px 14px;letter-spacing:2px;width:180px;outline:none}
+.seed-input:focus{border-color:var(--c);box-shadow:var(--gc)}
+.start-btn{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;
+  letter-spacing:5px;padding:16px 48px;background:transparent;
+  border:1px solid var(--c);color:var(--c);cursor:pointer;
+  text-shadow:var(--gc);box-shadow:var(--gc),inset 0 0 20px rgba(0,245,255,.06);
+  transition:all .2s;pointer-events:all}
+.start-btn:hover{background:rgba(0,245,255,.08);transform:scale(1.03);
+  box-shadow:0 0 20px #00f5ff,0 0 40px #00f5ff60,inset 0 0 30px rgba(0,245,255,.12)}
+.biome-list{display:flex;gap:16px;margin-top:32px;flex-wrap:wrap;justify-content:center}
+.biome-chip{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;
+  padding:5px 12px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3)}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="nav">
+  <a class="nav-btn" href="index.html">HOME</a>
+</div>
+<canvas id="game"></canvas>
+<div id="footer">© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED</div>
+
+<!-- HUD -->
+<div id="hud">
+  <!-- Top bar -->
+  <div id="topbar">
+    <div>
+      <div class="brand-title">FracTile</div>
+      <div class="apex-tag">APEX ARENA · by Itoshiro Zuna</div>
+    </div>
+    <div class="top-stats">
+      <div class="stat"><span class="stat-label">SHARDS</span><span class="stat-val" id="statShards">0</span></div>
+      <div class="stat"><span class="stat-label">DEPTH</span><span class="stat-val" id="statDepth">0</span></div>
+      <div class="stat"><span class="stat-label">BIOME</span><div class="biome-badge" id="statBiome">MANDELBROT PLAINS</div></div>
+    </div>
+  </div>
+
+  <!-- Side info -->
+  <div id="sideinfo">
+    <div class="info-panel">
+      <div class="info-title">World Coords</div>
+      <div class="info-row">X <span id="coordX">0</span></div>
+      <div class="info-row">Y <span id="coordY">0</span></div>
+      <div class="info-row">SEED <span id="coordSeed">0</span></div>
+    </div>
+    <div class="info-panel">
+      <div class="info-title">Fractal Density</div>
+      <div class="info-row">MANDEL <span id="fDensM">—</span></div>
+      <div class="info-row">JULIA <span id="fDensJ">—</span></div>
+      <div class="info-row">SIERP <span id="fDensS">—</span></div>
+    </div>
+  </div>
+
+  <!-- Minimap -->
+  <div id="minimap-wrap">
+    <canvas id="minimap" width="120" height="120"></canvas>
+    <div class="minimap-label">WORLD MAP</div>
+  </div>
+
+  <!-- Inventory bar -->
+  <div id="inventory"></div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <div class="ctrl-line"><span class="ctrl-key">WASD</span> Move camera</div>
+    <div class="ctrl-line"><span class="ctrl-key">LClick</span> Mine block</div>
+    <div class="ctrl-line"><span class="ctrl-key">RClick</span> Place block</div>
+    <div class="ctrl-line"><span class="ctrl-key">Scroll</span> Zoom</div>
+    <div class="ctrl-line"><span class="ctrl-key">1-5</span> Select block</div>
+    <div class="ctrl-line"><span class="ctrl-key">E</span> Toggle elevation</div>
+    <div class="ctrl-line"><span class="ctrl-key">G</span> New world</div>
+  </div>
+
+  <!-- Notifications -->
+  <div id="notif"></div>
+
+  <!-- Crosshair -->
+  <svg id="crosshair" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="10" y1="2" x2="10" y2="8" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
+    <line x1="10" y1="12" x2="10" y2="18" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
+    <line x1="2" y1="10" x2="8" y2="10" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
+    <line x1="12" y1="10" x2="18" y2="10" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
+    <circle cx="10" cy="10" r="1.5" fill="#00f5ff" opacity="0.6"/>
+  </svg>
+</div>
+
+<!-- Start Overlay -->
+<div id="overlay">
+  <div class="ov-title">Frac<br>Tile</div>
+  <div class="ov-apex">APEX ARENA · FRACTAL VOXEL WORLD</div>
+  <div class="ov-desc">
+    Procedural fractal terrain • Mine &amp; build • Collect energy shards<br>
+    Julia Caves · Sierpinski Spires · Mandelbrot Plains · Koch Forest
+  </div>
+  <div class="seed-wrap">
+    <div class="seed-label">WORLD SEED</div>
+    <input class="seed-input" id="seedInput" type="text" placeholder="random" maxlength="20"/>
+  </div>
+  <button class="start-btn" onclick="startGame()">▶ ENTER WORLD</button>
+  <div class="biome-list">
+    <div class="biome-chip">◈ MANDELBROT PLAINS</div>
+    <div class="biome-chip">◈ JULIA CAVES</div>
+    <div class="biome-chip">◈ SIERPINSKI SPIRES</div>
+    <div class="biome-chip">◈ KOCH FOREST</div>
+    <div class="biome-chip">◈ VOID CRYSTALS</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  FracTile · APEX ARENA — by Itoshiro Zuna
+//  Single-file isometric fractal voxel world
+// ══════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const miniCanvas = document.getElementById('minimap');
+const mCtx = miniCanvas.getContext('2d');
+
+// ── CONSTANTS ─────────────────────────────────────────────────
+const WORLD = 128;        // world grid size
+const ISO_W = 64;         // isometric tile width
+const ISO_H = 32;         // isometric tile height
+const BLOCK_H = 24;       // vertical block extrusion
+const MAX_ELEV = 6;       // max block elevation levels
+
+// ── BLOCK TYPES ───────────────────────────────────────────────
+const BLOCKS = {
+  0: { name:'Air',            color:null },
+  1: { name:'Fractastone',    top:'#00c8d8', side:'#006878', edge:'#00f5ff', pattern:'mandel',   emits:true  },
+  2: { name:'Neon Dirt',      top:'#cc0077', side:'#660033', edge:'#ff00aa', pattern:'koch',     emits:false },
+  3: { name:'Void Crystal',   top:'#7722cc', side:'#330066', edge:'#aa44ff', pattern:'julia',    emits:true  },
+  4: { name:'Koch Bark',      top:'#445500', side:'#223300', edge:'#88cc00', pattern:'sierp',    emits:false },
+  5: { name:'Energy Core',    top:'#cc8800', side:'#664400', edge:'#ffd700', pattern:'spiral',   emits:true  },
+};
+
+const INV_BLOCKS = [1,2,3,4,5];
+
+// ── WORLD STATE ───────────────────────────────────────────────
+let world = [];          // [y][x] = {type, elev}
+let worldSeed = 42;
+let camX = 0, camY = 0;
+let zoom = 1.0;
+let selectedBlock = 1;
+let shards = 0;
+let showElev = true;
+let inventory = {1:99, 2:99, 3:99, 4:99, 5:99};
+let mined = {};         // track mined blocks: mined[`${x},${y}`] = true
+let placed = {};
+let particles = [];
+let floatingShards = [];
+let notifQueue = [];
+let mouseScreenX = 0, mouseScreenY = 0;
+let gameRunning = false;
+let keys = {};
+let bgPhase = 0;
+let frameCount = 0;
+
+// Off-screen block canvases cache
+const blockFaceCache = {};
+
+// ── SEEDED RNG ────────────────────────────────────────────────
+function hashSeed(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+function makeRng(seed) {
+  let s = seed;
+  return () => {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return ((s >>> 0) / 0xFFFFFFFF);
+  };
+}
+
+let rng;
+
+// ── FRACTAL NOISE (fBm) ───────────────────────────────────────
+function fade(t) { return t*t*t*(t*(t*6-15)+10); }
+function lerp(a,b,t) { return a + (b-a)*t; }
+
+// Value noise (seeded)
+function valueNoise(x, y, freq, rng2) {
+  x *= freq; y *= freq;
+  const ix = Math.floor(x), iy = Math.floor(y);
+  const fx = x - ix, fy = y - iy;
+  const ux = fade(fx), uy = fade(fy);
+  const r00 = pseudoRand(ix,   iy,   worldSeed);
+  const r10 = pseudoRand(ix+1, iy,   worldSeed);
+  const r01 = pseudoRand(ix,   iy+1, worldSeed);
+  const r11 = pseudoRand(ix+1, iy+1, worldSeed);
+  return lerp(lerp(r00,r10,ux), lerp(r01,r11,ux), uy);
+}
+
+function pseudoRand(x, y, seed) {
+  let n = (x * 1619 + y * 31337 + seed * 1000003) & 0x7fffffff;
+  n = (n >> 13) ^ n;
+  n = ((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff);
+  return n / 0x7fffffff;
+}
+
+function fbm(x, y, octaves=5) {
+  let val=0, amp=0.5, freq=1, max=0;
+  for(let i=0; i<octaves; i++) {
+    val += valueNoise(x, y, freq * 0.03, null) * amp;
+    max += amp; amp *= 0.5; freq *= 2.1;
+  }
+  return val / max;
+}
+
+// Julia set value at (x,y) — for biome detection
+function juliaVal(px, py) {
+  const cr = -0.7, ci = 0.27;
+  let x = (px/WORLD - 0.5)*3, y = (py/WORLD - 0.5)*3;
+  for(let i=0; i<20; i++) {
+    const xt = x*x - y*y + cr;
+    y = 2*x*y + ci;
+    x = xt;
+    if(x*x+y*y > 4) return i/20;
+  }
+  return 1;
+}
+
+// ── WORLD GENERATION ──────────────────────────────────────────
+function generateWorld(seed) {
+  worldSeed = seed;
+  world = [];
+  floatingShards = [];
+  mined = {}; placed = {};
+
+  for(let y=0; y<WORLD; y++) {
+    world[y] = [];
+    for(let x=0; x<WORLD; x++) {
+      const n = fbm(x, y);
+      const j = juliaVal(x, y);
+
+      let type = 0;
+      let elev = 0;
+
+      if(n > 0.7) {
+        // High ground — Sierpinski Spires
+        type = 4; elev = Math.floor((n - 0.7) / 0.3 * MAX_ELEV);
+      } else if(n > 0.55) {
+        // Mid — Fractastone plains
+        type = 1; elev = Math.floor((n - 0.55) / 0.15 * 3);
+      } else if(n > 0.38) {
+        // Neon dirt
+        type = 2; elev = 0;
+      } else if(j > 0.7) {
+        // Julia caves / void
+        type = 3; elev = 0;
+      } else if(Math.random() < 0.008) {
+        type = 5; elev = 0; // energy cores, rare
+      }
+      world[y][x] = { type, elev };
+    }
+  }
+
+  // Spawn some initial floating shards
+  for(let i=0; i<40; i++) {
+    spawnShard(
+      Math.floor(Math.random()*WORLD),
+      Math.floor(Math.random()*WORLD)
+    );
+  }
+}
+
+// ── ISO PROJECTION ────────────────────────────────────────────
+function isoProject(gx, gy, elev=0) {
+  // isometric: tile (gx,gy) → screen
+  const ox = canvas.width / 2;
+  const oy = 80;
+  const sx = (gx - gy) * (ISO_W/2) * zoom + ox - camX;
+  const sy = (gx + gy) * (ISO_H/2) * zoom + oy - camY - elev * BLOCK_H * zoom;
+  return { sx, sy };
+}
+
+function screenToGrid(sx, sy) {
+  // Inverse iso to find approx grid cell
+  const ox = canvas.width / 2;
+  const oy = 80;
+  const relX = (sx - ox + camX) / zoom;
+  const relY = (sy - oy + camY) / zoom;
+  const gx = Math.round((relX / (ISO_W/2) + relY / (ISO_H/2)) / 2);
+  const gy = Math.round((relY / (ISO_H/2) - relX / (ISO_W/2)) / 2);
+  return { gx, gy };
+}
+
+// ── BLOCK FACE DRAWING ────────────────────────────────────────
+function getBlockFace(type, face) {
+  const key = `${type}_${face}`;
+  if(blockFaceCache[key]) return blockFaceCache[key];
+
+  const c = document.createElement('canvas');
+  const b = BLOCKS[type];
+
+  if(face === 'top') {
+    const tw = ISO_W, th = ISO_H;
+    c.width = tw; c.height = th;
+    const cx = c.getContext('2d');
+    // Diamond shape
+    cx.beginPath();
+    cx.moveTo(tw/2, 0);
+    cx.lineTo(tw, th/2);
+    cx.lineTo(tw/2, th);
+    cx.lineTo(0, th/2);
+    cx.closePath();
+    cx.fillStyle = b.top;
+    cx.fill();
+    drawFaceFractal(cx, type, tw, th, face);
+    // Edge highlight
+    cx.strokeStyle = b.edge;
+    cx.lineWidth = 1.5;
+    cx.shadowColor = b.edge;
+    cx.shadowBlur = 6;
+    cx.stroke();
+  } else if(face === 'left') {
+    const lw = ISO_W/2, lh = ISO_H/2 + BLOCK_H;
+    c.width = lw; c.height = lh;
+    const cx = c.getContext('2d');
+    cx.beginPath();
+    cx.moveTo(0, 0);
+    cx.lineTo(lw, ISO_H/2);
+    cx.lineTo(lw, lh);
+    cx.lineTo(0, lh - ISO_H/2);
+    cx.closePath();
+    cx.fillStyle = b.side;
+    cx.fill();
+    drawSideFractal(cx, type, lw, lh);
+    cx.strokeStyle = b.edge + '80';
+    cx.lineWidth = 1;
+    cx.stroke();
+  } else if(face === 'right') {
+    const rw = ISO_W/2, rh = ISO_H/2 + BLOCK_H;
+    c.width = rw; c.height = rh;
+    const cx = c.getContext('2d');
+    cx.beginPath();
+    cx.moveTo(0, ISO_H/2);
+    cx.lineTo(rw, 0);
+    cx.lineTo(rw, rh - ISO_H/2);
+    cx.lineTo(0, rh);
+    cx.closePath();
+    cx.fillStyle = adjustBrightness(b.side, -20);
+    cx.fill();
+    cx.strokeStyle = b.edge + '60';
+    cx.lineWidth = 1;
+    cx.stroke();
+  }
+
+  blockFaceCache[key] = c;
+  return c;
+}
+
+function adjustBrightness(hex, amount) {
+  const num = parseInt(hex.replace('#',''), 16);
+  const r = Math.max(0, Math.min(255, (num>>16) + amount));
+  const g = Math.max(0, Math.min(255, ((num>>8)&0xff) + amount));
+  const b2 = Math.max(0, Math.min(255, (num&0xff) + amount));
+  return '#' + ((1<<24)|(r<<16)|(g<<8)|b2).toString(16).slice(1);
+}
+
+function drawFaceFractal(cx, type, tw, th, face) {
+  const p = BLOCKS[type].pattern;
+  cx.save();
+  // Clip to diamond
+  cx.beginPath();
+  cx.moveTo(tw/2, 2);
+  cx.lineTo(tw-2, th/2);
+  cx.lineTo(tw/2, th-2);
+  cx.lineTo(2, th/2);
+  cx.closePath();
+  cx.clip();
+
+  cx.strokeStyle = 'rgba(255,255,255,0.18)';
+  cx.lineWidth = 0.8;
+
+  if(p === 'mandel') {
+    // Concentric diamond rings
+    for(let r=0.2; r<0.9; r+=0.22) {
+      cx.beginPath();
+      cx.moveTo(tw/2, th/2*(1-r)+r*2);
+      cx.lineTo(tw*(0.5+r/2), th/2);
+      cx.lineTo(tw/2, th/2*(1+r)-r*2);
+      cx.lineTo(tw*(0.5-r/2), th/2);
+      cx.closePath();
+      cx.stroke();
+    }
+  } else if(p === 'koch') {
+    // Koch-like zig-zag across top
+    cx.beginPath();
+    cx.moveTo(4, th/2);
+    for(let i=0; i<=8; i++) {
+      const t2 = i/8;
+      const x2 = lerp(4, tw-4, t2);
+      const y2 = th/2 + Math.sin(i * Math.PI/2) * (th*0.18);
+      cx.lineTo(x2, y2);
+    }
+    cx.stroke();
+  } else if(p === 'julia') {
+    // Spiral lines
+    for(let a=0; a<Math.PI*3; a+=0.3) {
+      const r2 = a / (Math.PI*3) * (tw*0.4);
+      const x2 = tw/2 + Math.cos(a) * r2;
+      const y2 = th/2 + Math.sin(a) * r2 * 0.5;
+      cx.beginPath();
+      cx.arc(x2, y2, 0.8, 0, Math.PI*2);
+      cx.stroke();
+    }
+  } else if(p === 'sierp') {
+    drawSierp(cx, tw/2, 2, tw-4, 2);
+  } else if(p === 'spiral') {
+    // Star burst
+    for(let i=0; i<8; i++) {
+      const a = i * Math.PI / 4;
+      cx.beginPath();
+      cx.moveTo(tw/2, th/2);
+      cx.lineTo(tw/2 + Math.cos(a)*tw*0.38, th/2 + Math.sin(a)*th*0.38);
+      cx.stroke();
+    }
+  }
+  cx.restore();
+}
+
+function drawSierp(cx, x, y, size, depth) {
+  if(depth < 1 || size < 3) return;
+  cx.beginPath();
+  cx.moveTo(x, y);
+  cx.lineTo(x - size/2, y + size*0.7);
+  cx.lineTo(x + size/2, y + size*0.7);
+  cx.closePath();
+  cx.stroke();
+  if(depth > 1) {
+    drawSierp(cx, x, y, size/2, depth-1);
+    drawSierp(cx, x-size/4, y+size*0.35, size/2, depth-1);
+    drawSierp(cx, x+size/4, y+size*0.35, size/2, depth-1);
+  }
+}
+
+function drawSideFractal(cx, type, lw, lh) {
+  cx.save();
+  cx.strokeStyle = 'rgba(255,255,255,0.10)';
+  cx.lineWidth = 0.7;
+  const p = BLOCKS[type].pattern;
+  if(p === 'mandel') {
+    for(let y2=4; y2<lh; y2+=8) {
+      cx.beginPath(); cx.moveTo(0,y2); cx.lineTo(lw,y2); cx.stroke();
+    }
+  } else if(p === 'julia') {
+    for(let i=0; i<5; i++) {
+      cx.beginPath();
+      cx.arc(lw/2, lh/2, 3+i*4, 0, Math.PI*2);
+      cx.stroke();
+    }
+  }
+  cx.restore();
+}
+
+// ── DRAW SCENE ────────────────────────────────────────────────
+function drawScene() {
+  // Sort cells back-to-front (painter's algorithm for iso)
+  // Iterate in iso order: x+y ascending, then x ascending
+  const cells = [];
+  for(let y=0; y<WORLD; y++) {
+    for(let x=0; x<WORLD; x++) {
+      if(world[y][x].type !== 0) cells.push({x,y});
+    }
+  }
+  cells.sort((a,b) => (a.x+a.y) - (b.x+b.y) || a.x - b.x);
+
+  for(const {x,y} of cells) {
+    drawBlock(x, y);
+  }
+}
+
+function drawBlock(gx, gy) {
+  const cell = world[gy][gx];
+  if(!cell || cell.type === 0) return;
+
+  const elev = cell.elev || 0;
+  const { sx, sy } = isoProject(gx, gy, elev);
+  const tw = ISO_W * zoom, th = ISO_H * zoom;
+  const bh = BLOCK_H * zoom;
+
+  // Frustum cull
+  if(sx+tw < 0 || sx-tw > canvas.width || sy+th+bh*elev < -200 || sy-th > canvas.height+200) return;
+
+  const b = BLOCKS[cell.type];
+  const isEmit = b.emits;
+
+  // Glow for emissive blocks
+  if(isEmit && zoom > 0.5) {
+    ctx.save();
+    ctx.shadowColor = b.edge;
+    ctx.shadowBlur = 16 * zoom;
+  }
+
+  // Draw left face
+  ctx.drawImage(getBlockFace(cell.type,'left'), sx, sy + th/2, tw/2, th/2 + bh);
+  // Draw right face
+  ctx.drawImage(getBlockFace(cell.type,'right'), sx+tw/2, sy, tw/2, th/2 + bh);
+  // Draw top face
+  ctx.drawImage(getBlockFace(cell.type,'top'), sx, sy, tw, th);
+
+  if(isEmit && zoom > 0.5) ctx.restore();
+
+  // Elevation stack (draw lower levels underneath for solid look)
+  // Already handled by elev offset in isoProject
+}
+
+// ── BACKGROUND ────────────────────────────────────────────────
+function drawBackground() {
+  // Void sky
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0, '#000408');
+  grad.addColorStop(1, '#000c14');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Floating fractal particles in sky
+  ctx.save();
+  for(let i=0; i<60; i++) {
+    const px = ((i * 137.5 + bgPhase * 0.4) % canvas.width);
+    const py = ((i * 97.3 + bgPhase * 0.2 * (i%2?1:-1)) % (canvas.height * 0.4));
+    const r = 0.5 + (i%5)*0.3;
+    const a = 0.1 + 0.15 * Math.abs(Math.sin(bgPhase*0.02 + i));
+    ctx.globalAlpha = a;
+    ctx.fillStyle = i%3===0 ? '#00f5ff' : i%3===1 ? '#ff00aa' : '#aa44ff';
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── PARTICLES ─────────────────────────────────────────────────
+function spawnMineParticles(gx, gy, type) {
+  const {sx, sy} = isoProject(gx, gy, (world[gy]?.[gx]?.elev||0));
+  const col = BLOCKS[type]?.edge || '#ffffff';
+  for(let i=0; i<20; i++) {
+    const angle = Math.random()*Math.PI*2;
+    const spd = 2 + Math.random()*5;
+    particles.push({
+      x: sx + ISO_W*zoom/2, y: sy + ISO_H*zoom/2,
+      vx: Math.cos(angle)*spd, vy: Math.sin(angle)*spd - 3,
+      r: 1.5 + Math.random()*3, color: col,
+      life: 30 + Math.floor(Math.random()*25), maxLife: 55, alpha:1
+    });
+  }
+  // Fractal shatter lines
+  for(let i=0; i<6; i++) {
+    const angle = Math.random()*Math.PI*2;
+    particles.push({
+      x: sx + ISO_W*zoom/2, y: sy + ISO_H*zoom/2,
+      vx: Math.cos(angle)*(4+Math.random()*8),
+      vy: Math.sin(angle)*(4+Math.random()*8) - 4,
+      r: 0, // line particle
+      ex: 0, ey: 0,
+      len: 8 + Math.random()*20,
+      angle, color: col,
+      life:20, maxLife:20, alpha:1, isLine:true
+    });
+  }
+}
+
+function spawnShard(gx, gy) {
+  if(world[gy]?.[gx]?.type === 0) return;
+  const {sx,sy} = isoProject(gx,gy,0);
+  floatingShards.push({
+    gx, gy, sx, sy,
+    phase: Math.random()*Math.PI*2,
+    speed: 0.02 + Math.random()*0.02,
+    collected: false
+  });
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    if(p.isLine) {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + Math.cos(p.angle)*p.len, p.y + Math.sin(p.angle)*p.len);
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * p.alpha, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+  });
+}
+
+function drawShards() {
+  const now = Date.now() * 0.001;
+  floatingShards.forEach(s => {
+    if(s.collected) return;
+    const bob = Math.sin(now * s.speed * 30 + s.phase) * 6;
+    const {sx, sy} = isoProject(s.gx, s.gy, 1);
+    const px = sx + ISO_W*zoom*0.5;
+    const py = sy + bob;
+    ctx.save();
+    const pulse = 0.7 + 0.3 * Math.sin(now*3 + s.phase);
+    ctx.globalAlpha = pulse;
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 12;
+    ctx.strokeStyle = '#ffd700';
+    ctx.fillStyle = '#ffd70060';
+    ctx.lineWidth = 1.5;
+    // Hexagon shard
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const a = i*Math.PI/3 + now*0.5;
+      const r2 = 6*zoom;
+      if(i===0) ctx.moveTo(px+Math.cos(a)*r2, py+Math.sin(a)*r2);
+      else ctx.lineTo(px+Math.cos(a)*r2, py+Math.sin(a)*r2);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    // Check collect proximity
+    const dist = Math.hypot(mouseScreenX - px, mouseScreenY - py);
+    if(dist < 30 * zoom) {
+      s.collected = true;
+      shards++;
+      showNotif(`⬡ ENERGY SHARD +1 (${shards} total)`);
+      spawnShardCollectFX(px, py);
+      document.getElementById('statShards').textContent = shards;
+    }
+  });
+  floatingShards = floatingShards.filter(s => !s.collected);
+}
+
+function spawnShardCollectFX(px, py) {
+  for(let i=0; i<12; i++) {
+    const a = i * Math.PI/6;
+    particles.push({
+      x:px, y:py,
+      vx: Math.cos(a)*4, vy: Math.sin(a)*4,
+      r:2, color:'#ffd700',
+      life:20, maxLife:20, alpha:1
+    });
+  }
+}
+
+// ── HIGHLIGHT ─────────────────────────────────────────────────
+function drawHover() {
+  const {gx,gy} = screenToGrid(mouseScreenX, mouseScreenY);
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD) return;
+  const cell = world[gy]?.[gx];
+  if(!cell) return;
+  const elev = cell.elev || 0;
+  const {sx,sy} = isoProject(gx, gy, elev);
+  const tw = ISO_W*zoom, th = ISO_H*zoom;
+
+  ctx.save();
+  ctx.strokeStyle = '#00f5ff';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#00f5ff';
+  ctx.shadowBlur = 14;
+  ctx.globalAlpha = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(sx+tw/2, sy);
+  ctx.lineTo(sx+tw, sy+th/2);
+  ctx.lineTo(sx+tw/2, sy+th);
+  ctx.lineTo(sx, sy+th/2);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ── MINIMAP ───────────────────────────────────────────────────
+let minimapDirty = true;
+let minimapCache = null;
+
+function drawMinimap() {
+  const mw = 120, mh = 120;
+  const scale = mw / WORLD;
+
+  if(minimapDirty) {
+    const off = document.createElement('canvas');
+    off.width = mw; off.height = mh;
+    const ox = off.getContext('2d');
+    ox.fillStyle = '#000408';
+    ox.fillRect(0,0,mw,mh);
+    for(let y=0;y<WORLD;y++){
+      for(let x=0;x<WORLD;x++){
+        const t = world[y][x].type;
+        if(t===0) continue;
+        ox.fillStyle = BLOCKS[t].top;
+        ox.fillRect(x*scale, y*scale, Math.max(1,scale), Math.max(1,scale));
+      }
+    }
+    minimapCache = off;
+    minimapDirty = false;
+  }
+
+  mCtx.clearRect(0,0,mw,mh);
+  mCtx.drawImage(minimapCache, 0, 0);
+
+  // Camera indicator
+  const {gx,gy} = screenToGrid(canvas.width/2, canvas.height/2);
+  const cx2 = gx*scale, cy2 = gy*scale;
+  mCtx.fillStyle = '#00f5ff';
+  mCtx.shadowColor = '#00f5ff';
+  mCtx.shadowBlur = 4;
+  mCtx.fillRect(cx2-1.5, cy2-1.5, 3, 3);
+
+  // Shards on minimap
+  floatingShards.slice(0,20).forEach(s => {
+    mCtx.fillStyle = '#ffd700';
+    mCtx.fillRect(s.gx*scale-0.5, s.gy*scale-0.5, 1.5, 1.5);
+  });
+}
+
+// ── INVENTORY BAR ─────────────────────────────────────────────
+function buildInventory() {
+  const inv = document.getElementById('inventory');
+  inv.innerHTML = '';
+  INV_BLOCKS.forEach((bid, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'inv-slot' + (bid===selectedBlock?' active':'');
+    slot.onclick = () => { selectedBlock = bid; buildInventory(); };
+    slot.setAttribute('data-bid', bid);
+
+    // Draw block preview
+    const previewC = document.createElement('canvas');
+    previewC.width = 48; previewC.height = 32;
+    const pc = previewC.getContext('2d');
+    pc.drawImage(getBlockFace(bid,'top'), 0, 0, 48, 24);
+    pc.drawImage(getBlockFace(bid,'left'), 0, 16, 24, 16);
+    pc.drawImage(getBlockFace(bid,'right'), 24, 8, 24, 16);
+
+    slot.appendChild(previewC);
+
+    const label = document.createElement('div');
+    label.className = 'inv-label';
+    label.textContent = BLOCKS[bid].name.split(' ')[0];
+    slot.appendChild(label);
+
+    const key = document.createElement('div');
+    key.className = 'inv-key';
+    key.textContent = i+1;
+    slot.appendChild(key);
+
+    inv.appendChild(slot);
+  });
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+function showNotif(msg) {
+  const el = document.createElement('div');
+  el.className = 'notif';
+  el.textContent = msg;
+  document.getElementById('notif').appendChild(el);
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 400);
+  }, 2200);
+}
+
+// ── HUD UPDATE ────────────────────────────────────────────────
+function updateHUD() {
+  const {gx,gy} = screenToGrid(canvas.width/2, canvas.height/2);
+  document.getElementById('coordX').textContent = gx;
+  document.getElementById('coordY').textContent = gy;
+  document.getElementById('coordSeed').textContent = worldSeed;
+
+  const cell = world[gy]?.[gx];
+  if(cell) {
+    const n = fbm(gx, gy);
+    const j = juliaVal(gx, gy);
+    document.getElementById('fDensM').textContent = (n*100).toFixed(0)+'%';
+    document.getElementById('fDensJ').textContent = (j*100).toFixed(0)+'%';
+    document.getElementById('fDensS').textContent = ((1-j)*n*100).toFixed(0)+'%';
+    document.getElementById('statDepth').textContent = (cell.elev||0);
+
+    let biome = 'MANDELBROT PLAINS';
+    if(n > 0.7) biome = 'SIERPINSKI SPIRES';
+    else if(j > 0.7) biome = 'JULIA CAVES';
+    else if(n < 0.38) biome = 'VOID DEPTHS';
+    else if(n > 0.55) biome = 'FRACTASTONE FIELDS';
+    document.getElementById('statBiome').textContent = biome;
+  }
+}
+
+// ── INPUT ─────────────────────────────────────────────────────
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  mouseScreenX = (e.clientX - rect.left) * scaleX;
+  mouseScreenY = (e.clientY - rect.top) * scaleY;
+
+  // Move custom crosshair
+  const ch = document.getElementById('crosshair');
+  ch.style.left = e.clientX + 'px';
+  ch.style.top = e.clientY + 'px';
+});
+
+canvas.addEventListener('click', e => {
+  if(!gameRunning) return;
+  const {gx,gy} = screenToGrid(mouseScreenX, mouseScreenY);
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD) return;
+
+  if(e.button === 0) {
+    // Mine
+    const cell = world[gy][gx];
+    if(cell.type !== 0) {
+      spawnMineParticles(gx, gy, cell.type);
+      if(cell.type === 5) { shards+=3; showNotif('⬡ ENERGY CORE! +3 SHARDS'); document.getElementById('statShards').textContent=shards; }
+      else { showNotif(`⛏ Mined ${BLOCKS[cell.type].name}`); }
+      world[gy][gx] = {type:0, elev:0};
+      mined[`${gx},${gy}`] = true;
+      minimapDirty = true;
+      // Random shard drop
+      if(Math.random() < 0.12) spawnShard(gx, gy);
+    }
+  }
+});
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if(!gameRunning) return;
+  const {gx,gy} = screenToGrid(mouseScreenX, mouseScreenY);
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD) return;
+  const cell = world[gy][gx];
+  if(cell.type === 0) {
+    world[gy][gx] = {type: selectedBlock, elev:0};
+    placed[`${gx},${gy}`] = true;
+    minimapDirty = true;
+  }
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const zoomDelta = e.deltaY > 0 ? -0.08 : 0.08;
+  zoom = Math.max(0.3, Math.min(2.2, zoom + zoomDelta));
+  Object.keys(blockFaceCache).forEach(k => delete blockFaceCache[k]); // clear cache on zoom
+}, {passive:false});
+
+window.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if(e.code==='KeyG' && gameRunning) { regenerate(); }
+  if(e.code==='KeyE') { showElev = !showElev; }
+  if(e.code==='Digit1') { selectedBlock=1; buildInventory(); }
+  if(e.code==='Digit2') { selectedBlock=2; buildInventory(); }
+  if(e.code==='Digit3') { selectedBlock=3; buildInventory(); }
+  if(e.code==='Digit4') { selectedBlock=4; buildInventory(); }
+  if(e.code==='Digit5') { selectedBlock=5; buildInventory(); }
+  e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.code]=false; });
+
+// ── GAME LOOP ─────────────────────────────────────────────────
+function update() {
+  bgPhase += 0.5;
+  frameCount++;
+
+  // Camera pan
+  const spd = 8 / zoom;
+  if(keys['KeyW']||keys['ArrowUp'])    camY -= spd;
+  if(keys['KeyS']||keys['ArrowDown'])  camY += spd;
+  if(keys['KeyA']||keys['ArrowLeft'])  camX -= spd;
+  if(keys['KeyD']||keys['ArrowRight']) camX += spd;
+
+  // Particles
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.vy += 0.15;
+    p.vx *= 0.96;
+    p.life--;
+    p.alpha = p.life / p.maxLife;
+    if(p.isLine) { p.angle += 0.05; }
+  });
+  particles = particles.filter(p => p.life > 0);
+
+  // HUD every 20 frames
+  if(frameCount % 20 === 0) updateHUD();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBackground();
+  drawScene();
+  drawHover();
+  drawShards();
+  drawParticles();
+  if(frameCount % 3 === 0) drawMinimap();
+}
+
+function loop() {
+  if(!gameRunning) return;
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ── START / REGEN ─────────────────────────────────────────────
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  // Re-center cam on world center
+  const {sx,sy} = isoProject(WORLD/2, WORLD/2, 0);
+  camX = sx - canvas.width/2;
+  camY = sy - canvas.height/2;
+}
+
+function regenerate() {
+  worldSeed = Math.floor(Math.random()*999999);
+  Object.keys(blockFaceCache).forEach(k => delete blockFaceCache[k]);
+  generateWorld(worldSeed);
+  minimapDirty = true;
+  shards = 0;
+  document.getElementById('statShards').textContent = '0';
+  showNotif(`◈ NEW WORLD — SEED ${worldSeed}`);
+  // Re-center
+  resizeCanvas();
+}
+
+function startGame() {
+  const seedRaw = document.getElementById('seedInput').value.trim();
+  worldSeed = seedRaw ? hashSeed(seedRaw) % 999999 : Math.floor(Math.random()*999999);
+
+  resizeCanvas();
+  generateWorld(worldSeed);
+  buildInventory();
+  gameRunning = true;
+  document.getElementById('overlay').classList.add('hidden');
+  showNotif(`◈ WORLD SEED: ${worldSeed}`);
+  setTimeout(() => showNotif('⛏ Left-click to mine  •  Right-click to place'), 1200);
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize', () => {
+  if(gameRunning) {
+    resizeCanvas();
+  }
+});
+
+window.startGame = startGame;
+window.setDiff = () => {};
+
+// Pre-warm block face cache (lazy)
+document.fonts.ready.then(() => {
+  // Trigger face generation on startup
+  [1,2,3,4,5].forEach(t => {
+    getBlockFace(t,'top');
+    getBlockFace(t,'left');
+    getBlockFace(t,'right');
+  });
+  buildInventory();
+});
+
+// Crosshair pointer events
+document.getElementById('crosshair').style.position = 'fixed';
+</script>
+</body>
+</html>
