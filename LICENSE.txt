@@ -1,6 +1,6 @@
 Copyright (c) 2026 Itoshiro Zuna LLC. All rights reserved.
 
-Fractal Racers and all associated code, assets, designs, mechanics, and intellectual property
+1) Fractal Racers and all associated code, assets, designs, mechanics, and intellectual property
 are the exclusive property of Itoshiro Zuna LLC.
 
 No part of this software may be copied, modified, distributed, sublicensed, or used
@@ -10,7 +10,17 @@ This repository is provided for viewing purposes only.
 
 Unauthorized use, reproduction, or redistribution is strictly prohibited.
 
-Fractal Pong and all associated code, assets, designs, mechanics, and intellectual property
+2) Fractal Pong and all associated code, assets, designs, mechanics, and intellectual property
+are the exclusive property of Itoshiro Zuna LLC.
+
+No part of this software may be copied, modified, distributed, sublicensed, or used
+for commercial or non-commercial purposes without explicit written permission.
+
+This repository is provided for viewing purposes only.
+
+Unauthorized use, reproduction, or redistribution is strictly prohibited.
+
+3) FracTile and all associated code, assets, designs, mechanics, and intellectual property
 are the exclusive property of Itoshiro Zuna LLC.
 
 No part of this software may be copied, modified, distributed, sublicensed, or used
