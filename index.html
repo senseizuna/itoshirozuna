@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Itoshiro Zuna • Fractal Stories, Apps & Kid's Zone</title>
-  <meta name="description" content="Books, interactive apps, and magical Kid's Zone adventures by Itoshiro Zuna.">
+  <title>Itoshiro Zuna • Fractal Stories, Apps, Games & Kid's Zone</title>
+  <meta name="description" content="Books, interactive apps, fractal games, and magical Kid's Zone adventures by Itoshiro Zuna.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -327,6 +327,86 @@
       margin-top: 2px;
     }
 
+    .featured-games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 0 0 28px;
+    }
+    .featured-game-card {
+      position: relative;
+      display: block;
+      padding: 28px;
+      border-radius: 18px;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(255,45,120,0.08));
+      border: 1px solid rgba(255,215,0,0.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      overflow: hidden;
+    }
+    .featured-game-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,215,0,0.32);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35), 0 0 30px rgba(255,215,0,0.08);
+    }
+    .featured-game-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(255,215,0,0.14), transparent 45%);
+      pointer-events: none;
+    }
+    .featured-game-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .featured-game-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .featured-game-badge {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.22);
+      text-transform: uppercase;
+    }
+    .featured-game-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .featured-game-card p {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+    .featured-game-meta {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      text-transform: uppercase;
+    }
+
     /* ─── KID'S ZONE ─── */
     .kids-grid {
       display: grid;
@@ -521,7 +601,29 @@
   <section class="section" id="apps">
     <div class="reveal">
       <div class="section-label">Interactive</div>
-      <h2 class="section-title">Fractal <em>Apps</em></h2>
+      <h2 class="section-title">Fractal <em>Apps</em> &amp; <em>Games</em></h2>
+
+      <div class="featured-games-grid">
+        <a href="fractal-pong.html" class="featured-game-card">
+          <div class="featured-game-top">
+            <div class="featured-game-icon" style="background:rgba(0,229,255,0.12);color:#00e5ff;"><i class="fas fa-table-tennis"></i></div>
+            <div class="featured-game-badge">New Game</div>
+          </div>
+          <h3>Fractal Pong</h3>
+          <p>Fast neon arcade action with rally speed scaling, combo energy, fullscreen mode, and a clean home return tab.</p>
+          <div class="featured-game-meta">Arcade • Reflex • Fractal Energy</div>
+        </a>
+
+        <a href="fractile.html" class="featured-game-card">
+          <div class="featured-game-top">
+            <div class="featured-game-icon" style="background:rgba(170,68,255,0.14);color:#aa66ff;"><i class="fas fa-cubes"></i></div>
+            <div class="featured-game-badge">New Game</div>
+          </div>
+          <h3>FracTile</h3>
+          <p>An isometric fractal voxel world where you mine, build, explore biomes, collect shards, and generate new worlds from custom seeds.</p>
+          <div class="featured-game-meta">Sandbox • Build • Procedural World</div>
+        </a>
+      </div>
 
       <div class="app-grid">
         <a href="fractal-meditation.html" class="app-link">
@@ -531,7 +633,6 @@
             <div class="app-desc">Deep calm through geometry</div>
           </div>
         </a>
-
         <a href="virtual-fractal-sanctuary.html" class="app-link">
           <div class="app-icon" style="background:rgba(0,229,255,0.1);color:#00e5ff;"><i class="fas fa-spa"></i></div>
           <div>
@@ -539,7 +640,6 @@
             <div class="app-desc">Immersive fractal space</div>
           </div>
         </a>
-
         <a href="plasma-mind.html" class="app-link">
           <div class="app-icon" style="background:rgba(255,45,120,0.1);color:#ff2d78;"><i class="fas fa-brain"></i></div>
           <div>
@@ -547,7 +647,6 @@
             <div class="app-desc">Neural fractal engine</div>
           </div>
         </a>
-
         <a href="fractal-racers.html" class="app-link">
           <div class="app-icon" style="background:rgba(255,215,0,0.1);color:#ffd700;"><i class="fas fa-rocket"></i></div>
           <div>
@@ -555,20 +654,23 @@
             <div class="app-desc">Tron-style arena racing</div>
           </div>
         </a>
-
         <a href="fractal-pong.html" class="app-link">
-          <div class="app-icon" style="background:rgba(0,255,255,0.12);color:#00ffff;">
-            <i class="fas fa-table-tennis"></i>
-          </div>
+          <div class="app-icon" style="background:rgba(0,255,255,0.12);color:#00ffff;"><i class="fas fa-table-tennis"></i></div>
           <div>
-            <div class="app-name">Fractal Pong <span style="color:#ffd700;">NEW</span></div>
+            <div class="app-name">Fractal Pong</div>
             <div class="app-desc">High-speed fractal arcade</div>
           </div>
         </a>
+        <a href="fractile.html" class="app-link">
+          <div class="app-icon" style="background:rgba(170,68,255,0.14);color:#aa66ff;"><i class="fas fa-cubes"></i></div>
+          <div>
+            <div class="app-name">FracTile</div>
+            <div class="app-desc">Procedural voxel sandbox</div>
+          </div>
+        </a>
       </div>
-
       <a href="app-instructions.html" class="btn btn-outline">
-        All Apps & Instructions <i class="fas fa-arrow-right"></i>
+        All Apps &amp; Instructions <i class="fas fa-arrow-right"></i>
       </a>
     </div>
   </section>
