@@ -1,259 +1,608 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Instructions for using Itoshiro Zuna's apps: Fractal AI Research, Fractal Meditation, Virtual Fractal Sanctuary, PlasmaMind: Journey Through Consciousness, Fractal Racers: Tron Edition, Kai Wisdom Fighters, and Kid's Zone apps including Kai Wisdom Fighters and Certificate.">
-    <title>Itoshiro Zuna | App Instructions</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-            overflow-x: hidden;
-            position: relative;
-        }
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background: linear-gradient(to bottom, #0a0a23, #1c2526);
-        }
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 0;
-            z-index: 3;
-        }
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 20px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px #000;
-        }
-        nav a:hover {
-            color: #FFD700;
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            min-width: 160px;
-            z-index: 1;
-            border-radius: 5px;
-        }
-        .dropdown-content a {
-            color: #fff;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 1rem;
-            margin: 0;
-        }
-        .dropdown-content a:hover {
-            background: rgba(255, 215, 0, 0.2);
-            color: #FFD700;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        section {
-            padding: 80px 40px 40px 40px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        section h2 {
-            color: #FFD700;
-            text-shadow: 0 0 10px #000;
-        }
-        section h3 {
-            color: #FFD700;
-            text-shadow: 0 0 10px #000;
-        }
-        section p {
-            color: #C0C0C0;
-            max-width: 800px;
-            margin: 0 auto;
-            text-shadow: 0 0 5px #000;
-        }
-        section .content-box {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        section .note {
-            font-style: italic;
-            font-size: 0.9rem;
-            color: #FFD700;
-            margin: 10px auto;
-        }
-        footer {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        footer p {
-            margin: 5px 0;
-            color: #C0C0C0;
-            text-shadow: 0 0 5px #000;
-        }
-        @media (max-width: 768px) {
-            nav a { margin: 0 10px; font-size: 1rem; }
-            section { padding: 60px 20px 20px 20px; }
-            .dropdown-content { min-width: 120px; }
-            .dropdown-content a { font-size: 0.9rem; padding: 8px 12px; }
-            section .note { font-size: 0.8rem; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Instructions for using Itoshiro Zuna apps and games including Fractal Meditation, Virtual Sanctuary, PlasmaMind, Fractal Racers, Fractal Pong, FracTile, Kai Wisdom Fighters, and more.">
+  <title>Itoshiro Zuna • App Instructions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #ffd700;
+      --gold-dim: rgba(255, 215, 0, 0.15);
+      --gold-glow: rgba(255, 215, 0, 0.4);
+      --cyan: #00e5ff;
+      --cyan-dim: rgba(0, 229, 255, 0.12);
+      --magenta: #ff2d78;
+      --deep: #050515;
+      --panel: rgba(8, 8, 32, 0.78);
+      --border: rgba(255, 215, 0, 0.18);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--deep);
+      color: #e0e0e0;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    #bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(5, 5, 21, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .nav-brand {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--gold);
+      letter-spacing: 3px;
+      text-decoration: none;
+      text-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.08);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 60%; }
+
+    .hero {
+      min-height: 58vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      padding: 110px 24px 40px;
+    }
+
+    .hero-content {
+      animation: heroFadeIn 1.6s ease-out;
+      max-width: 940px;
+    }
+
+    @keyframes heroFadeIn {
+      0% { opacity: 0; transform: translateY(36px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hero-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 8px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0.82;
+    }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-shadow:
+        0 0 40px rgba(255, 215, 0, 0.45),
+        0 0 80px rgba(255, 215, 0, 0.18),
+        0 4px 30px rgba(0, 0, 0, 0.8);
+      line-height: 1.06;
+    }
+
+    .tagline {
+      font-size: clamp(1rem, 2.3vw, 1.35rem);
+      margin-top: 22px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .tagline span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      vertical-align: middle;
+      margin: 0 14px;
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    .note-banner {
+      margin: 28px auto 0;
+      max-width: 820px;
+      background: rgba(255, 215, 0, 0.07);
+      border: 1px solid rgba(255, 215, 0, 0.18);
+      border-radius: 16px;
+      padding: 14px 18px;
+      color: rgba(255,255,255,0.72);
+      font-size: 0.96rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .section {
+      position: relative;
+      z-index: 1;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 30px 24px 60px;
+    }
+
+    .section-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 6px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 34px;
+      line-height: 1.2;
+    }
+
+    .section-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .instructions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: var(--gold-glow);
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(255, 215, 0, 0.08);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .gold { background: rgba(255, 215, 0, 0.1); color: var(--gold); }
+    .cyan { background: rgba(0, 229, 255, 0.1); color: var(--cyan); }
+    .magenta { background: rgba(255, 45, 120, 0.1); color: var(--magenta); }
+
+    .card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .mini-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+
+    .card p,
+    .card li {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.94rem;
+    }
+
+    .instruction-block {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .instruction-block strong {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 34px;
+    }
+
+    .quick-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255, 215, 0, 0.12);
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .quick-links a:hover {
+      background: rgba(255, 215, 0, 0.06);
+      border-color: rgba(255, 215, 0, 0.28);
+      transform: translateY(-2px);
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 50px 24px;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    .footer-brand {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+    }
+
+    footer p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; height: auto; min-height: 64px; }
+      .nav-brand { font-size: 0.85rem; letter-spacing: 2px; }
+      .nav-links a { font-size: 0.58rem; padding: 6px 10px; letter-spacing: 1px; }
+      .hero { padding: 110px 16px 30px; }
+      .section { padding: 24px 16px 40px; }
+      .card { padding: 24px 20px; }
+      .instructions-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links { gap: 2px; }
+      .nav-links a { font-size: 0.52rem; padding: 6px 6px; }
+      .quick-links a { font-size: 0.6rem; }
+    }
+  </style>
 </head>
 <body>
-    <canvas id="fractalCanvas"></canvas>
-    <nav>
-        <a href="index.html">Back to Home</a>
-        <div class="dropdown">
-            <a href="#">Apps</a>
-            <div class="dropdown-content">
-                <a href="fractal-ai-research.html">Fractal AI Research</a>
-                <a href="fractal-meditation.html">Fractal Meditation</a>
-                <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
-                <a href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a>
-                <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
-                <a href="app-instructions.html">Instructions</a>
-            </div>
-        </div>
-        <div class="dropdown">
-            <a href="#">Kid's Zone</a>
-            <div class="dropdown-content">
-                <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
-                <a href="certificate.html">Certificate</a>
-            </div>
-        </div>
-    </nav>
-    <section id="instructions">
-        <div class="content-box">
-            <h2>App Instructions</h2>
-            <p class="note">Note: These apps work best in VR or on a PC browser. Full functionality may be limited on mobile devices due to performance constraints.</p>
-            <p>Learn how to use the apps, what they do, and how they can enhance your experience.</p>
-            <div style="text-align: left; padding: 20px;">
-                <h3>Fractal AI Research</h3>
-                <p><strong>How It Works:</strong> Launch the app in your browser, click "Start AI Training" to begin the simulation, and use the controls to adjust fractal scale, power, and obstacles like chasers and barriers. The AI navigates a 3D fractal environment to collect energy points.</p>
-                <p><strong>What It Does:</strong> This app simulates an AI exploring a 3D fractal space using reinforcement learning, visualizing its path and interactions with dynamic elements like energy points and obstacles.</p>
-                <p><strong>What It Can Be Used For:</strong> Ideal for researchers, students, or enthusiasts interested in AI, fractals, or 3D simulations. Use it to study reinforcement learning, fractal geometry, or to create visually stunning AI-driven art.</p>
-                
-                <h3>Fractal Meditation</h3>
-                <p><strong>How It Works:</strong> Open the app in your browser, select a meditation mode (e.g., guided or ambient), and immerse yourself in a dynamic fractal visualization with soothing audio. Adjust settings like color and speed to personalize your experience.</p>
-                <p><strong>What It Does:</strong> Generates an interactive fractal visualization paired with calming sounds to guide users into a meditative state, promoting relaxation and mindfulness.</p>
-                <p><strong>What It Can Be Used For:</strong> Perfect for meditation, stress relief, or enhancing focus. Use it during mindfulness practices, yoga sessions, or as a calming visual aid for relaxation.</p>
-                
-                <h3>Virtual Fractal Sanctuary</h3>
-                <p><strong>How It Works:</strong> Access the app in your browser, navigate the 3D fractal environment using mouse or touch controls, and interact with elements like portals and energy nodes to explore different fractal landscapes.</p>
-                <p><strong>What It Does:</strong> Creates an immersive 3D fractal world where users can explore, interact, and customize their surroundings, offering a virtual escape into a metaphysical sanctuary.</p>
-                <p><strong>What It Can Be Used For:</strong> Great for creative inspiration, relaxation, or virtual exploration. Use it to spark imagination, as a creative writing prompt, or as a digital space for mental respite.</p>
+  <canvas id="bg"></canvas>
 
-                <h3>PlasmaMind: Journey Through Consciousness</h3>
-                <p><strong>How It Works:</strong> Open the app in your browser, use the UI buttons ("Start Meditation," "Toggle Guide," "VR Mode") to interact with the fractal visualization, and follow the guided meditation prompts displayed at the bottom of the screen. Optionally, enter VR mode for a more immersive experience.</p>
-                <p><strong>What It Does:</strong> Provides an immersive 3D fractal environment with a pulsating central sphere, accompanied by guided meditation prompts and calming audio to facilitate consciousness expansion.</p>
-                <p><strong>What It Can Be Used For:</strong> Ideal for meditation, exploring altered states of consciousness, or enhancing spiritual practices. Use it to deepen your mindfulness routine, engage in self-reflection, or as a tool for metaphysical exploration.</p>
+  <nav>
+    <a href="index.html" class="nav-brand">ITOSHIRO ZUNA</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="#guides" class="active">Instructions</a>
+      <a href="fractal-pong.html">Pong</a>
+      <a href="fractile.html">FracTile</a>
+      <a href="kai-wisdom-fighters.html">Kid's Zone</a>
+    </div>
+  </nav>
 
-                <h3>Fractal Racers: Tron Edition</h3>
-                <p><strong>How It Works:</strong> Launch the app in your browser, select a racer and track, and use keyboard controls (arrow keys or WASD) to navigate the neon-lit fractal tracks. Avoid obstacles and collect power-ups to gain speed boosts.</p>
-                <p><strong>What It Does:</strong> Offers a high-speed racing game set in a 3D fractal environment inspired by Tron, with dynamic tracks, customizable racers, and competitive gameplay.</p>
-                <p><strong>What It Can Be Used For:</strong> Perfect for gaming enthusiasts, casual players, or those interested in fractal-based visuals. Use it for entertainment, to test reflexes, or as a fun way to explore fractal geometry in a gaming context.</p>
+  <section class="hero">
+    <div class="hero-content reveal visible">
+      <div class="hero-label">Interactive • Guides • Gameplay</div>
+      <h1>App Instructions</h1>
+      <p class="tagline">Fractal Apps <span></span> Arcade Games <span></span> Learning Adventures</p>
+      <div class="note-banner">
+        Best on desktop or a strong tablet browser. Some apps and games have reduced performance on smaller mobile devices.
+      </div>
+    </div>
+  </section>
 
-                <h3>Kai Wisdom Fighters</h3>
-                <p><strong>How It Works:</strong> Open the app in your browser, follow the tutorial to select a monster, and solve math problems to attack enemies. Use the UI to customize monsters, adjust grade levels (1st to 6th), and toggle music or full-screen mode.</p>
-                <p><strong>What It Does:</strong> Combines math-based gameplay with a monster battling system, featuring 3D visuals, elemental effects, and progressive levels to defeat bosses.</p>
-                <p><strong>What It Can Be Used For:</strong> Ideal for children learning math, educators, or parents seeking engaging educational tools. Use it to practice arithmetic, improve problem-solving skills, or as a fun classroom activity.</p>
+  <section class="section" id="guides">
+    <div class="reveal">
+      <div class="section-label">Reference</div>
+      <h2 class="section-title">How to use each <em>experience</em></h2>
 
-                <h3>Kid's Zone</h3>
-                <h3>Kai Wisdom Fighters</h3>
-                <p><strong>How It Works:</strong> Access the Kid's Zone via the navigation menu, select Kai Wisdom Fighters, and engage in math-based battles. Choose a monster, solve math problems to attack, and progress through levels to defeat bosses. Customize your monster's appearance and select appropriate grade levels.</p>
-                <p><strong>What It Does:</strong> Provides an educational game where kids solve math problems to power their monster's attacks in a vibrant 3D world, encouraging learning through play.</p>
-                <p><strong>What It Can Be Used For:</strong> Designed for young learners to practice math in an engaging, game-based format. Use it at home or in school to make learning fun and interactive.</p>
+      <div class="quick-links">
+        <a href="#fractal-ai-research"><i class="fas fa-microchip"></i> AI Research</a>
+        <a href="#fractal-meditation"><i class="fas fa-om"></i> Meditation</a>
+        <a href="#virtual-sanctuary"><i class="fas fa-spa"></i> Sanctuary</a>
+        <a href="#plasmamind"><i class="fas fa-brain"></i> PlasmaMind</a>
+        <a href="#fractal-racers"><i class="fas fa-rocket"></i> Racers</a>
+        <a href="#fractal-pong"><i class="fas fa-table-tennis"></i> Pong</a>
+        <a href="#fractile"><i class="fas fa-cubes"></i> FracTile</a>
+        <a href="#kai-wisdom-fighters"><i class="fas fa-gamepad"></i> Kai</a>
+        <a href="#certificate"><i class="fas fa-award"></i> Certificate</a>
+      </div>
 
-                <h3>Certificate</h3>
-                <p><strong>How It Works:</strong> Access the Certificate page via the Kid's Zone menu, enter the child's name and achievement details, and generate a printable certificate. Follow prompts to customize and download the certificate.</p>
-                <p><strong>What It Does:</strong> Creates personalized certificates to reward children for achievements, such as completing levels in Kai Wisdom Fighters or other milestones.</p>
-                <p><strong>What It Can Be Used For:</strong> Perfect for parents, teachers, or educators to motivate and recognize children's accomplishments. Use it to celebrate progress in learning or gaming challenges.</p>
-            </div>
-        </div>
-    </section>
-    <footer>
-        <p>© 2025 Itoshiro Zuna. All rights reserved.</p>
-    </footer>
-    <script>
-        const canvas = document.getElementById('fractalCanvas');
-        const ctx = canvas.getContext('2d');
+      <div class="instructions-grid">
+        <article class="card" id="fractal-ai-research">
+          <div class="card-icon gold"><i class="fas fa-microchip"></i></div>
+          <div class="mini-label">Research App</div>
+          <h3>Fractal AI Research</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Launch the simulation, start the training flow, and adjust fractal scale, power, and obstacle settings while the AI navigates the environment.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Visualizes AI behavior in a fractal-driven space with dynamic pathing and interaction loops.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Great for experimentation, concept demos, and exploring AI + fractal visual storytelling.</p></div>
+        </article>
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        <article class="card" id="fractal-meditation">
+          <div class="card-icon cyan"><i class="fas fa-om"></i></div>
+          <div class="mini-label">Wellness App</div>
+          <h3>Fractal Meditation</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Open the app, choose a meditation mode, and let the visual rhythm and audio pacing guide the session.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Combines calming fractal motion with meditative atmosphere for relaxation and focus.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Ideal for mindfulness, breathwork, creative resets, and low-stimulation focus sessions.</p></div>
+        </article>
+
+        <article class="card" id="virtual-sanctuary">
+          <div class="card-icon cyan"><i class="fas fa-spa"></i></div>
+          <div class="mini-label">Immersive App</div>
+          <h3>Virtual Fractal Sanctuary</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Enter the environment, move through the fractal landscape, and interact with portals or energy points as you explore.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Creates a contemplative fractal world for visual immersion and exploration.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Excellent for inspiration, atmosphere, decompression, and imaginative worldbuilding.</p></div>
+        </article>
+
+        <article class="card" id="plasmamind">
+          <div class="card-icon magenta"><i class="fas fa-brain"></i></div>
+          <div class="mini-label">Consciousness App</div>
+          <h3>PlasmaMind</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Use the interface to start the experience, follow the visual prompts, and optionally switch into a more immersive mode if supported.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Delivers a guided fractal atmosphere centered on contemplation and inner focus.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Useful for reflective sessions, creative decompression, and visual meditation.</p></div>
+        </article>
+
+        <article class="card" id="fractal-racers">
+          <div class="card-icon gold"><i class="fas fa-rocket"></i></div>
+          <div class="mini-label">Arcade Game</div>
+          <h3>Fractal Racers</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Pick your racer, enter the arena, and use keyboard controls to weave through the neon track while avoiding hazards.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Brings fast-paced fractal racing into a neon combat-style environment.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Great for action gameplay, reflex practice, and showing off bold futuristic visuals.</p></div>
+        </article>
+
+        <article class="card" id="fractal-pong">
+          <div class="card-icon cyan"><i class="fas fa-table-tennis"></i></div>
+          <div class="mini-label">Arcade Game</div>
+          <h3>Fractal Pong</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Choose mouse or keyboard control, rally the ball, and build momentum as the speed increases with each exchange.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Delivers a clean neon pong experience with combo feedback, score tracking, and fullscreen play.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Perfect for quick sessions, reflex sharpening, and a lightweight polished arcade experience.</p></div>
+        </article>
+
+        <article class="card" id="fractile">
+          <div class="card-icon magenta"><i class="fas fa-cubes"></i></div>
+          <div class="mini-label">Sandbox Game</div>
+          <h3>FracTile</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Enter a world seed or generate one randomly, move with WASD, mine with left click, place blocks with right click, and explore the minimap as you build.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Generates a procedural fractal voxel-style sandbox with biomes, shards, mining, building, and repeatable world seeds.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Great for relaxed exploration, procedural world demos, and creative sandbox sessions.</p></div>
+        </article>
+
+        <article class="card" id="kai-wisdom-fighters">
+          <div class="card-icon magenta"><i class="fas fa-gamepad"></i></div>
+          <div class="mini-label">Kid's Zone Game</div>
+          <h3>Kai Wisdom Fighters</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Pick a monster, solve math problems, and use the answers to power attacks and progress through enemy encounters.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Turns learning into battle-driven gameplay with progression, visual effects, and educational challenge levels.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Ideal for kids, parents, and educators who want math practice to feel like an adventure game.</p></div>
+        </article>
+
+        <article class="card" id="certificate">
+          <div class="card-icon gold"><i class="fas fa-award"></i></div>
+          <div class="mini-label">Kid's Zone Reward</div>
+          <h3>Fractal Hunters Certificate</h3>
+          <div class="instruction-block"><p><strong>How it works:</strong> Enter the child’s details, customize the achievement information, and generate a printable certificate.</p></div>
+          <div class="instruction-block"><p><strong>What it does:</strong> Creates a polished recognition page for milestones, game progress, or learning achievements.</p></div>
+          <div class="instruction-block"><p><strong>Best use:</strong> Great for motivation, classroom rewards, and celebrating progress in a tangible way.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">ITOSHIRO ZUNA</div>
+    <p>&copy; 2026 ITOSHIRO ZUNA LLC • All rights reserved</p>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    const PARTICLES = [];
+    const COUNT = 80;
+    for (let i = 0; i < COUNT; i++) {
+      PARTICLES.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.8 + 0.3,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        alpha: Math.random() * 0.4 + 0.1
+      });
+    }
+
+    let t = 0;
+    function draw() {
+      ctx.fillStyle = 'rgba(5, 5, 21, 0.12)';
+      ctx.fillRect(0, 0, W, H);
+
+      for (let x = 0; x < W; x += 120) {
+        for (let y = 0; y < H; y += 120) {
+          const dist = Math.sqrt((x - W / 2) ** 2 + (y - H / 2) ** 2);
+          const phase = t + dist * 0.003;
+          const r = 18 + 12 * Math.sin(phase);
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255, 215, 0, ${0.04 + 0.03 * Math.sin(phase * 1.5)})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+      }
 
-        let time = 0;
-        const colors = [
-            'rgba(0, 255, 0, 0.5)',    // Green
-            'rgba(255, 215, 0, 0.5)',  // Gold
-            'rgba(192, 192, 192, 0.5)' // Silver
-        ];
+      for (const p of PARTICLES) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
 
-        function drawFlowerOfLife(x, y, radius, depth) {
-            if (depth <= 0) return;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.alpha})`;
+        ctx.fill();
+      }
 
+      for (let i = 0; i < PARTICLES.length; i++) {
+        for (let j = i + 1; j < PARTICLES.length; j++) {
+          const dx = PARTICLES[i].x - PARTICLES[j].x;
+          const dy = PARTICLES[i].y - PARTICLES[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
             ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
-            ctx.strokeStyle = colors[depth % colors.length];
-            ctx.lineWidth = 1;
+            ctx.moveTo(PARTICLES[i].x, PARTICLES[i].y);
+            ctx.lineTo(PARTICLES[j].x, PARTICLES[j].y);
+            ctx.strokeStyle = `rgba(255, 215, 0, ${0.06 * (1 - dist / 150)})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
-
-            const offset = radius * Math.sin(time + depth) * 0.5;
-            const newRadius = radius * 0.5;
-            const positions = [
-                [x + (radius + offset), y],
-                [x - (radius + offset), y],
-                [x + (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
-                [x + (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)],
-                [x - (radius + offset) * Math.cos(Math.PI / 3), y + (radius + offset) * Math.sin(Math.PI / 3)],
-                [x - (radius + offset) * Math.cos(Math.PI / 3), y - (radius + offset) * Math.sin(Math.PI / 3)]
-            ];
-
-            for (const [px, py] of positions) {
-                drawFlowerOfLife(px, py, newRadius, depth - 1);
-            }
+          }
         }
+      }
 
-        function animate() {
-            ctx.fillStyle = 'rgba(10, 10, 35, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+      t += 0.015;
+      requestAnimationFrame(draw);
+    }
+    draw();
 
-            const gridSize = 150;
-            for (let x = 0; x < canvas.width + gridSize; x += gridSize) {
-                for (let y = 0; y < canvas.height + gridSize; y += gridSize) {
-                    drawFlowerOfLife(x, y, 50, 3);
-                }
-            }
-
-            time += 0.02;
-            requestAnimationFrame(animate);
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
         }
-        animate();
-    </script>
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
