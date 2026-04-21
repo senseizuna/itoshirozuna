@@ -108,7 +108,7 @@ html,body{margin:0;padding:0;background:#000;width:100%;height:100%;overflow:hid
        <b style="color:var(--cyan)">6 Forms:</b> Earth · Wind · Magic · Fire · Water · Lightning<br>
        <b style="color:#FF6600">14 Worlds · 7 Epic Bosses</b><br>
        Each boss has 2 rage phases!<br><br>
-       <span style="color:var(--gold)">SPACE or ENTER to Start!</span></p>
+       <span style="color:var(--gold)">SPACE / ENTER / TAP to Start!</span></p>
     <div class="legal-block">
       © 2026 ITOSHIRO ZUNA LLC. ALL RIGHTS RESERVED.<br>
       KAI WISDOM FIGHTERS AND ALL ASSOCIATED CODE, VISUAL DESIGN, AND GAMEPLAY<br>
@@ -1172,6 +1172,17 @@ document.addEventListener('keydown',e=>{
   keys[e.key]=true;
   if((e.key===' '||e.key==='Enter')&&gs!=='playing'){
     score=0;lives=3;coins=0;formIdx=0;lvlIdx=0;
+// Tap to start on touch devices
+overlay.addEventListener('touchstart', e => {
+  if(gs !== 'playing') {
+    e.preventDefault();
+    score=0;lives=3;coins=0;formIdx=0;lvlIdx=0;
+    buildLevel(0);resetKai();
+    gs='playing';hideOv();updateHUD();
+    if(AC && AC.state==='suspended') AC.resume();
+    setWorldMusic(0);
+  }
+}, {passive:false});
     buildLevel(0);resetKai();
     gs='playing';hideOv();updateHUD();
   }
