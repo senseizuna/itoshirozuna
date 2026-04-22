@@ -906,12 +906,15 @@ function defeatBoss(){
 }
 
 function advanceLevel(){
-  if(lvlIdx<THEMES.length-1){
-    lvlIdx++;buildLevel(lvlIdx);resetKai();
+  // Even indices = overworld, odd = underground (pipe only).
+  // Always advance to the next overworld (+2), skip underground.
+  const next=lvlIdx%2===0?lvlIdx+2:lvlIdx+1;
+  if(next<THEMES.length){
+    lvlIdx=next;buildLevel(lvlIdx);resetKai();
     flashWarp(THEMES[lvlIdx].name,2500);
   } else {
     gs='win';
-    showOv('⭐ KAI TRIUMPHS! ⭐','All 14 worlds conquered!\nTime Lich has been banished!\n\nFinal Score: '+score+'\n\nSPACE to play again');
+    showOv('⭐ KAI TRIUMPHS! ⭐','All 14 worlds conquered!\nTime Lich has been banished!\n\nFinal Score: '+score+'\n\nTAP or SPACE to play again');
   }
 }
 
@@ -921,7 +924,7 @@ function damageKai(srcX){
   kai.vy=-11;kai.vx=kai.x<srcX?-6:6;
   burst(kai.x+16,kai.y+16,'#FF0000',14);shake=9;
   updateHUD();
-  if(lives<=0){gs='dead';showOv('GAME OVER','Score: '+score+'\n\nSPACE to restart');}
+  if(lives<=0){gs='dead';showOv('GAME OVER','Score: '+score+'\n\nTAP or SPACE to restart');}
 }
 
 // ── main update ──────────────────────────────────────────────
@@ -1119,7 +1122,7 @@ function update(){
 
   if(kai.inv>0)kai.inv--;
   if(kai.x<0)kai.x=0;
-  if(kai.y>H+80){lives--;updateHUD();resetKai();if(lives<=0){gs='dead';showOv('GAME OVER','Score: '+score+'\n\nSPACE to restart');}}
+  if(kai.y>H+80){lives--;updateHUD();resetKai();if(lives<=0){gs='dead';showOv('GAME OVER','Score: '+score+'\n\nTAP or SPACE to restart');}}
 
   const LW=worldData(lvlIdx).LW;
   if(!lvlDone&&kai.x>(LW-7)*T){
@@ -1168,27 +1171,31 @@ function render(){
 function loop(){update();render();requestAnimationFrame(loop);}
 
 // ── input ────────────────────────────────────────────────────
+function startGame(){
+  score=0;lives=3;coins=0;formIdx=0;lvlIdx=0;
+  buildLevel(0);resetKai();
+  gs='playing';hideOv();updateHUD();
+  if(AC&&AC.state==='suspended')AC.resume();
+  setWorldMusic(0);
+}
+
 document.addEventListener('keydown',e=>{
   keys[e.key]=true;
-  if((e.key===' '||e.key==='Enter')&&gs!=='playing'){
-    score=0;lives=3;coins=0;formIdx=0;lvlIdx=0;
-// Tap to start on touch devices
-overlay.addEventListener('touchstart', e => {
-  if(gs !== 'playing') {
-    e.preventDefault();
-    score=0;lives=3;coins=0;formIdx=0;lvlIdx=0;
-    buildLevel(0);resetKai();
-    gs='playing';hideOv();updateHUD();
-    if(AC && AC.state==='suspended') AC.resume();
-    setWorldMusic(0);
-  }
-}, {passive:false});
-    buildLevel(0);resetKai();
-    gs='playing';hideOv();updateHUD();
-  }
+  if((e.key===' '||e.key==='Enter')&&gs!=='playing') startGame();
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
 });
 document.addEventListener('keyup',e=>keys[e.key]=false);
+
+// ── tap/touch to start (iPad / touch screens) ─────────────────
+overlay.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  if(gs!=='playing') startGame();
+},{passive:false});
+
+// Also handle tap on canvas for game over / win screen
+cv.addEventListener('touchstart',e=>{
+  if(gs!=='playing'){e.preventDefault();startGame();}
+},{passive:false});
 
 // ── fullscreen scaling ────────────────────────────────────────
 function resize(){
@@ -1675,9 +1682,11 @@ function playTitleAmbient(){
   }catch(e){}
 }
 
-// Auto-start title ambient on first interaction
-window.addEventListener('click',function(){if(currentTrack===-1&&gs==='title'){if(AC&&AC.state==='suspended')AC.resume();playTitleAmbient();}},{once:true});
-window.addEventListener('keydown',function(){if(currentTrack===-1&&gs==='title'){if(AC&&AC.state==='suspended')AC.resume();playTitleAmbient();}},{once:true});
+// Auto-start title ambient on first interaction (keyboard, click, or touch)
+function _titleAmbientOnce(){if(currentTrack===-1&&gs==='title'){if(AC&&AC.state==='suspended')AC.resume();playTitleAmbient();}}
+window.addEventListener('click',_titleAmbientOnce,{once:true});
+window.addEventListener('keydown',_titleAmbientOnce,{once:true});
+window.addEventListener('touchstart',_titleAmbientOnce,{once:true});
 
 buildLevel(0);loop();
 </script>
