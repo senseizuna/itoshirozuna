@@ -190,6 +190,50 @@ html,body{
   #infoBar{gap:16px;}
   .info-item{font-size:8px;}
 }
+
+/* ── TOUCH CONTROLS ── */
+/* Touch zone covers left half of screen for paddle drag */
+#touchZone{
+  position:fixed;inset:0;z-index:5;
+  display:none;pointer-events:none;
+}
+@media(pointer:coarse){#touchZone{display:block;pointer-events:all;}}
+
+/* Touch paddle drag indicator */
+#touchIndicator{
+  position:fixed;left:0;top:50%;
+  width:50vw;height:80px;
+  pointer-events:none;z-index:6;display:none;
+  transform:translateY(-50%);
+}
+@media(pointer:coarse){#touchIndicator{display:block;}}
+
+/* Touch hint that fades out */
+#touchHint{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  z-index:20;font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:rgba(0,245,255,0.5);pointer-events:none;
+  text-align:center;line-height:2;white-space:nowrap;
+  transition:opacity 1.5s ease;
+}
+#touchHint.fade{opacity:0;}
+
+/* Pause/resume tap zone label */
+#tapPause{
+  position:fixed;top:10px;right:16px;z-index:50;
+  background:rgba(0,8,20,0.78);border:1px solid rgba(0,245,255,.32);
+  color:var(--cyan);font-family:'Orbitron',monospace;font-size:9px;
+  letter-spacing:2px;padding:7px 12px;border-radius:4px;
+  display:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+@media(pointer:coarse){#tapPause{display:block;}}
+
+/* Touch mode button in overlay */
+.overlay-btn.touch-btn{
+  border-color:#00ff88;color:#00ff88;
+  box-shadow:0 0 8px rgba(0,255,136,.3),inset 0 0 20px rgba(0,255,136,.06);
+}
+.overlay-btn.touch-btn:hover{background:rgba(0,255,136,.1);}
 </style>
 </head>
 <body>
@@ -240,6 +284,11 @@ html,body{
   <div id="legal-footer">© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED</div>
 </div>
 
+<!-- TOUCH CONTROLS -->
+<div id="touchZone"></div>
+<div id="touchHint">DRAG LEFT SIDE · TAP RIGHT SIDE TO PAUSE</div>
+<button id="tapPause" onclick="togglePause()">⏸ PAUSE</button>
+
 <!-- OVERLAY -->
 <div id="overlay">
   <div class="overlay-title">Fractal<br>Pong</div>
@@ -255,12 +304,14 @@ html,body{
   <div class="btn-row">
     <button class="overlay-btn" onclick="startGame('mouse')">▶ MOUSE</button>
     <button class="overlay-btn m-btn" onclick="startGame('keys')">▶ KEYBOARD</button>
+    <button class="overlay-btn touch-btn" onclick="startGame('touch')">☞ TOUCH</button>
     <button class="overlay-btn gold-btn" onclick="goFullScreen()">⛶ FULLSCREEN</button>
   </div>
 
   <div class="hint">
     Mouse: move cursor to control your paddle<br>
-    Keys: W / S or ↑ / ↓ · SPACE to pause · F11 fullscreen
+    Keys: W / S or ↑ / ↓ · SPACE to pause · F11 fullscreen<br>
+    Touch: drag left side of screen · right side = nothing
   </div>
 
   <div class="legal-block">
@@ -340,15 +391,19 @@ function initPositions(){
 
 function startGame(mode){
   updateDimensions();
+  pStartAudio();
   controlMode=mode;
   scoreP=0;scoreAI=0;rally=0;combo=0;speedMult=1.0;comboTimer=0;
   trail=[];particles=[];fractals=[];powerUps=[];ghostBalls=[];
   initPositions();
+  touchPaddleY=null;
   document.getElementById('overlay').classList.add('hidden');
+  const pb=document.getElementById('tapPause');if(pb)pb.textContent='⏸ PAUSE';
   gameRunning=true;paused=false;
   bgDirty=true;
   resetBall(1);
   updateUI();
+  sfxGameStart();
   requestAnimationFrame(loop);
 }
 
@@ -374,8 +429,9 @@ canvas.addEventListener('mousemove',e=>{
 
 window.addEventListener('keydown',e=>{
   keysDown[e.code]=true;
-  if(e.code==='Space'&&gameRunning){paused=!paused;
-    document.getElementById('pause-label').classList.toggle('show',paused);
+  if(e.code==='Space'&&gameRunning){
+    pStartAudio();
+    togglePause();
     e.preventDefault();
   }
   if(e.code==='KeyF'||e.code==='F11'){goFullScreen();}
@@ -404,7 +460,11 @@ function update(){
   if(roundFlashTimer>0) roundFlashTimer--;
 
   // Player paddle
-  if(controlMode==='mouse'){
+  if(controlMode==='touch'&&touchPaddleY!==null){
+    // Direct snap to finger with smooth damping
+    const targetY=touchPaddleY-PAD_H/2;
+    playerY+=(targetY-playerY)*0.28;
+  } else if(controlMode==='mouse'){
     playerY+=(mouseY-PAD_H/2-playerY)*0.22;
   }else{
     const spd=H*0.014;
@@ -441,8 +501,8 @@ function update(){
   ghostBalls=ghostBalls.filter(g=>g.life>0);
 
   // Wall bounce
-  if(ball.y<BALL_R){ball.y=BALL_R;ball.vy=Math.abs(ball.vy);spawnWallSpark(ball.x,0);}
-  if(ball.y>H-BALL_R){ball.y=H-BALL_R;ball.vy=-Math.abs(ball.vy);spawnWallSpark(ball.x,H);}
+  if(ball.y<BALL_R){ball.y=BALL_R;ball.vy=Math.abs(ball.vy);spawnWallSpark(ball.x,0);sfxWallBounce();}
+  if(ball.y>H-BALL_R){ball.y=H-BALL_R;ball.vy=-Math.abs(ball.vy);spawnWallSpark(ball.x,H);sfxWallBounce();}
 
   // Paddle: player (left)
   const px=PAD_MARGIN_PX;
@@ -453,7 +513,8 @@ function update(){
     speedMult=Math.min(speedMult+0.06,2.5);
     ball.vx=Math.abs(ball.vx)*speedMult;
     rally++;
-    if(rally>4){combo=Math.min(combo+1,8);comboTimer=120;}
+    if(rally>4){combo=Math.min(combo+1,8);comboTimer=120;sfxCombo(combo);}
+    sfxPaddleHit(true, hitPos);
     bgPulse=0.6;
     spawnHitParticles(ball.x,ball.y,COLORS.cyan);
     spawnFractalBurst(ball.x,ball.y,COLORS.cyan,3);
@@ -471,6 +532,7 @@ function update(){
     speedMult=Math.min(speedMult+0.06,2.5);
     ball.vx=-Math.abs(ball.vx)*speedMult;
     rally++;
+    sfxPaddleHit(false, hitPos);
     bgPulse=0.4;
     spawnHitParticles(ball.x,ball.y,COLORS.magenta);
     spawnFractalBurst(ball.x,ball.y,COLORS.magenta,3);
@@ -483,6 +545,7 @@ function update(){
     scoreAI++;spawnFractalBurst(0,ball.y,COLORS.magenta,5);
     showRoundFlash('AI POINT',COLORS.magenta);
     bigFlash(COLORS.magenta,true);
+    sfxScore(false);
     rally=0;combo=0;comboTimer=0;speedMult=Math.max(1.0,speedMult-0.3);
     checkHighScore();resetBall(1);updateUI();
   }
@@ -490,13 +553,14 @@ function update(){
     scoreP++;spawnFractalBurst(W,ball.y,COLORS.cyan,5);
     showRoundFlash('YOUR POINT',COLORS.cyan);
     bigFlash(COLORS.cyan,true);
+    sfxScore(true);
     rally=0;combo=0;comboTimer=0;speedMult=Math.max(1.0,speedMult-0.3);
     checkHighScore();resetBall(-1);updateUI();
   }
 
   // Power-ups
   powerUps.forEach(p=>{p.y+=p.vy;p.phase+=0.05;
-    if(dist(p.x,p.y,ball.x,ball.y)<BALL_R+20){activatePowerUp(p);p.dead=true;}
+    if(dist(p.x,p.y,ball.x,ball.y)<BALL_R+20){activatePowerUp(p);sfxPowerUp();p.dead=true;}
   });
   powerUps=powerUps.filter(p=>!p.dead&&p.y<H+50);
 
@@ -805,10 +869,221 @@ function checkHighScore(){
 function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
 function dist(x1,y1,x2,y2){return Math.hypot(x2-x1,y2-y1);}
 
-// ── INIT ───────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+//  FRACTAL PONG — PROCEDURAL AUDIO ENGINE
+// ═══════════════════════════════════════════════════════════════
+let pAC=null, pMasterGain=null, pReverb=null, pReverbSend=null, pAudioOn=false;
+
+function pMakeReverb(ac,dur,decay){
+  const len=Math.ceil(ac.sampleRate*dur);
+  const buf=ac.createBuffer(2,len,ac.sampleRate);
+  for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}
+  const conv=ac.createConvolver();conv.buffer=buf;return conv;
+}
+
+function pNoiseBuffer(ac,dur){
+  const len=Math.ceil(ac.sampleRate*dur);
+  const buf=ac.createBuffer(1,len,ac.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+  return buf;
+}
+
+function pInitAudio(){
+  pAC=new(window.AudioContext||window.webkitAudioContext)();
+  pMasterGain=pAC.createGain();pMasterGain.gain.value=0.7;pMasterGain.connect(pAC.destination);
+  pReverb=pMakeReverb(pAC,1.2,2.8);pReverb.connect(pMasterGain);
+  pReverbSend=pAC.createGain();pReverbSend.gain.value=0.15;pReverbSend.connect(pReverb);
+}
+
+function pStartAudio(){
+  if(pAudioOn)return;
+  if(!pAC)pInitAudio();
+  pAC.resume();pAudioOn=true;
+}
+
+// Paddle hit — TRON ping, pitch varies with hit position
+function sfxPaddleHit(isPlayer, hitPos){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  const baseFreq = isPlayer ? 320 : 260;
+  const freq = baseFreq + hitPos*120; // hit position shifts pitch
+  // Main ping
+  const o=pAC.createOscillator();o.type='sine';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*0.55,t+0.18);
+  const g=pAC.createGain();g.gain.setValueAtTime(0.32,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+  // Harmonic
+  const o2=pAC.createOscillator();o2.type='triangle';o2.frequency.value=freq*2.01;
+  const g2=pAC.createGain();g2.gain.setValueAtTime(0.08,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.12);
+  // Click transient
+  const src=pAC.createBufferSource();src.buffer=pNoiseBuffer(pAC,0.018);
+  const ng=pAC.createGain();ng.gain.setValueAtTime(0.18,t);ng.gain.exponentialRampToValueAtTime(0.001,t+0.018);
+  const nf=pAC.createBiquadFilter();nf.type='highpass';nf.frequency.value=2200;
+  o.connect(g);g.connect(pMasterGain);g.connect(pReverbSend);
+  o2.connect(g2);g2.connect(pMasterGain);
+  src.connect(nf);nf.connect(ng);ng.connect(pMasterGain);
+  o.start(t);o.stop(t+0.24);o2.start(t);o2.stop(t+0.14);src.start(t);
+}
+
+// Wall bounce — brief hiss + thud
+function sfxWallBounce(){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  const src=pAC.createBufferSource();src.buffer=pNoiseBuffer(pAC,0.04);
+  const f=pAC.createBiquadFilter();f.type='bandpass';f.frequency.value=600;f.Q.value=3;
+  const g=pAC.createGain();g.gain.setValueAtTime(0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+  src.connect(f);f.connect(g);g.connect(pMasterGain);src.start(t);
+  // Low thud
+  const o=pAC.createOscillator();o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(50,t+0.07);
+  const og=pAC.createGain();og.gain.setValueAtTime(0.22,t);og.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+  o.connect(og);og.connect(pMasterGain);o.start(t);o.stop(t+0.09);
+}
+
+// Score — cinematic point sting
+function sfxScore(isPlayer){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  const notes=isPlayer?[523.25,659.25,783.99]:[220,196,174.61];
+  notes.forEach((freq,i)=>{
+    const o=pAC.createOscillator();o.type=isPlayer?'sine':'sawtooth';o.frequency.value=freq;
+    const f=pAC.createBiquadFilter();f.type='lowpass';f.frequency.value=isPlayer?4000:1200;
+    const g=pAC.createGain();const st=t+i*(isPlayer?0.08:0.06);
+    g.gain.setValueAtTime(isPlayer?0.22:0.18,st);g.gain.exponentialRampToValueAtTime(0.001,st+(isPlayer?0.5:0.35));
+    o.connect(f);f.connect(g);g.connect(pMasterGain);g.connect(pReverbSend);
+    o.start(st);o.stop(st+(isPlayer?0.55:0.4));
+  });
+  // Sub impact
+  const sub=pAC.createOscillator();sub.type='sine';sub.frequency.setValueAtTime(isPlayer?80:60,t);sub.frequency.exponentialRampToValueAtTime(20,t+0.4);
+  const sg=pAC.createGain();sg.gain.setValueAtTime(isPlayer?0.4:0.55,t);sg.gain.exponentialRampToValueAtTime(0.001,t+0.4);
+  sub.connect(sg);sg.connect(pMasterGain);sub.start(t);sub.stop(t+0.45);
+}
+
+// Combo — ascending crystalline arpeggio
+function sfxCombo(comboLevel){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  const base=[523.25,587.33,659.25,783.99,880,1046.5];
+  const count=Math.min(comboLevel,6);
+  for(let i=0;i<count;i++){
+    const o=pAC.createOscillator();o.type='triangle';o.frequency.value=base[i];
+    const g=pAC.createGain();const st=t+i*0.06;
+    g.gain.setValueAtTime(0.13,st);g.gain.exponentialRampToValueAtTime(0.001,st+0.22);
+    o.connect(g);g.connect(pMasterGain);g.connect(pReverbSend);
+    o.start(st);o.stop(st+0.25);
+  }
+}
+
+// Power-up collect — golden shimmer chord
+function sfxPowerUp(){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  [440,554.37,659.25,880,1108.73].forEach((freq,i)=>{
+    const o=pAC.createOscillator();o.type='sine';o.frequency.value=freq;
+    const g=pAC.createGain();const st=t+i*0.04;
+    g.gain.setValueAtTime(0.14,st);g.gain.exponentialRampToValueAtTime(0.001,st+0.4);
+    o.connect(g);g.connect(pMasterGain);g.connect(pReverbSend);
+    o.start(st);o.stop(st+0.45);
+  });
+}
+
+// Game start — rising sweep
+function sfxGameStart(){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  const o=pAC.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(80,t);o.frequency.exponentialRampToValueAtTime(640,t+0.4);
+  const f=pAC.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(200,t);f.frequency.exponentialRampToValueAtTime(4000,t+0.4);
+  const g=pAC.createGain();g.gain.setValueAtTime(0.0,t);g.gain.linearRampToValueAtTime(0.28,t+0.15);g.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+  o.connect(f);f.connect(g);g.connect(pMasterGain);g.connect(pReverbSend);
+  o.start(t);o.stop(t+0.55);
+  // Chord bloom after sweep
+  [261.63,329.63,392,523.25].forEach((freq,i)=>{
+    const o2=pAC.createOscillator();o2.type='sine';o2.frequency.value=freq;
+    const g2=pAC.createGain();const st=t+0.38+i*0.04;
+    g2.gain.setValueAtTime(0.12,st);g2.gain.exponentialRampToValueAtTime(0.001,st+0.6);
+    o2.connect(g2);g2.connect(pMasterGain);g2.connect(pReverbSend);
+    o2.start(st);o2.stop(st+0.65);
+  });
+}
+
+// Pause click
+function sfxPause(){
+  if(!pAudioOn||!pAC)return;
+  const t=pAC.currentTime;
+  const o=pAC.createOscillator();o.type='sine';o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(330,t+0.06);
+  const g=pAC.createGain();g.gain.setValueAtTime(0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+  o.connect(g);g.connect(pMasterGain);o.start(t);o.stop(t+0.09);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TOUCH CONTROLS
+// ═══════════════════════════════════════════════════════════════
+let touchPaddleY = null; // null = not touching
+let touchHintTO  = null;
+
+function initTouchControls(){
+  const zone = document.getElementById('touchZone');
+  if(!zone) return;
+
+  zone.addEventListener('touchstart', e=>{
+    pStartAudio();
+    // Left half = paddle control
+    for(const t of e.changedTouches){
+      if(t.clientX < window.innerWidth * 0.65){
+        touchPaddleY = t.clientY;
+        e.preventDefault();
+      }
+      // Right half = pause toggle (any touch on right 35%)
+      if(t.clientX > window.innerWidth * 0.65 && gameRunning){
+        togglePause();
+      }
+    }
+    // Fade touch hint on first touch
+    if(touchHintTO===null){
+      touchHintTO=setTimeout(()=>{
+        const h=document.getElementById('touchHint');
+        if(h)h.classList.add('fade');
+      },2500);
+    }
+  },{passive:false});
+
+  zone.addEventListener('touchmove', e=>{
+    for(const t of e.changedTouches){
+      if(t.clientX < window.innerWidth * 0.65){
+        touchPaddleY = t.clientY;
+        e.preventDefault();
+      }
+    }
+  },{passive:false});
+
+  zone.addEventListener('touchend', e=>{
+    // Only clear if all left-side touches lifted
+    let anyLeft=false;
+    for(const t of e.touches){ if(t.clientX < window.innerWidth*0.65) anyLeft=true; }
+    if(!anyLeft) touchPaddleY=null;
+  },{passive:true});
+
+  zone.addEventListener('touchcancel', ()=>{ touchPaddleY=null; },{passive:true});
+}
+
+function togglePause(){
+  if(!gameRunning)return;
+  paused=!paused;
+  sfxPause();
+  document.getElementById('pause-label').classList.toggle('show',paused);
+  const pb=document.getElementById('tapPause');
+  if(pb)pb.textContent=paused?'▶ RESUME':'⏸ PAUSE';
+}
+
+// Patch startGame to wire touch and audio
+const _origStartGame=window.startGame||null;
+
+// Override after script load
+window.addEventListener.toString; // dummy to avoid lint
+
+// ═══════════════════════════════════════════════════════════════
+//  WINDOW ONLOAD — patch everything in
+// ═══════════════════════════════════════════════════════════════
 window.onload=()=>{
   updateDimensions();
-  // Draw initial black frame
   ctx.fillStyle='#000408';ctx.fillRect(0,0,W,H);
   const hs=parseInt(localStorage.getItem('fpong_hs')||'0');
   if(hs>0){
@@ -816,11 +1091,21 @@ window.onload=()=>{
     document.getElementById('hsVal').textContent=hs;
   }
   document.getElementById('highScoreDisplay').textContent=hs;
+  initTouchControls();
+
+  // Auto-select touch mode on coarse-pointer devices
+  if(window.matchMedia('(pointer:coarse)').matches){
+    // pre-highlight the touch button
+    document.querySelectorAll('.overlay-btn').forEach(b=>{
+      if(b.textContent.includes('TOUCH')) b.style.boxShadow='0 0 20px rgba(0,255,136,0.6)';
+    });
+  }
 };
 
 window.setDiff=setDiff;
 window.startGame=startGame;
 window.goFullScreen=goFullScreen;
+window.togglePause=togglePause;
 </script>
 </body>
 </html>
