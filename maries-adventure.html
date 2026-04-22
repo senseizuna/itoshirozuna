@@ -1,0 +1,1212 @@
+<!--
+    Marie's Adventure — Math Quest Epic Edition
+    Copyright (c) 2026 Itoshiro Zuna LLC
+    All rights reserved.
+
+    This software and all associated game assets, code, visual design, and gameplay
+    are the proprietary property of Itoshiro Zuna LLC. Unauthorized reproduction,
+    distribution, or modification, in whole or in part, is strictly prohibited
+    without the express written permission of Itoshiro Zuna LLC.
+
+    itoshirozuna.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Marie's Adventure — Math Quest · Itoshiro Zuna</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   Marie's Adventure — Math Quest Epic Edition
+   © 2026 Itoshiro Zuna LLC — All Rights Reserved
+   itoshirozuna.com
+   ═══════════════════════════════════════════════════════ */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --gold:#ffd700;
+  --cyan:#00f5ff;
+  --magenta:#ff00aa;
+  --rose:#ff4f8b;
+  --bg:#04010e;
+  --panel:#0a0520;
+  --panel2:#100830;
+  --border:#2a1a5e;
+  --glow-g:0 0 8px #ffd700,0 0 24px #ffd70070;
+  --glow-c:0 0 8px #00f5ff,0 0 20px #00f5ff60;
+  --glow-r:0 0 8px #ff4f8b,0 0 20px #ff4f8b60;
+  --glow-p:0 0 8px #c084fc,0 0 20px #c084fc60;
+}
+
+html,body{
+  width:100%;height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  font-family:'Orbitron',sans-serif;
+  color:#f0e8ff;
+}
+
+/* ── STARFIELD ── */
+#starfield{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;top:8px;left:50%;transform:translateX(-50%);
+  z-index:300;display:flex;gap:8px;pointer-events:auto;
+}
+.nav-btn{
+  padding:5px 13px;border:1px solid rgba(0,245,255,.35);
+  background:rgba(0,8,20,.85);color:var(--cyan);
+  text-decoration:none;font-size:10px;border-radius:4px;
+  letter-spacing:2px;font-family:'Orbitron',sans-serif;
+  box-shadow:0 0 8px rgba(0,245,255,.12);transition:all .18s;
+}
+.nav-btn:hover{background:rgba(0,245,255,.12);box-shadow:var(--glow-c);transform:translateY(-1px);}
+@media(max-width:600px){#nav{display:none;}}
+
+/* ── LEGAL FOOTER ── */
+#legal-footer{
+  position:fixed;bottom:3px;left:50%;transform:translateX(-50%);
+  font-size:7px;opacity:.28;color:#ffffff60;
+  letter-spacing:2px;text-align:center;pointer-events:none;
+  font-family:'Share Tech Mono',monospace;white-space:nowrap;z-index:200;
+}
+
+/* Legal block in modals */
+.legal-block{
+  margin-top:16px;padding:10px 14px;
+  border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);
+  font-family:'Share Tech Mono',monospace;font-size:7px;line-height:1.9;
+  letter-spacing:1px;color:#ffffff40;text-align:center;border-radius:6px;
+}
+
+/* ── FULL LAYOUT ── */
+#app{
+  position:relative;z-index:5;
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+}
+
+/* ── HEADER ── */
+#header{
+  flex-shrink:0;
+  background:linear-gradient(180deg,rgba(4,1,14,1) 0%,rgba(10,5,32,.97) 100%);
+  border-bottom:2px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:42px 20px 10px 20px;
+}
+@media(max-width:600px){#header{padding:10px 12px;}}
+#logo{display:flex;align-items:center;gap:14px;}
+#logo-gem{
+  width:52px;height:52px;flex-shrink:0;
+  background:linear-gradient(135deg,#ff4f8b,#c026d3);
+  border-radius:14px;border:3px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;box-shadow:0 0 24px #ff4f8b80;
+}
+#logo-words{}
+#logo-title{
+  font-size:clamp(11px,2.2vw,20px);font-weight:900;
+  color:#fff;letter-spacing:3px;
+  text-shadow:0 0 20px #ff4f8b,0 0 40px #ff4f8b60;
+}
+#logo-sub{font-size:clamp(7px,1vw,10px);color:var(--gold);letter-spacing:3px;margin-top:2px;}
+
+#hud-stats{display:flex;align-items:center;gap:10px;}
+.hstat{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:6px 13px;
+  display:flex;flex-direction:column;align-items:center;min-width:58px;
+}
+.hstat-v{font-size:clamp(13px,2vw,20px);font-weight:900;color:var(--gold);text-shadow:var(--glow-g);}
+.hstat-l{font-size:7px;color:#9ca3af;letter-spacing:1px;margin-top:1px;}
+#btn-help-hdr{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:8px 14px;cursor:pointer;
+  font-size:9px;font-family:'Orbitron',sans-serif;
+  color:#9ca3af;transition:all .2s;letter-spacing:1px;
+}
+#btn-help-hdr:hover{border-color:var(--cyan);color:var(--cyan);}
+
+/* ── MAIN BODY ── */
+#main{
+  flex:1;display:flex;overflow:hidden;
+  position:relative;
+}
+
+/* ── MAP SCREEN ── */
+#screen-map{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  padding:16px 20px 28px;
+  overflow-y:auto;
+}
+#map-heading{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+#map-title{
+  font-size:clamp(12px,2.5vw,22px);font-weight:900;
+  color:var(--gold);text-shadow:var(--glow-g);letter-spacing:3px;
+}
+#map-hint{font-size:9px;color:#6b7280;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+
+#level-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  flex:1;
+}
+@media(max-width:900px){#level-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){#level-grid{grid-template-columns:repeat(2,1fr);gap:8px;}}
+
+.lvl-card{
+  cursor:pointer;border-radius:18px;border:2px solid;
+  padding:16px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  position:relative;overflow:hidden;
+  transition:transform .18s,box-shadow .18s;
+  -webkit-user-select:none;user-select:none;
+}
+.lvl-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.06),transparent);
+}
+.lvl-card:hover{transform:translateY(-4px);}
+.lvl-card:active{transform:scale(.97);}
+.lvl-emoji{font-size:clamp(24px,4vw,40px);}
+.lvl-num{font-size:11px;font-weight:900;letter-spacing:2px;}
+.lvl-name{font-size:clamp(8px,1.2vw,10px);text-align:center;opacity:.8;font-family:'Share Tech Mono',monospace;}
+.lvl-type{font-size:8px;letter-spacing:1px;font-family:'Share Tech Mono',monospace;opacity:.6;margin-top:2px;}
+.lvl-stars{display:flex;gap:3px;font-size:12px;margin-top:2px;}
+.lvl-lock{
+  position:absolute;top:8px;right:10px;
+  font-size:12px;opacity:.4;
+}
+.lvl-done-badge{
+  position:absolute;top:6px;left:8px;
+  background:rgba(0,0,0,.6);border-radius:6px;
+  font-size:7px;padding:2px 5px;color:var(--gold);
+  font-family:'Share Tech Mono',monospace;letter-spacing:1px;
+}
+
+/* Card color themes */
+.theme-forest {background:#051a0a;border-color:#16a34a;color:#86efac;}
+.theme-forest:hover{box-shadow:0 0 20px #16a34a60;}
+.theme-river  {background:#020e1a;border-color:#0891b2;color:#67e8f9;}
+.theme-river:hover{box-shadow:0 0 20px #0891b260;}
+.theme-mountain{background:#0d0520;border-color:#7c3aed;color:#c4b5fd;}
+.theme-mountain:hover{box-shadow:0 0 20px #7c3aed60;}
+.theme-cave   {background:#1a0d00;border-color:#d97706;color:#fcd34d;}
+.theme-cave:hover{box-shadow:0 0 20px #d9770660;}
+.theme-castle {background:#1a0010;border-color:#db2777;color:#f9a8d4;}
+.theme-castle:hover{box-shadow:0 0 20px #db277760;}
+.theme-desert {background:#1a1000;border-color:#ca8a04;color:#fde68a;}
+.theme-desert:hover{box-shadow:0 0 20px #ca8a0460;}
+.theme-volcano{background:#1a0400;border-color:#dc2626;color:#fca5a5;}
+.theme-volcano:hover{box-shadow:0 0 20px #dc262660;}
+.theme-dragon {background:#07001a;border-color:#6d28d9;color:#ddd6fe;}
+.theme-dragon:hover{box-shadow:0 0 20px #6d28d960;}
+.theme-space  {background:#000a1a;border-color:#0369a1;color:#7dd3fc;}
+.theme-space:hover{box-shadow:0 0 20px #0369a160;}
+.theme-ice    {background:#001a1a;border-color:#06b6d4;color:#a5f3fc;}
+.theme-ice:hover{box-shadow:0 0 20px #06b6d460;}
+
+/* ── PUZZLE SCREEN ── */
+#screen-puzzle{
+  display:none;
+  width:100%;height:100%;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* Puzzle top bar */
+#puzzle-bar{
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--panel);border-bottom:1px solid var(--border);
+  padding:10px 18px;
+}
+#puzzle-bar-left{}
+#puz-title{font-size:clamp(11px,2vw,16px);font-weight:900;color:var(--gold);letter-spacing:2px;}
+#puz-sub{font-size:8px;color:#9ca3af;letter-spacing:1px;margin-top:2px;font-family:'Share Tech Mono',monospace;}
+#puz-progress{display:flex;align-items:center;gap:12px;}
+#puz-qnum{font-size:9px;color:#6b7280;font-family:'Share Tech Mono',monospace;}
+#puz-hearts{display:flex;gap:4px;font-size:16px;}
+#btn-back{
+  background:transparent;border:1px solid var(--border);
+  border-radius:8px;padding:7px 13px;cursor:pointer;
+  font-size:9px;font-family:'Orbitron',sans-serif;
+  color:#6b7280;transition:all .2s;letter-spacing:1px;
+}
+#btn-back:hover{border-color:#f43f5e;color:#f43f5e;}
+
+/* Puzzle body */
+#puzzle-body{
+  flex:1;display:flex;gap:0;overflow:hidden;
+}
+
+/* Story sidebar */
+#story-side{
+  width:240px;flex-shrink:0;
+  background:var(--panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:16px;gap:12px;
+  overflow-y:auto;
+}
+@media(max-width:800px){#story-side{display:none;}}
+
+#marie-art{
+  width:100%;aspect-ratio:1;
+  border-radius:16px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;background:rgba(0,0,0,.4);
+  position:relative;overflow:hidden;
+}
+#marie-art-bg{
+  position:absolute;inset:0;opacity:.15;
+  background:radial-gradient(circle at center,var(--rose),transparent 70%);
+}
+#marie-emoji{position:relative;z-index:1;animation:marieBob 2s ease-in-out infinite;}
+@keyframes marieBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+
+.story-label{font-size:7px;letter-spacing:2px;color:#6b7280;font-family:'Share Tech Mono',monospace;}
+#story-text-side{
+  font-size:9px;color:#cbd5e1;line-height:1.8;
+  font-family:'Exo 2',sans-serif;
+}
+#xp-bar-wrap{}
+#xp-label{font-size:7px;color:#6b7280;letter-spacing:1px;margin-bottom:4px;font-family:'Share Tech Mono',monospace;}
+#xp-track{height:6px;background:rgba(0,0,0,.5);border-radius:3px;border:1px solid var(--border);}
+#xp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#c026d3,#ff4f8b);width:0%;transition:width .4s;}
+
+/* Hints panel */
+#hint-panel{
+  background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.2);
+  border-radius:10px;padding:8px 10px;
+  font-size:8px;color:#fde68a;
+  font-family:'Exo 2',sans-serif;line-height:1.7;
+  display:none;
+}
+
+/* Main puzzle area */
+#puzzle-main{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  padding:20px;gap:16px;overflow-y:auto;
+}
+
+/* Story banner (mobile) */
+#story-banner{
+  display:none;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;
+  font-size:9px;color:#cbd5e1;
+  font-family:'Exo 2',sans-serif;line-height:1.7;
+  width:100%;max-width:600px;text-align:center;
+}
+@media(max-width:800px){#story-banner{display:block;}}
+
+/* Question box */
+#q-box{
+  background:var(--panel2);
+  border:3px solid;border-radius:20px;
+  padding:clamp(16px,3vw,32px) clamp(20px,4vw,48px);
+  width:100%;max-width:600px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 40px rgba(255,215,0,.12);
+}
+#q-box-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at top,rgba(255,215,0,.07),transparent 65%);
+  pointer-events:none;
+}
+#q-scene{font-size:clamp(24px,5vw,48px);margin-bottom:8px;line-height:1;}
+#q-text{
+  font-size:clamp(16px,3.5vw,32px);font-weight:900;
+  color:#fff;letter-spacing:2px;margin-bottom:4px;
+  text-shadow:0 0 20px rgba(255,255,255,.3);
+}
+#q-label{font-size:9px;color:#6b7280;letter-spacing:2px;font-family:'Share Tech Mono',monospace;}
+
+/* Answer area */
+#answer-zone{width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+
+/* Multiple choice grid */
+#mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
+.mc-btn{
+  padding:clamp(10px,2vw,18px);
+  border-radius:14px;border:2px solid;
+  font-size:clamp(14px,2.5vw,22px);font-weight:900;
+  cursor:pointer;transition:all .15s;
+  background:var(--panel);
+  font-family:'Orbitron',sans-serif;
+  -webkit-user-select:none;user-select:none;
+}
+.mc-btn:active{transform:scale(.96);}
+.mc-btn.correct{background:#14532d!important;border-color:#22c55e!important;box-shadow:0 0 20px #22c55e60!important;}
+.mc-btn.wrong{background:#4c0519!important;border-color:#f43f5e!important;animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}};
+
+/* Input answer */
+#input-row{display:flex;gap:10px;align-items:center;width:100%;}
+#ans-input{
+  flex:1;text-align:center;font-size:clamp(18px,3vw,28px);font-weight:900;
+  background:var(--panel);border:2px solid var(--border);
+  border-radius:12px;padding:14px;color:#fff;font-family:'Orbitron',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+#ans-input:focus{border-color:var(--gold);}
+#btn-submit{
+  padding:14px 24px;border-radius:12px;
+  background:linear-gradient(135deg,#15803d,#0d9488);
+  border:none;color:#fff;font-weight:900;font-size:11px;
+  font-family:'Orbitron',sans-serif;cursor:pointer;
+  box-shadow:0 0 20px #10b98160;transition:all .15s;
+  letter-spacing:1px;white-space:nowrap;
+}
+#btn-submit:hover{box-shadow:0 0 30px #10b98190;}
+#btn-submit:active{transform:scale(.97);}
+
+/* Result display */
+#result-box{
+  display:none;width:100%;max-width:600px;
+  border-radius:16px;border:2px solid;padding:20px;text-align:center;
+}
+#result-box.win{background:#052e16;border-color:#22c55e;box-shadow:0 0 30px #22c55e40;}
+#result-box.lose{background:#4c0519;border-color:#f43f5e;box-shadow:0 0 30px #f43f5e40;}
+#result-icon{font-size:40px;margin-bottom:8px;}
+#result-text{font-size:clamp(13px,2vw,18px);font-weight:900;margin-bottom:4px;}
+#result-explain{font-size:9px;color:#9ca3af;font-family:'Exo 2',sans-serif;line-height:1.6;margin-bottom:12px;}
+#btn-continue{
+  padding:12px 32px;border-radius:12px;
+  background:linear-gradient(135deg,#7c3aed,#c026d3);
+  border:none;color:#fff;font-weight:900;font-size:10px;
+  font-family:'Orbitron',sans-serif;cursor:pointer;
+  box-shadow:0 0 20px #7c3aed60;transition:all .15s;letter-spacing:1px;
+}
+#btn-continue:hover{box-shadow:0 0 30px #7c3aed90;}
+
+/* Hint button */
+#btn-hint{
+  background:transparent;border:1px solid rgba(255,215,0,.3);
+  border-radius:10px;padding:8px 16px;cursor:pointer;
+  font-size:8px;font-family:'Orbitron',sans-serif;
+  color:rgba(255,215,0,.6);transition:all .2s;letter-spacing:1px;
+}
+#btn-hint:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  padding:10px 20px;border-radius:20px;font-size:9px;
+  pointer-events:none;z-index:1000;letter-spacing:1px;
+  animation:toastAnim 3.2s forwards;
+  font-family:'Orbitron',sans-serif;
+}
+@keyframes toastAnim{0%{opacity:0;transform:translateX(-50%) translateY(10px);}8%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;}}
+.toast-good{background:#052e16;border:1px solid #22c55e;color:#86efac;}
+.toast-bad{background:#4c0519;border:1px solid #f43f5e;color:#fca5a5;}
+.toast-info{background:#1e1b4b;border:1px solid #7c3aed;color:#c4b5fd;}
+.toast-hint{background:#1c1917;border:1px solid #d97706;color:#fde68a;}
+
+/* ── WIN MODAL ── */
+#win-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.88);
+  display:none;align-items:center;justify-content:center;z-index:500;
+}
+#win-box{
+  background:linear-gradient(135deg,#07001a,#1a0530);
+  border:3px solid var(--gold);border-radius:24px;
+  padding:36px;max-width:400px;width:92%;text-align:center;
+  box-shadow:0 0 60px #ffd70040;
+}
+#win-big{font-size:56px;margin-bottom:8px;}
+#win-title{font-size:clamp(16px,3vw,22px);font-weight:900;color:var(--gold);text-shadow:var(--glow-g);margin-bottom:6px;letter-spacing:3px;}
+#win-msg{font-size:9px;color:#c4b5fd;font-family:'Exo 2',sans-serif;line-height:1.7;margin-bottom:16px;}
+#win-stars{display:flex;justify-content:center;gap:10px;font-size:40px;margin-bottom:8px;}
+#win-xp{font-size:9px;color:var(--gold);font-family:'Share Tech Mono',monospace;letter-spacing:2px;margin-bottom:20px;}
+#win-btns{display:flex;gap:10px;}
+#win-btns button{
+  flex:1;padding:13px;border-radius:12px;
+  font-family:'Orbitron',sans-serif;font-size:9px;font-weight:900;
+  cursor:pointer;border:none;letter-spacing:1px;transition:all .2s;
+}
+#btn-wn-next{background:linear-gradient(135deg,#059669,#0d9488);color:#fff;box-shadow:0 0 20px #10b98150;}
+#btn-wn-map{background:var(--panel);color:#9ca3af;border:1px solid var(--border);}
+
+/* ── HELP MODAL ── */
+#help-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);
+  display:none;align-items:center;justify-content:center;z-index:500;
+}
+#help-box{
+  background:var(--panel);border:2px solid var(--border);
+  border-radius:20px;padding:28px;max-width:420px;width:92%;
+  max-height:90vh;overflow-y:auto;
+}
+#help-box h3{font-size:16px;color:var(--gold);margin-bottom:16px;text-shadow:var(--glow-g);letter-spacing:3px;}
+#help-box p{font-size:9px;color:#cbd5e1;font-family:'Exo 2',sans-serif;line-height:1.9;margin-bottom:6px;}
+#help-close{
+  margin-top:16px;width:100%;padding:11px;border-radius:10px;
+  background:linear-gradient(135deg,#7c3aed,#c026d3);
+  border:none;color:#fff;font-family:'Orbitron',sans-serif;
+  font-size:10px;font-weight:900;cursor:pointer;letter-spacing:1px;
+}
+
+/* ── PARTICLES ── */
+.particle{position:fixed;border-radius:50%;pointer-events:none;z-index:999;animation:pAnim 1.2s forwards;}
+@keyframes pAnim{0%{transform:scale(1) translate(0,0);opacity:1;}100%{transform:scale(0) translate(var(--tx),var(--ty));opacity:0;}}
+</style>
+</head>
+<body>
+
+<!-- STARFIELD -->
+<canvas id="starfield"></canvas>
+
+<!-- NAV -->
+<div id="nav">
+  <a class="nav-btn" href="index.html">HOME</a>
+  <a class="nav-btn" href="fractal-pong.html">FRACTAL PONG</a>
+  <a class="nav-btn" href="fractal-racers.html">RACERS</a>
+  <a class="nav-btn" href="fractile.html">FRACTILE</a>
+  <a class="nav-btn" href="kai-fighters-legends.html">KAI FIGHTERS</a>
+</div>
+
+<!-- LEGAL FOOTER -->
+<div id="legal-footer">© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED · ITOSHIROZUNA.COM</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div id="logo">
+      <div id="logo-gem">🌟</div>
+      <div id="logo-words">
+        <div id="logo-title">MARIE'S ADVENTURE</div>
+        <div id="logo-sub">MATH QUEST · EPIC EDITION</div>
+      </div>
+    </div>
+    <div id="hud-stats">
+      <div class="hstat"><div class="hstat-v" id="stat-stars">0</div><div class="hstat-l">STARS</div></div>
+      <div class="hstat"><div class="hstat-v" id="stat-xp">0</div><div class="hstat-l">XP</div></div>
+      <div class="hstat"><div class="hstat-v" id="stat-level">1</div><div class="hstat-l">LEVEL</div></div>
+      <button id="btn-help-hdr" onclick="showHelp()">❓ HELP</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- MAP SCREEN -->
+    <div id="screen-map">
+      <div id="map-heading">
+        <div id="map-title">✦ THE MAGICAL KINGDOM ✦</div>
+        <div id="map-hint">TAP A REALM TO BEGIN YOUR QUEST!</div>
+      </div>
+      <div id="level-grid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- PUZZLE SCREEN -->
+    <div id="screen-puzzle">
+
+      <!-- Top bar -->
+      <div id="puzzle-bar">
+        <div id="puzzle-bar-left">
+          <div id="puz-title">—</div>
+          <div id="puz-sub">—</div>
+        </div>
+        <div id="puz-progress">
+          <div id="puz-qnum">Q 1 / 3</div>
+          <div id="puz-hearts">❤️❤️❤️</div>
+        </div>
+        <button id="btn-back" onclick="goToMap()">✕ MAP</button>
+      </div>
+
+      <!-- Body -->
+      <div id="puzzle-body">
+
+        <!-- Story sidebar -->
+        <div id="story-side">
+          <div id="marie-art">
+            <div id="marie-art-bg"></div>
+            <span id="marie-emoji">🧝‍♀️</span>
+          </div>
+          <div>
+            <div class="story-label">STORY</div>
+            <div id="story-text-side">—</div>
+          </div>
+          <div id="xp-bar-wrap">
+            <div id="xp-label">LEVEL XP</div>
+            <div id="xp-track"><div id="xp-fill"></div></div>
+          </div>
+          <div id="hint-panel">💡 <span id="hint-text-side">—</span></div>
+          <button id="btn-hint" onclick="toggleHint()">💡 SHOW HINT</button>
+          <div class="legal-block">
+            © 2026 ITOSHIRO ZUNA LLC<br>ALL RIGHTS RESERVED<br>ITOSHIROZUNA.COM
+          </div>
+        </div>
+
+        <!-- Puzzle main -->
+        <div id="puzzle-main">
+
+          <!-- Story banner (mobile) -->
+          <div id="story-banner">—</div>
+
+          <!-- Question box -->
+          <div id="q-box">
+            <div id="q-box-glow"></div>
+            <div id="q-scene">🌟</div>
+            <div id="q-text">—</div>
+            <div id="q-label">SOLVE THE PUZZLE</div>
+          </div>
+
+          <!-- Answer zone -->
+          <div id="answer-zone">
+            <div id="mc-grid"></div>
+            <div id="input-row" style="display:none;">
+              <input type="number" id="ans-input" placeholder="?" autocomplete="off" inputmode="numeric">
+              <button id="btn-submit" onclick="submitInput()">CHECK ✓</button>
+            </div>
+          </div>
+
+          <!-- Result -->
+          <div id="result-box">
+            <div id="result-icon">—</div>
+            <div id="result-text">—</div>
+            <div id="result-explain">—</div>
+            <button id="btn-continue" onclick="continueAfterResult()">CONTINUE →</button>
+          </div>
+
+          <!-- Hint btn (mobile) -->
+          <button id="btn-hint-mob" onclick="toggleHint()" style="display:none;background:transparent;border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:8px 16px;cursor:pointer;font-size:8px;font-family:Orbitron,sans-serif;color:rgba(255,215,0,.6);letter-spacing:1px;">💡 HINT</button>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div id="win-modal">
+  <div id="win-box">
+    <div id="win-big">🏆</div>
+    <div id="win-title">REALM COMPLETE!</div>
+    <div id="win-stars"></div>
+    <div id="win-xp">+XP EARNED</div>
+    <div id="win-msg">—</div>
+    <div id="win-btns">
+      <button id="btn-wn-map" onclick="winToMap()">🗺 MAP</button>
+      <button id="btn-wn-next" onclick="winNext()">NEXT REALM ▶</button>
+    </div>
+    <div class="legal-block">
+      © 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED<br>
+      MARIE'S ADVENTURE IS A PROPRIETARY WORK OF ITOSHIRO ZUNA LLC<br>
+      ITOSHIROZUNA.COM
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div id="help-modal">
+  <div id="help-box">
+    <h3>✦ HOW TO PLAY ✦</h3>
+    <p>🗺 <strong>Select a Realm</strong> from the Kingdom map to start.</p>
+    <p>📖 <strong>Read the story</strong> — Marie faces a new adventure each level!</p>
+    <p>🔢 <strong>Solve 3 math puzzles</strong> to unlock each realm.</p>
+    <p>❤️ <strong>You have 3 hearts</strong> per puzzle — wrong answers cost one!</p>
+    <p>⭐ <strong>Earn 1–3 stars</strong> per realm based on accuracy.</p>
+    <p>💡 <strong>Use the Hint button</strong> if you're stuck — it's free!</p>
+    <p>🏆 <strong>Beat all 10 realms</strong> to save the Magical Kingdom!</p>
+    <p><strong>Math Topics:</strong> Addition → Subtraction → Multiplication → Division → Fractions → Patterns → Geometry → Algebra → Mixed Challenge → Final Boss</p>
+    <button id="help-close" onclick="document.getElementById('help-modal').style.display='none'">✦ LET'S ADVENTURE! ✦</button>
+    <div class="legal-block">
+      © 2026 ITOSHIRO ZUNA LLC. ALL RIGHTS RESERVED.<br>
+      MARIE'S ADVENTURE AND ALL ASSOCIATED CODE, VISUAL DESIGN, AND GAMEPLAY<br>
+      ARE PROPRIETARY WORKS OF ITOSHIRO ZUNA LLC.<br>
+      ITOSHIROZUNA.COM
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Marie's Adventure — Math Quest Epic Edition
+// © 2026 Itoshiro Zuna LLC — All Rights Reserved
+// itoshirozuna.com
+// ═══════════════════════════════════════════════════════
+
+// ── STARFIELD ──
+(function(){
+  const c=document.getElementById('starfield');
+  const ctx=c.getContext('2d');
+  const stars=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;}
+  resize();addEventListener('resize',resize);
+  for(let i=0;i<180;i++)stars.push({x:Math.random(),y:Math.random(),r:.3+Math.random()*1.4,o:Math.random(),s:.2+Math.random()*.5});
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      s.o+=s.s*.008;
+      ctx.globalAlpha=.25+.75*Math.abs(Math.sin(s.o));
+      ctx.fillStyle='#d8b4fe';
+      ctx.beginPath();ctx.arc(s.x*c.width,s.y*c.height,s.r,0,Math.PI*2);ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  })();
+})();
+
+// ── LEVEL DATA (10 levels) ──
+const LEVELS = [
+  {
+    id:0,
+    name:'ENCHANTED FOREST',sub:'Addition Awakening',
+    emoji:'🌲',theme:'theme-forest',
+    marie:'🧝‍♀️',scene:'🌲🌿🍄',
+    story:'Marie steps into the glowing Enchanted Forest. The friendly squirrels have dropped their acorns everywhere! Help her count them all back together.',
+    type:'mc',
+    mathType:'addition',
+    genQ:()=>{
+      const a=rnd(5,30),b=rnd(5,25);
+      return {q:`${a} + ${b}`,ans:a+b,explain:`${a} + ${b} = ${a+b}. Add the two numbers together!`};
+    },
+    hint:'Just add both numbers together. Count up from the bigger number if it helps!',
+    color:'#22c55e',
+  },
+  {
+    id:1,
+    name:'CRYSTAL RIVER',sub:'Subtraction Crossing',
+    emoji:'🌊',theme:'theme-river',
+    marie:'🧜‍♀️',scene:'🌊💧🐟',
+    story:'Marie must lower the magic bridge by solving subtraction puzzles. The river spirit will only let her cross if she gets it right!',
+    type:'mc',
+    mathType:'subtraction',
+    genQ:()=>{
+      const a=rnd(20,60),b=rnd(5,a-3);
+      return {q:`${a} − ${b}`,ans:a-b,explain:`${a} − ${b} = ${a-b}. Subtract the smaller number from the larger!`};
+    },
+    hint:'Start at the bigger number and count backwards, or think about what + the small number = the big number.',
+    color:'#22d3ee',
+  },
+  {
+    id:2,
+    name:'MISTY MOUNTAINS',sub:'Multiplication Peaks',
+    emoji:'⛰️',theme:'theme-mountain',
+    marie:'🧗‍♀️',scene:'⛰️🌙✨',
+    story:'The mountain goats challenge Marie! Each boulder is in equal groups — she must multiply quickly to find the total before the fog rolls in.',
+    type:'mc',
+    mathType:'multiplication',
+    genQ:()=>{
+      const a=rnd(2,12),b=rnd(2,12);
+      return {q:`${a} × ${b}`,ans:a*b,explain:`${a} × ${b} = ${a*b}. Think of it as adding ${a} a total of ${b} times!`};
+    },
+    hint:'Think of multiplication as repeated addition. 4 × 3 = 4+4+4 = 12.',
+    color:'#a78bfa',
+  },
+  {
+    id:3,
+    name:'DARK CAVES',sub:'Division Dungeon',
+    emoji:'🕳️',theme:'theme-cave',
+    marie:'🦸‍♀️',scene:'🕯️💎🦇',
+    story:'Deep in the cave, glowing crystals must be shared equally among the cave creatures. Marie must divide them perfectly or the cave will seal shut!',
+    type:'input',
+    mathType:'division',
+    genQ:()=>{
+      const b=rnd(2,9),q=rnd(3,9),a=b*q;
+      return {q:`${a} ÷ ${b}`,ans:q,explain:`${a} ÷ ${b} = ${q}. You can check: ${b} × ${q} = ${a}!`};
+    },
+    hint:'Division asks: how many times does the bottom number fit into the top? You can also flip it — what × the divisor = the dividend?',
+    color:'#f59e0b',
+  },
+  {
+    id:4,
+    name:'RAINBOW CASTLE',sub:'Fraction Magic',
+    emoji:'🏰',theme:'theme-castle',
+    marie:'👸',scene:'🌈🏰🌸',
+    story:'The Rainbow Queen has locked the treasure room! To open it, Marie must solve fraction puzzles using the ancient crystal keys.',
+    type:'input',
+    mathType:'fractions',
+    genQ:()=>{
+      const dens=[2,4,5,10];
+      const den=dens[rnd(0,dens.length-1)];
+      const num=rnd(1,den-1);
+      const whole=rnd(2,5)*den;
+      const ans=Math.round((num/den)*whole);
+      return {q:`${num}/${den} of ${whole}`,ans,explain:`Divide ${whole} by ${den} = ${whole/den}, then × ${num} = ${ans}. Bottom divides, top multiplies!`};
+    },
+    hint:'Fraction of a number: divide by the bottom (denominator), then multiply by the top (numerator).',
+    color:'#ec4899',
+  },
+  {
+    id:5,
+    name:'GOLDEN DESERT',sub:'Pattern Quest',
+    emoji:'🏜️',theme:'theme-desert',
+    marie:'🧙‍♀️',scene:'🌵🌅🐪',
+    story:'Ancient sand patterns hide the oasis! Marie must decode the number sequences left by the desert spirits to find fresh water.',
+    type:'input',
+    mathType:'patterns',
+    genQ:()=>{
+      const start=rnd(1,10),step=rnd(2,7);
+      const seq=[start,start+step,start+step*2,start+step*3];
+      return {q:`${seq[0]}, ${seq[1]}, ${seq[2]}, ?`,ans:seq[3],explain:`The pattern adds ${step} each time. ${seq[2]} + ${step} = ${seq[3]}!`};
+    },
+    hint:'Find the difference between each pair of numbers. Then add that same amount to the last number shown.',
+    color:'#eab308',
+  },
+  {
+    id:6,
+    name:'VOLCANO PEAK',sub:'Geometry Challenge',
+    emoji:'🌋',theme:'theme-volcano',
+    marie:'⚔️',scene:'🌋🔥🪨',
+    story:'The volcano rumbles! To calm it, Marie must solve geometry puzzles inscribed on the ancient stone tablets before the lava reaches the village.',
+    type:'mc',
+    mathType:'geometry',
+    genQ:()=>{
+      const shapes=[
+        ()=>{const s=rnd(4,15);return{q:`Square with sides of ${s}. Perimeter = ?`,ans:s*4,explain:`Perimeter of square = 4 × side = 4 × ${s} = ${s*4}.`};},
+        ()=>{const l=rnd(5,12),w=rnd(3,9);return{q:`Rectangle ${l} × ${w}. Perimeter = ?`,ans:2*(l+w),explain:`Rectangle perimeter = 2×(length+width) = 2×(${l}+${w}) = ${2*(l+w)}.`};},
+        ()=>{const s=rnd(4,12);return{q:`Triangle sides: ${s}, ${s+1}, ${s+2}. Perimeter = ?`,ans:3*s+3,explain:`Add all sides: ${s} + ${s+1} + ${s+2} = ${3*s+3}.`};},
+        ()=>{const r=rnd(3,8);return{q:`Square with area ${r*r}. Side = ?`,ans:r,explain:`Area of square = side². √${r*r} = ${r}. Side = ${r}.`};},
+      ];
+      return shapes[rnd(0,shapes.length-1)]();
+    },
+    hint:'Perimeter = all sides added together. Area of square = side × side. Remember your shape formulas!',
+    color:'#ef4444',
+  },
+  {
+    id:7,
+    name:'SHADOW REALM',sub:'Algebra Awakens',
+    emoji:'🌑',theme:'theme-dragon',
+    marie:'🧝‍♀️',scene:'🌑⚡🔮',
+    story:'The Shadow Wizard has hidden the magic word inside an equation! Marie must solve for X to speak it aloud and break the spell.',
+    type:'input',
+    mathType:'algebra',
+    genQ:()=>{
+      const x=rnd(2,15);
+      const types=rnd(0,2);
+      if(types===0){const a=rnd(2,9);return{q:`${a}x = ${a*x}  →  x = ?`,ans:x,explain:`Divide both sides by ${a}: x = ${a*x}÷${a} = ${x}.`};}
+      if(types===1){const c=rnd(2,10);return{q:`x + ${c} = ${x+c}  →  x = ?`,ans:x,explain:`Subtract ${c} from both sides: x = ${x+c}−${c} = ${x}.`};}
+      const c=rnd(1,x-1);return{q:`x − ${c} = ${x-c}  →  x = ?`,ans:x,explain:`Add ${c} to both sides: x = ${x-c}+${c} = ${x}.`};
+    },
+    hint:'Whatever you do to one side of = you must do to the other. To remove +5, subtract 5. To remove ×3, divide by 3.',
+    color:'#8b5cf6',
+  },
+  {
+    id:8,
+    name:'SPACE NEBULA',sub:'Mixed Challenge',
+    emoji:'🚀',theme:'theme-space',
+    marie:'👩‍🚀',scene:'🚀🌌⭐',
+    story:'Marie rockets into the Space Nebula! The star-charts use all kinds of math. She must answer whatever the galaxy throws at her to reach the final boss!',
+    type:'mc',
+    mathType:'mixed',
+    genQ:()=>{
+      const pick=rnd(0,3);
+      if(pick===0){const a=rnd(10,50),b=rnd(5,30);return{q:`${a} + ${b}`,ans:a+b,explain:`${a} + ${b} = ${a+b}`};}
+      if(pick===1){const a=rnd(20,60),b=rnd(3,8),q=rnd(3,9);return{q:`${a*b/b===a?a:b*q} ÷ ${b}`,ans:q,explain:`Division: answer is ${q}`};}
+      if(pick===2){const a=rnd(2,12),b=rnd(2,12);return{q:`${a} × ${b}`,ans:a*b,explain:`${a} × ${b} = ${a*b}`};}
+      const s=rnd(3,12);return{q:`Square side=${s}. Area=?`,ans:s*s,explain:`Area = side² = ${s}² = ${s*s}`};
+    },
+    hint:'Read the question carefully — each one could be a different type of math!',
+    color:'#0ea5e9',
+  },
+  {
+    id:9,
+    name:'FINAL BOSS',sub:'The Algebra Dragon',
+    emoji:'🐉',theme:'theme-dragon',
+    marie:'⚔️',scene:'🐉🔥💫',
+    story:'The fearsome Algebra Dragon guards the Kingdom! Every question is a sword strike. Defeat it with math mastery and save Marie\'s world forever!',
+    type:'input',
+    mathType:'algebra2',
+    genQ:()=>{
+      const x=rnd(3,15);
+      const t=rnd(0,2);
+      if(t===0){const a=rnd(2,7),c=rnd(2,10);return{q:`${a}x + ${c} = ${a*x+c}  →  x = ?`,ans:x,explain:`Subtract ${c}: ${a}x = ${a*x}. Divide by ${a}: x = ${x}.`};}
+      if(t===1){const a=rnd(2,6),b=rnd(1,5);return{q:`${a}x − ${b} = ${a*x-b}  →  x = ?`,ans:x,explain:`Add ${b}: ${a}x = ${a*x}. Divide by ${a}: x = ${x}.`};}
+      const a=rnd(2,5),c=rnd(1,4);return{q:`${a}(x + ${c}) = ${a*(x+c)}  →  x = ?`,ans:x,explain:`Divide by ${a}: x + ${c} = ${x+c}. Subtract ${c}: x = ${x}.`};
+    },
+    hint:'Two steps: first get rid of the addition/subtraction by doing the opposite, then deal with the multiplication/division.',
+    color:'#7c3aed',
+  },
+];
+
+// ── STATE ──
+let currentLevelIdx = 0;
+let questionNum = 0;     // 0,1,2
+let hearts = 3;
+let levelStars = 0;      // stars for current level
+let wrongThisQ = false;
+let hintShown = false;
+let allStars = new Array(LEVELS.length).fill(0);
+let totalXP = 0;
+let totalStars = 0;
+let currentQ = null;
+let resultPending = false;
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+// ── MAP ──
+function buildMap(){
+  const grid = document.getElementById('level-grid');
+  grid.innerHTML='';
+  LEVELS.forEach((lvl,i)=>{
+    const card = document.createElement('div');
+    card.className=`lvl-card ${lvl.theme}`;
+    const s = allStars[i];
+    const starStr = s>0 ? '⭐'.repeat(s)+'☆'.repeat(3-s) : '☆☆☆';
+    card.innerHTML=`
+      ${s===3?'<div class="lvl-done-badge">★ PERFECT</div>':''}
+      <div class="lvl-emoji">${lvl.emoji}</div>
+      <div class="lvl-num">REALM ${i+1}</div>
+      <div class="lvl-name">${lvl.name}</div>
+      <div class="lvl-type">${lvl.sub}</div>
+      <div class="lvl-stars">${starStr}</div>
+    `;
+    card.style.borderColor=lvl.color;
+    card.style.setProperty('--hov-color',lvl.color);
+    card.onclick=()=>startLevel(i);
+    grid.appendChild(card);
+  });
+}
+
+// ── START LEVEL ──
+function startLevel(idx){
+  currentLevelIdx=idx;
+  questionNum=0;
+  hearts=3;
+  levelStars=3;
+  hintShown=false;
+  wrongThisQ=false;
+  resultPending=false;
+
+  const lvl=LEVELS[idx];
+
+  // Switch screens
+  document.getElementById('screen-map').style.display='none';
+  document.getElementById('screen-puzzle').style.display='flex';
+
+  // Header
+  document.getElementById('puz-title').textContent=lvl.name;
+  document.getElementById('puz-sub').textContent=lvl.sub;
+  document.getElementById('stat-level').textContent=idx+1;
+
+  // Sidebar
+  document.getElementById('marie-emoji').textContent=lvl.marie;
+  document.getElementById('story-text-side').textContent=lvl.story;
+  document.getElementById('story-banner').textContent=lvl.story;
+  document.getElementById('hint-panel').style.display='none';
+  document.getElementById('hint-text-side').textContent=lvl.hint;
+
+  // Q-box border color
+  document.getElementById('q-box').style.borderColor=lvl.color;
+  document.getElementById('q-box').style.boxShadow=`0 0 40px ${lvl.color}30`;
+
+  // Show hint btn on mobile
+  document.getElementById('btn-hint-mob').style.display='block';
+
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const lvl=LEVELS[currentLevelIdx];
+  wrongThisQ=false;
+  hintShown=false;
+
+  currentQ=lvl.genQ();
+
+  // Update UI
+  document.getElementById('q-scene').textContent=lvl.scene;
+  document.getElementById('q-text').textContent=currentQ.q+' = ?';
+  document.getElementById('puz-qnum').textContent=`Q ${questionNum+1} / 3`;
+  updateHearts();
+
+  // Result box
+  hideResult();
+
+  // XP fill
+  document.getElementById('xp-fill').style.width=((questionNum/3)*100)+'%';
+
+  // Answer mode
+  const mc=document.getElementById('mc-grid');
+  const ir=document.getElementById('input-row');
+  mc.innerHTML='';
+
+  if(lvl.type==='mc'){
+    ir.style.display='none';
+    mc.style.display='grid';
+    buildMC(currentQ.ans,lvl.color);
+  } else {
+    mc.style.display='none';
+    ir.style.display='flex';
+    document.getElementById('ans-input').value='';
+    document.getElementById('ans-input').style.borderColor='#2a1a5e';
+    setTimeout(()=>{
+      try{document.getElementById('ans-input').focus();}catch(e){}
+    },200);
+  }
+}
+
+function buildMC(correct,accentColor){
+  const mc=document.getElementById('mc-grid');
+  let opts=[correct];
+  let tries=0;
+  while(opts.length<4&&tries<50){
+    tries++;
+    let v=correct+rnd(-Math.max(4,Math.floor(correct*.3)),Math.max(4,Math.floor(correct*.3)));
+    if(v>0&&!opts.includes(v))opts.push(v);
+  }
+  opts.sort(()=>Math.random()-.5);
+  opts.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='mc-btn';
+    b.textContent=opt;
+    b.style.borderColor=accentColor+'80';
+    b.style.color='#f0e8ff';
+    b.onclick=()=>checkMC(opt,correct,b);
+    mc.appendChild(b);
+  });
+}
+
+function checkMC(chosen,correct,btn){
+  if(resultPending)return;
+  if(chosen===correct){
+    btn.classList.add('correct');
+    spawnParticles(btn,'#22c55e');
+    setTimeout(()=>handleCorrect(),600);
+  } else {
+    btn.classList.add('wrong');
+    hearts--;
+    if(hearts<0)hearts=0;
+    updateHearts();
+    if(!wrongThisQ){wrongThisQ=true;levelStars=Math.max(levelStars-1,1);}
+    setTimeout(()=>btn.classList.remove('wrong'),500);
+    if(hearts===0){
+      setTimeout(()=>handleWrong(),400);
+    }
+  }
+}
+
+function submitInput(){
+  if(resultPending)return;
+  const val=parseInt(document.getElementById('ans-input').value);
+  if(isNaN(val)){toast('Enter a number first!','toast-info');return;}
+  if(val===currentQ.ans){
+    document.getElementById('ans-input').style.borderColor='#22c55e';
+    spawnParticlesAt(window.innerWidth/2,window.innerHeight/2,'#22c55e');
+    setTimeout(()=>handleCorrect(),400);
+  } else {
+    document.getElementById('ans-input').style.borderColor='#f43f5e';
+    hearts--;
+    if(hearts<0)hearts=0;
+    updateHearts();
+    if(!wrongThisQ){wrongThisQ=true;levelStars=Math.max(levelStars-1,1);}
+    document.getElementById('ans-input').classList.add('wrong');
+    setTimeout(()=>{
+      document.getElementById('ans-input').classList.remove('wrong');
+      document.getElementById('ans-input').style.borderColor='#2a1a5e';
+    },500);
+    if(hearts===0)setTimeout(()=>handleWrong(),400);
+  }
+}
+
+function handleCorrect(){
+  resultPending=true;
+  const xp=hearts*30+50;
+  totalXP+=xp;
+  document.getElementById('stat-xp').textContent=totalXP;
+  showResult(true,currentQ.explain,xp);
+}
+
+function handleWrong(){
+  resultPending=true;
+  levelStars=1;
+  showResult(false,`The answer was ${currentQ.ans}. ${currentQ.explain}`,0);
+}
+
+function showResult(win,explain,xp){
+  const box=document.getElementById('result-box');
+  box.style.display='block';
+  box.className='result-box '+(win?'win':'lose');
+  document.getElementById('result-icon').textContent=win?'🎉':'😢';
+  document.getElementById('result-text').textContent=win?'CORRECT! ✓':'NOT QUITE...';
+  document.getElementById('result-explain').textContent=explain+(win&&xp>0?` (+${xp} XP)`:'');
+  document.getElementById('btn-continue').textContent=
+    win&&questionNum<2 ? 'NEXT QUESTION →' :
+    win&&questionNum===2 ? 'COMPLETE REALM! 🏆' :
+    questionNum<2 ? 'TRY AGAIN →' : 'FINISH →';
+}
+
+function hideResult(){
+  const box=document.getElementById('result-box');
+  box.style.display='none';
+  resultPending=false;
+}
+
+function continueAfterResult(){
+  const wasWin=document.getElementById('result-box').classList.contains('win');
+  if(wasWin){
+    if(questionNum<2){
+      questionNum++;
+      hearts=3;
+      loadQuestion();
+    } else {
+      // Level complete!
+      finishLevel();
+    }
+  } else {
+    // Wrong: if hearts remain, retry same question
+    if(hearts>0){
+      hearts=3; // Restore for retry? Actually keep lost hearts — reset to allow another attempt
+      resultPending=false;
+      hideResult();
+      // Re-render answer area
+      const lvl=LEVELS[currentLevelIdx];
+      if(lvl.type==='mc'){
+        const mc=document.getElementById('mc-grid');
+        mc.innerHTML='';
+        buildMC(currentQ.ans,lvl.color);
+      } else {
+        document.getElementById('ans-input').value='';
+        document.getElementById('ans-input').style.borderColor='#2a1a5e';
+      }
+    } else {
+      // Out of hearts on this question — advance but with 1 star
+      questionNum++;
+      hearts=3;
+      if(questionNum<3){
+        loadQuestion();
+      } else {
+        finishLevel();
+      }
+    }
+  }
+}
+
+function finishLevel(){
+  const lvl=LEVELS[currentLevelIdx];
+  allStars[currentLevelIdx]=Math.max(allStars[currentLevelIdx],levelStars);
+  totalStars=allStars.reduce((a,b)=>a+b,0);
+  document.getElementById('stat-stars').textContent=totalStars;
+
+  // Win modal
+  const modal=document.getElementById('win-modal');
+  modal.style.display='flex';
+  document.getElementById('win-big').textContent=levelStars===3?'🏆':levelStars===2?'🥈':'🥉';
+  document.getElementById('win-title').textContent=lvl.name+' COMPLETE!';
+  const msgs=['You conquered this realm!','Great math skills, Marie!','Keep going — the kingdom needs you!','You\'re a math wizard!','Incredible work!'];
+  document.getElementById('win-msg').textContent=msgs[rnd(0,msgs.length-1)]+' Realm '+`${currentLevelIdx+1}`+' cleared.';
+  document.getElementById('win-xp').textContent=`+${levelStars*100} XP EARNED · ${levelStars} STAR${levelStars>1?'S':''}`;
+
+  const starsEl=document.getElementById('win-stars');
+  starsEl.innerHTML='';
+  for(let i=0;i<3;i++){
+    const s=document.createElement('span');
+    s.textContent=i<levelStars?'⭐':'☆';
+    s.style.fontSize=i<levelStars?'40px':'30px';
+    s.style.opacity=i<levelStars?'1':'0.3';
+    starsEl.appendChild(s);
+  }
+
+  document.getElementById('btn-wn-next').style.display=
+    currentLevelIdx<LEVELS.length-1?'block':'none';
+
+  // Confetti!
+  for(let i=0;i<40;i++)setTimeout(()=>confettiPop(),i*40);
+}
+
+function winToMap(){
+  document.getElementById('win-modal').style.display='none';
+  goToMap();
+}
+function winNext(){
+  document.getElementById('win-modal').style.display='none';
+  if(currentLevelIdx<LEVELS.length-1)startLevel(currentLevelIdx+1);
+  else goToMap();
+}
+
+function goToMap(){
+  document.getElementById('screen-puzzle').style.display='none';
+  document.getElementById('screen-map').style.display='flex';
+  buildMap();
+}
+
+function updateHearts(){
+  const h=['❤️','❤️','❤️'];
+  const em=['🖤','🖤','🖤'];
+  let str='';
+  for(let i=0;i<3;i++)str+=i<hearts?h[i]:em[i];
+  document.getElementById('puz-hearts').textContent=str;
+}
+
+function toggleHint(){
+  const panel=document.getElementById('hint-panel');
+  const lvl=LEVELS[currentLevelIdx];
+  if(panel.style.display==='none'||panel.style.display===''){
+    panel.style.display='block';
+    hintShown=true;
+    if(!wrongThisQ){levelStars=Math.max(levelStars-1,1);}
+    toast('💡 '+lvl.hint,'toast-hint');
+  } else {
+    panel.style.display='none';
+  }
+}
+
+function showHelp(){document.getElementById('help-modal').style.display='flex';}
+
+// ── PARTICLES ──
+function spawnParticles(el,color){
+  const r=el.getBoundingClientRect();
+  spawnParticlesAt(r.left+r.width/2,r.top+r.height/2,color);
+}
+function spawnParticlesAt(x,y,color){
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`width:7px;height:7px;background:${color};left:${x-3}px;top:${y-3}px;--tx:${(Math.random()-.5)*100}px;--ty:${(Math.random()-1)*90}px;animation-duration:${.7+Math.random()*.6}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1400);
+  }
+}
+function confettiPop(){
+  const colors=['#ffd700','#ff4f8b','#00f5ff','#a78bfa','#22c55e','#fb923c'];
+  const p=document.createElement('div');
+  p.className='particle';
+  const c=colors[rnd(0,colors.length-1)];
+  p.style.cssText=`width:${4+Math.random()*7}px;height:${4+Math.random()*7}px;background:${c};border-radius:2px;left:${Math.random()*innerWidth}px;top:${Math.random()*innerHeight*.4}px;--tx:${(Math.random()-.5)*120}px;--ty:${-40-Math.random()*120}px;animation-duration:${1+Math.random()}s;`;
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),2000);
+}
+
+// ── TOAST ──
+function toast(msg,cls='toast-info'){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className=`toast ${cls}`;t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3400);
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('screen-puzzle').style.display==='flex'){
+    if(document.getElementById('input-row').style.display!=='none'&&!resultPending)submitInput();
+    else if(resultPending)continueAfterResult();
+  }
+  if(e.key==='Escape')goToMap();
+});
+
+// ── INIT ──
+window.addEventListener('load',()=>{
+  buildMap();
+  setTimeout(()=>toast('✦ Welcome! Tap a Realm to start Marie\'s Adventure!','toast-info'),900);
+});
+</script>
+</body>
+</html>
