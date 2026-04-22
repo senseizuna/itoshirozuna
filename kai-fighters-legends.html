@@ -1212,7 +1212,7 @@ window.addEventListener('resize',resize);resize();
 
 // ── touch controls ────────────────────────────────────────────
 if('ontouchstart' in window){
-  [['◀',4,12,50,46,'ArrowLeft'],['▶',58,12,50,46,'ArrowRight'],['▲',116,12,50,46,' '],['▼',116,62,50,46,'ArrowDown'],
+  [['◀',4,12,50,46,'ArrowLeft'],['▶',58,12,50,46,'ArrowRight'],['▲',116,62,50,46,' '],['▼',116,12,50,46,'ArrowDown'],
    ['X',W-62,12,50,46,'x'],['C',W-62,62,50,46,'c'],['Z',W-118,12,50,46,'z']].forEach(([l,x,y,w,h,k])=>{
     const b=document.createElement('div');b.textContent=l;
     b.style.cssText=`position:absolute;left:${x}px;bottom:${y}px;width:${w}px;height:${h}px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.4);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;user-select:none;touch-action:none;z-index:40;`;
