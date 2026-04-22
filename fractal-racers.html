@@ -93,6 +93,35 @@
             #siteNav{display:grid;grid-template-columns:repeat(2,max-content);justify-content:center}
         }
         @keyframes pt{from{opacity:.7}to{opacity:1;transform:scale(1.05)}}
+
+        /* ── TOUCH CONTROLS ── */
+        #touchControls{position:fixed;bottom:0;left:0;width:100%;height:220px;pointer-events:none;z-index:150;display:none}
+        @media (pointer:coarse){#touchControls{display:block}}
+
+        /* Joystick zone - left side */
+        #joystickZone{position:absolute;bottom:18px;left:24px;width:170px;height:170px;pointer-events:all}
+        #joystickBase{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(0,255,255,0.35);background:rgba(0,8,20,0.55);box-shadow:0 0 24px rgba(0,255,255,0.12),inset 0 0 30px rgba(0,255,255,0.06)}
+        #joystickBase::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:4px;height:4px;border-radius:50%;background:rgba(0,255,255,0.3)}
+        #joystickKnob{position:absolute;top:50%;left:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:radial-gradient(circle at 38% 38%,rgba(0,255,255,0.55),rgba(0,40,60,0.85));border:2px solid rgba(0,255,255,0.6);box-shadow:0 0 18px rgba(0,255,255,0.4);transition:none;touch-action:none}
+        #joystickLabel{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:.5rem;letter-spacing:3px;color:rgba(0,255,255,0.35);white-space:nowrap}
+
+        /* Right action buttons */
+        #actionButtons{position:absolute;bottom:18px;right:24px;width:200px;height:170px;pointer-events:all}
+
+        .aBtn{position:absolute;border-radius:50%;border:2px solid;font-family:'Orbitron',monospace;font-weight:700;letter-spacing:1px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:filter .1s,transform .1s;-webkit-tap-highlight-color:transparent}
+        .aBtn:active,.aBtn.pressed{filter:brightness(1.6);transform:scale(0.92)}
+
+        /* FIRE - top left of cluster */
+        #btnFire{width:64px;height:64px;top:0;left:20px;border-color:rgba(0,255,255,0.6);background:radial-gradient(circle at 40% 40%,rgba(0,80,100,0.7),rgba(0,8,20,0.85));box-shadow:0 0 16px rgba(0,255,255,0.3);font-size:.42rem;color:#00ffff}
+        /* BOOST - bottom left */
+        #btnBoost{width:58px;height:58px;bottom:0;left:0;border-color:rgba(255,204,51,0.6);background:radial-gradient(circle at 40% 40%,rgba(80,60,0,0.7),rgba(8,6,0,0.85));box-shadow:0 0 14px rgba(255,204,51,0.25);font-size:.42rem;color:#ffcc33}
+        /* NOVA - bottom right */
+        #btnNova{width:58px;height:58px;bottom:0;right:0;border-color:rgba(255,100,136,0.6);background:radial-gradient(circle at 40% 40%,rgba(80,0,30,0.7),rgba(8,0,8,0.85));box-shadow:0 0 14px rgba(255,68,136,0.25);font-size:.42rem;color:#ff4488}
+        /* FULLSCREEN - top right small */
+        #btnFS{width:40px;height:40px;top:0;right:0;border-color:rgba(100,100,150,0.4);background:rgba(0,8,20,0.6);font-size:.38rem;color:rgba(150,180,200,0.7);letter-spacing:0}
+
+        .aBtnIcon{font-size:.95rem;line-height:1}
+        .aBtnLabel{font-size:.38rem;letter-spacing:1.5px}
     </style>
 </head>
 <body>
@@ -377,44 +406,263 @@ function updPlayerMissiles(dt){
     }
 }
 
-function triggerShockwave(){if(!G.shockwaveReady)return;G.shockwaveReady=false;G.shockwaveCharge=0;G.shockwaveCooldown=3;flashScreen(.22,"255,220,100");showCM("NOVA BLAST");var pp=player.mesh.position;swMat.opacity=1;swL=1.2;for(var i=0;i<SM;i++){swP[i*3]=pp.x;swP[i*3+1]=pp.y;swP[i*3+2]=pp.z;swV[i].set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize().multiplyScalar(16+Math.random()*12);}swGeo.attributes.position.needsUpdate=true;swRing.position.copy(pp);_v1.copy(pp).add(player.frame.up);swRing.lookAt(_v1);swRing.scale.set(1,1,1);swRM.opacity=.9;swRL=.65;for(var i=enemies.length-1;i>=0;i--){if(enemies[i].mesh.position.distanceTo(pp)<26)destroyEnemy(i);}for(var i=0;i<MM;i++){if(mPool[i].active&&mPool[i].mesh.position.distanceTo(pp)<32){mPool[i].active=false;mPool[i].mesh.visible=false;}}updHUD();}
+function triggerShockwave(){if(!G.shockwaveReady)return;G.shockwaveReady=false;G.shockwaveCharge=0;G.shockwaveCooldown=3;flashScreen(.22,"255,220,100");showCM("NOVA BLAST");sfxNova();var pp=player.mesh.position;swMat.opacity=1;swL=1.2;for(var i=0;i<SM;i++){swP[i*3]=pp.x;swP[i*3+1]=pp.y;swP[i*3+2]=pp.z;swV[i].set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize().multiplyScalar(16+Math.random()*12);}swGeo.attributes.position.needsUpdate=true;swRing.position.copy(pp);_v1.copy(pp).add(player.frame.up);swRing.lookAt(_v1);swRing.scale.set(1,1,1);swRM.opacity=.9;swRL=.65;for(var i=enemies.length-1;i>=0;i--){if(enemies[i].mesh.position.distanceTo(pp)<26)destroyEnemy(i);}for(var i=0;i<MM;i++){if(mPool[i].active&&mPool[i].mesh.position.distanceTo(pp)<32){mPool[i].active=false;mPool[i].mesh.visible=false;}}updHUD();}
 function triggerBomb(){flashScreen(.22,"255,100,0");showCM("PROXIMITY BOMB");var pp=player.mesh.position;swMat.opacity=.8;swL=.9;for(var i=0;i<SM;i++){swP[i*3]=pp.x;swP[i*3+1]=pp.y;swP[i*3+2]=pp.z;swV[i].set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize().multiplyScalar(18+Math.random()*14);}swGeo.attributes.position.needsUpdate=true;swRing.position.copy(pp);_v1.copy(pp).add(player.frame?player.frame.up:new THREE.Vector3(0,1,0));swRing.lookAt(_v1);swRing.scale.set(1,1,1);swRM.opacity=.7;swRL=.5;for(var i=enemies.length-1;i>=0;i--){if(enemies[i].mesh.position.distanceTo(pp)<35)destroyEnemy(i);}for(var i=0;i<MM;i++){if(mPool[i].active&&mPool[i].mesh.position.distanceTo(pp)<38){mPool[i].active=false;mPool[i].mesh.visible=false;}}updHUD();}
 function updSW(dt){if(swL>0){swL-=dt;swMat.opacity=Math.max(0,swL/1.2);for(var i=0;i<SM;i++){swP[i*3]+=swV[i].x*dt;swP[i*3+1]+=swV[i].y*dt;swP[i*3+2]+=swV[i].z*dt;}swGeo.attributes.position.needsUpdate=true;}if(swRL>0){swRL-=dt;var a=Math.max(0,swRL/.65);swRM.opacity=a*.9;var s=1+(1-a)*12;swRing.scale.set(s,s,s);}}
 
 function createSpeedLines(){if(G.speedLines)scene.remove(G.speedLines);var geo=new THREE.BufferGeometry(),pos=new Float32Array(CFG.fx.speedLineCount*3),vel=[];for(var i=0;i<CFG.fx.speedLineCount;i++){pos[i*3]=(Math.random()-.5)*120;pos[i*3+1]=(Math.random()-.5)*120;pos[i*3+2]=-Math.random()*180;vel.push(40+Math.random()*90);}geo.setAttribute("position",new THREE.BufferAttribute(pos,3));var pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xbfefff,size:1,transparent:true,opacity:0}));pts.userData.vel=vel;scene.add(pts);G.speedLines=pts;}
 function updSL(dt){if(!G.speedLines)return;var sf=clamp(Math.abs(player.speed)/(CFG.player.maxSpeed+CFG.boost.extraSpeed),0,1);G.speedLines.material.opacity=sf*.6;var pos=G.speedLines.geometry.attributes.position.array,vel=G.speedLines.userData.vel;for(var i=0;i<vel.length;i++){pos[i*3+2]+=vel[i]*dt*(.4+sf*2.8);if(pos[i*3+2]>20){pos[i*3]=(Math.random()-.5)*120;pos[i*3+1]=(Math.random()-.5)*120;pos[i*3+2]=-180-Math.random()*90;}}G.speedLines.geometry.attributes.position.needsUpdate=true;}
 
-// Audio
-var aC,mGain,eOsc,eGain,eFilt,bOsc,bGain,aOn=false;
-function initAudio(){aC=new(window.AudioContext||window.webkitAudioContext)();mGain=aC.createGain();mGain.gain.value=.14;mGain.connect(aC.destination);eOsc=aC.createOscillator();eOsc.type="sawtooth";eOsc.frequency.value=90;eFilt=aC.createBiquadFilter();eFilt.type="lowpass";eFilt.frequency.value=500;eGain=aC.createGain();eGain.gain.value=0;eOsc.connect(eFilt);eFilt.connect(eGain);eGain.connect(mGain);bOsc=aC.createOscillator();bOsc.type="triangle";bOsc.frequency.value=220;bGain=aC.createGain();bGain.gain.value=0;bOsc.connect(bGain);bGain.connect(mGain);eOsc.start();bOsc.start();}
-function startAudio(){if(aOn)return;if(!aC)initAudio();aC.resume();aOn=true;}
+// ═══════════════════════════════════════════════════
+//  FRACTAL RACERS — PROCEDURAL AUDIO ENGINE v2
+// ═══════════════════════════════════════════════════
+var aC, masterGain, reverbSend, reverbNode, aOn = false;
+// Continuous engine nodes
+var engOsc1, engOsc2, engFilter, engGain;
+var boostOsc, boostFilter, boostGain;
+// Low-health heartbeat
+var hbTO = null;
 
-function sfxPickup(){
-    if(!aOn||!aC)return;
-    var o=aC.createOscillator(),g=aC.createGain();
-    o.type="sine";o.frequency.value=800;
-    g.gain.setValueAtTime(.18,aC.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,aC.currentTime+.08);
-    o.connect(g);g.connect(mGain);
-    o.start();o.stop(aC.currentTime+.08);
+function makeReverb(aC, duration, decay) {
+    var len = aC.sampleRate * duration;
+    var buf = aC.createBuffer(2, len, aC.sampleRate);
+    for (var c = 0; c < 2; c++) {
+        var d = buf.getChannelData(c);
+        for (var i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, decay);
+    }
+    var conv = aC.createConvolver();
+    conv.buffer = buf;
+    return conv;
 }
-function sfxFire(){
-    if(!aOn||!aC)return;
-    var o=aC.createOscillator(),g=aC.createGain();
-    o.type="triangle";o.frequency.value=120;
-    g.gain.setValueAtTime(.22,aC.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,aC.currentTime+.06);
-    o.connect(g);g.connect(mGain);
-    o.start();o.stop(aC.currentTime+.06);
+
+function initAudio() {
+    aC = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = aC.createGain(); masterGain.gain.value = 0.72;
+    masterGain.connect(aC.destination);
+
+    // Reverb bus (wet only)
+    reverbNode = makeReverb(aC, 1.8, 3.2);
+    reverbSend = aC.createGain(); reverbSend.gain.value = 0.18;
+    reverbNode.connect(masterGain);
+    reverbSend.connect(reverbNode);
+
+    // ── ENGINE DRONE ──
+    engOsc1 = aC.createOscillator(); engOsc1.type = 'sawtooth'; engOsc1.frequency.value = 55;
+    engOsc2 = aC.createOscillator(); engOsc2.type = 'square';   engOsc2.frequency.value = 55.7;
+    engFilter = aC.createBiquadFilter(); engFilter.type = 'lowpass'; engFilter.frequency.value = 300; engFilter.Q.value = 3.2;
+    engGain = aC.createGain(); engGain.gain.value = 0;
+    engOsc1.connect(engFilter); engOsc2.connect(engFilter);
+    engFilter.connect(engGain); engGain.connect(masterGain);
+    engOsc1.start(); engOsc2.start();
+
+    // ── BOOST WHINE ──
+    boostOsc = aC.createOscillator(); boostOsc.type = 'sawtooth'; boostOsc.frequency.value = 180;
+    boostFilter = aC.createBiquadFilter(); boostFilter.type = 'bandpass'; boostFilter.frequency.value = 900; boostFilter.Q.value = 5;
+    boostGain = aC.createGain(); boostGain.gain.value = 0;
+    boostOsc.connect(boostFilter); boostFilter.connect(boostGain); boostGain.connect(masterGain);
+    boostOsc.start();
 }
-function sfxShield(){
-    if(!aOn||!aC)return;
-    var o=aC.createOscillator(),g=aC.createGain();
-    o.type="sine";o.frequency.setValueAtTime(400,aC.currentTime);o.frequency.linearRampToValueAtTime(800,aC.currentTime+.3);
-    g.gain.setValueAtTime(.15,aC.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,aC.currentTime+.3);
-    o.connect(g);g.connect(mGain);
-    o.start();o.stop(aC.currentTime+.32);
+
+function startAudio() {
+    if (aOn) return;
+    if (!aC) initAudio();
+    aC.resume();
+    aOn = true;
+}
+
+// ── UTILITY: noise burst ──
+function noiseBuffer(aC, dur) {
+    var len = Math.ceil(aC.sampleRate * dur);
+    var buf = aC.createBuffer(1, len, aC.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = Math.random()*2-1;
+    return buf;
+}
+
+// ── FIRE — TRON plasma bolt ──
+function sfxFire() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    // Main zap osc
+    var o = aC.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(380, t);
+    o.frequency.exponentialRampToValueAtTime(80, t + 0.14);
+    var f = aC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 600; f.Q.value = 4;
+    var g = aC.createGain();
+    g.gain.setValueAtTime(0.28, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    o.connect(f); f.connect(g); g.connect(masterGain); g.connect(reverbSend);
+    o.start(t); o.stop(t + 0.17);
+    // Click transient
+    var src = aC.createBufferSource(); src.buffer = noiseBuffer(aC, 0.02);
+    var ng = aC.createGain(); ng.gain.setValueAtTime(0.12, t); ng.gain.exponentialRampToValueAtTime(0.001, t+0.02);
+    var nf = aC.createBiquadFilter(); nf.type='highpass'; nf.frequency.value=2000;
+    src.connect(nf); nf.connect(ng); ng.connect(masterGain);
+    src.start(t);
+}
+
+// ── PICKUP — crystalline arpeggiated chime ──
+function sfxPickup() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    [523.25, 659.25, 783.99, 1046.5].forEach(function(freq, i) {
+        var o = aC.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+        var g = aC.createGain();
+        var st = t + i * 0.055;
+        g.gain.setValueAtTime(0, st);
+        g.gain.linearRampToValueAtTime(0.16, st + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.001, st + 0.22);
+        o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+        o.start(st); o.stop(st + 0.23);
+    });
+}
+
+// ── SHIELD — rising harmonic swell ──
+function sfxShield() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    [220, 440, 660, 880].forEach(function(freq, i) {
+        var o = aC.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(freq*0.5, t); o.frequency.linearRampToValueAtTime(freq, t+0.5);
+        var g = aC.createGain();
+        g.gain.setValueAtTime(0.0, t); g.gain.linearRampToValueAtTime(0.08, t+0.15); g.gain.exponentialRampToValueAtTime(0.001, t+0.65);
+        o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+        o.start(t); o.stop(t+0.7);
+    });
+}
+
+// ── EXPLOSION — deep layered boom ──
+function sfxExplosion(isBig) {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    var vol = isBig ? 0.55 : 0.32;
+    var dur = isBig ? 0.9 : 0.5;
+    // Sub thud
+    var sub = aC.createOscillator(); sub.type = 'sine';
+    sub.frequency.setValueAtTime(isBig?90:140, t); sub.frequency.exponentialRampToValueAtTime(20, t+dur);
+    var sg = aC.createGain(); sg.gain.setValueAtTime(vol, t); sg.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    sub.connect(sg); sg.connect(masterGain);
+    sub.start(t); sub.stop(t+dur+0.05);
+    // Noise body
+    var src = aC.createBufferSource(); src.buffer = noiseBuffer(aC, dur);
+    var nf = aC.createBiquadFilter(); nf.type='lowpass'; nf.frequency.value = isBig?1200:800;
+    var ng = aC.createGain(); ng.gain.setValueAtTime(vol*0.6, t); ng.gain.exponentialRampToValueAtTime(0.001, t+dur*0.8);
+    src.connect(nf); nf.connect(ng); ng.connect(masterGain); ng.connect(reverbSend);
+    src.start(t);
+    // High crackle
+    var src2 = aC.createBufferSource(); src2.buffer = noiseBuffer(aC, 0.08);
+    var hf = aC.createBiquadFilter(); hf.type='highpass'; hf.frequency.value=3000;
+    var hg = aC.createGain(); hg.gain.setValueAtTime(vol*0.35, t); hg.gain.exponentialRampToValueAtTime(0.001, t+0.1);
+    src2.connect(hf); hf.connect(hg); hg.connect(masterGain);
+    src2.start(t);
+}
+
+// ── NOVA SHOCKWAVE — massive cinematic boom ──
+function sfxNova() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    // Sub earthquake
+    var sub = aC.createOscillator(); sub.type = 'sine';
+    sub.frequency.setValueAtTime(60, t); sub.frequency.exponentialRampToValueAtTime(18, t+1.4);
+    var sg = aC.createGain(); sg.gain.setValueAtTime(0.9, t); sg.gain.exponentialRampToValueAtTime(0.001, t+1.4);
+    sub.connect(sg); sg.connect(masterGain); sub.start(t); sub.stop(t+1.5);
+    // Swept noise
+    var src = aC.createBufferSource(); src.buffer = noiseBuffer(aC, 1.2);
+    var nf = aC.createBiquadFilter(); nf.type='bandpass'; nf.frequency.setValueAtTime(2000,t); nf.frequency.exponentialRampToValueAtTime(200,t+1.2); nf.Q.value=1.5;
+    var ng = aC.createGain(); ng.gain.setValueAtTime(0.55, t); ng.gain.exponentialRampToValueAtTime(0.001, t+1.1);
+    src.connect(nf); nf.connect(ng); ng.connect(masterGain); ng.connect(reverbSend);
+    src.start(t);
+    // Harmonic ring
+    [110,220,440].forEach(function(freq,i){
+        var o=aC.createOscillator(); o.type='sine'; o.frequency.value=freq;
+        var g=aC.createGain(); g.gain.setValueAtTime(0.18-i*0.05,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.8);
+        o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+        o.start(t); o.stop(t+0.9);
+    });
+}
+
+// ── DAMAGE HIT — jarring metallic clank ──
+function sfxDamage() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    var src = aC.createBufferSource(); src.buffer = noiseBuffer(aC, 0.06);
+    var f = aC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=900; f.Q.value=8;
+    var g = aC.createGain(); g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.08);
+    src.connect(f); f.connect(g); g.connect(masterGain);
+    src.start(t);
+    var o=aC.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(50,t+0.12);
+    var og=aC.createGain(); og.gain.setValueAtTime(0.35,t); og.gain.exponentialRampToValueAtTime(0.001,t+0.13);
+    o.connect(og); og.connect(masterGain); o.start(t); o.stop(t+0.14);
+}
+
+// ── COMBO — ascending ping per tier ──
+function sfxCombo(tier) {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    var freqs = {2:[523,784], 3:[523,659,784], 4:[523,659,784,1047], 5:[659,784,1047,1319,1568]};
+    var seq = freqs[Math.min(tier,5)] || freqs[2];
+    seq.forEach(function(freq,i){
+        var o=aC.createOscillator(); o.type='triangle'; o.frequency.value=freq;
+        var g=aC.createGain(); var st=t+i*0.07;
+        g.gain.setValueAtTime(0.14,st); g.gain.exponentialRampToValueAtTime(0.001,st+0.18);
+        o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+        o.start(st); o.stop(st+0.2);
+    });
+}
+
+// ── LEVEL UP — triumphant fanfare ──
+function sfxLevelUp() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    var notes = [523.25,659.25,783.99,1046.5,1318.5];
+    notes.forEach(function(freq,i){
+        var o=aC.createOscillator(); o.type='square'; o.frequency.value=freq;
+        var g=aC.createGain(); var st=t+i*0.1;
+        g.gain.setValueAtTime(0,st); g.gain.linearRampToValueAtTime(0.18,st+0.03);
+        g.gain.exponentialRampToValueAtTime(0.001,st+0.35);
+        var f=aC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=3000;
+        o.connect(f); f.connect(g); g.connect(masterGain); g.connect(reverbSend);
+        o.start(st); o.stop(st+0.38);
+    });
+}
+
+// ── GAME OVER — descending minor dirge ──
+function sfxGameOver() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    var notes = [392,349.23,311.13,261.63,220];
+    notes.forEach(function(freq,i){
+        var o=aC.createOscillator(); o.type='sine'; o.frequency.value=freq;
+        var g=aC.createGain(); var st=t+i*0.22;
+        g.gain.setValueAtTime(0.22,st); g.gain.exponentialRampToValueAtTime(0.001,st+0.6);
+        o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+        o.start(st); o.stop(st+0.65);
+    });
+}
+
+// ── HEARTBEAT — low health warning ──
+function startHeartbeat() {
+    if (hbTO) return;
+    function beat() {
+        if (!aOn || !aC) { hbTO=setTimeout(beat,600); return; }
+        var t = aC.currentTime;
+        var o=aC.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(60,t); o.frequency.exponentialRampToValueAtTime(30,t+0.12);
+        var g=aC.createGain(); g.gain.setValueAtTime(0.45,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.14);
+        o.connect(g); g.connect(masterGain); o.start(t); o.stop(t+0.15);
+        hbTO = setTimeout(beat, 580);
+    }
+    beat();
+}
+function stopHeartbeat() { if(hbTO){clearTimeout(hbTO);hbTO=null;} }
+
+// ── BOOST ACTIVATE — swoosh ──
+function sfxBoostOn() {
+    if (!aOn || !aC) return;
+    var t = aC.currentTime;
+    var o=aC.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(480,t+0.18);
+    var f=aC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=2000;
+    var g=aC.createGain(); g.gain.setValueAtTime(0.22,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+    o.connect(f); f.connect(g); g.connect(masterGain);
+    o.start(t); o.stop(t+0.23);
 }
 
 var $sv=document.getElementById("sv"),$lv=document.getElementById("lv"),$kv=document.getElementById("kv"),$hb=document.getElementById("hb"),$bb=document.getElementById("bb"),$sb=document.getElementById("sb"),$snl=document.getElementById("snl"),$cm=document.getElementById("cm"),$kf=document.getElementById("kf"),$wa=document.getElementById("wa"),$combo=document.getElementById("combo"),$ptbar=document.getElementById("ptbar");
@@ -456,16 +704,18 @@ var THEMES=[{g:0x1fe0ff,e:0x001a26,f:0x020814,r:0x66eaff,a:0xffcc33},{g:0xff66ff
 var currentTheme=THEMES[0];
 function setTheme(){var t=THEMES[(G.level-1)%THEMES.length];currentTheme=t;gridMat.color.set(t.g);sphereMat.emissive.set(t.e);scene.fog.color.set(t.f);renderer.setClearColor(t.f);rimLight.color.set(t.r);accentLight.color.set(t.a);}
 
-function levelUp(){G.level++;G.progress=0;G.progressGoal+=CFG.game.levelGoalIncrease;G.score+=60;G.health=Math.min(CFG.player.maxHealth,G.health+20);setTheme();resetEnemies();resetPickups();flashScreen(.14,"0,255,255");showCM("LEVEL "+G.level);updHUD();}
-function takeDamage(amt,cs){if(G.invincible>0||G.over)return;G.health-=amt;G.invincible=.35;flashScreen(.22,cs||"255,0,60");G.screenShake=.18;player.speed*=.45;updHUD();if(G.health<=0){G.health=0;triggerGO();}}
+function levelUp(){G.level++;G.progress=0;G.progressGoal+=CFG.game.levelGoalIncrease;G.score+=60;G.health=Math.min(CFG.player.maxHealth,G.health+20);setTheme();resetEnemies();resetPickups();flashScreen(.14,"0,255,255");showCM("LEVEL "+G.level);sfxLevelUp();updHUD();}
+function takeDamage(amt,cs){if(G.invincible>0||G.over)return;G.health-=amt;G.invincible=.35;flashScreen(.22,cs||"255,0,60");G.screenShake=.18;player.speed*=.45;sfxDamage();updHUD();if(G.health<=0){G.health=0;triggerGO();}}
 
 function destroyEnemy(idx){
     var e=enemies[idx];
     spawnExp(e.mesh.position,e.col);
+    sfxExplosion(e.isBoss);
     // Combo logic
     G.combo=Math.min(G.combo+1,8);
     G.comboTimer=2.5;
     if(G.combo>G.maxCombo)G.maxCombo=G.combo;
+    if(G.combo>=2)sfxCombo(G.combo);
     var pts=(e.isBoss?100:30)*G.combo;
     G.kills++;G.score+=pts;
     // Kill feed with combo tier
@@ -483,7 +733,7 @@ function destroyEnemy(idx){
     if(enemies.length<eCount())setTimeout(function(){if(!G.over)createEnemy(ECOLS[Math.floor(Math.random()*ECOLS.length)],Math.random()*Math.PI*2);},3000);
     updHUD();
 }
-function triggerGO(){G.over=true;document.getElementById("fsc").textContent="SCORE: "+G.score+" | KILLS: "+G.kills;document.getElementById("fsc2").textContent="MAX COMBO: x"+G.maxCombo;document.getElementById("ov").classList.add("active");}
+function triggerGO(){G.over=true;stopHeartbeat();sfxGameOver();document.getElementById("fsc").textContent="SCORE: "+G.score+" | KILLS: "+G.kills;document.getElementById("fsc2").textContent="MAX COMBO: x"+G.maxCombo;document.getElementById("ov").classList.add("active");}
 function restartGame(){
     document.getElementById("ov").classList.remove("active");
     clearEnemies();clearPickups();
@@ -617,14 +867,26 @@ function updWorldFx(dt){
     stars.rotation.y+=dt*.01;
 }
 
+var _wasBoost=false;
 function updAudio(dt){
     if(!aOn||!aC)return;
     var sn=clamp(Math.abs(player.speed)/(CFG.player.maxSpeed+CFG.boost.extraSpeed),0,1);
-    eOsc.frequency.setTargetAtTime(85+sn*185+(player.boosting?75:0),aC.currentTime,.08);
-    eGain.gain.setTargetAtTime(.03+sn*.09,aC.currentTime,.08);
-    eFilt.frequency.setTargetAtTime(350+sn*1200+(player.boosting?800:0),aC.currentTime,.08);
-    bOsc.frequency.setTargetAtTime(180+sn*240,aC.currentTime,.08);
-    bGain.gain.setTargetAtTime(player.boosting?.035:0,aC.currentTime,.05);
+    var t=aC.currentTime;
+    // Engine: pitch + filter open with speed
+    engOsc1.frequency.setTargetAtTime(52+sn*160+(player.boosting?60:0),t,.12);
+    engOsc2.frequency.setTargetAtTime(52.8+sn*162+(player.boosting?61:0),t,.12);
+    engFilter.frequency.setTargetAtTime(200+sn*1800+(player.boosting?1200:0),t,.1);
+    engGain.gain.setTargetAtTime(G.over?0:(.04+sn*.13),t,.1);
+    // Boost whine
+    boostOsc.frequency.setTargetAtTime(160+sn*380,t,.08);
+    boostFilter.frequency.setTargetAtTime(500+sn*2000,t,.08);
+    boostGain.gain.setTargetAtTime(player.boosting?(.06+sn*.07):0,t,.06);
+    // Boost start sfx
+    if(player.boosting&&!_wasBoost)sfxBoostOn();
+    _wasBoost=player.boosting;
+    // Heartbeat at low health
+    if(G.health<30&&!G.over)startHeartbeat();
+    else stopHeartbeat();
 }
 
 // Minimap
@@ -759,6 +1021,194 @@ window.addEventListener("resize",function(){
     bloomPass.setSize(Math.floor(innerWidth*.5),Math.floor(innerHeight*.5));
     radarCanvas.width=innerWidth;radarCanvas.height=innerHeight;
 });
+</script>
+
+<div id="touchControls">
+    <div id="joystickZone">
+        <div id="joystickBase"></div>
+        <div id="joystickKnob"></div>
+        <div id="joystickLabel">STEER</div>
+    </div>
+    <div id="actionButtons">
+        <div class="aBtn" id="btnFire"><span class="aBtnIcon">⚡</span><span class="aBtnLabel">FIRE</span></div>
+        <div class="aBtn" id="btnBoost"><span class="aBtnIcon">🚀</span><span class="aBtnLabel">BOOST</span></div>
+        <div class="aBtn" id="btnNova"><span class="aBtnIcon">💥</span><span class="aBtnLabel">NOVA</span></div>
+        <div class="aBtn" id="btnFS"><span class="aBtnIcon">⛶</span><span class="aBtnLabel">FS</span></div>
+    </div>
+</div>
+
+<script>
+(function(){
+    // Only attach if touch device
+    if(!('ontouchstart' in window) && !navigator.maxTouchPoints) return;
+
+    var zone = document.getElementById('joystickZone');
+    var base = document.getElementById('joystickBase');
+    var knob = document.getElementById('joystickKnob');
+    var baseR = 85; // half of 170px zone
+    var knobR = 31; // half knob size
+    var maxDist = baseR - knobR - 4;
+
+    var joyCX = baseR, joyCY = baseR; // center of zone
+    var joyActive = false;
+    var joyId = null;
+    var joyX = 0, joyY = 0; // normalized -1..1
+
+    function getZonePos(touch){
+        var rect = zone.getBoundingClientRect();
+        return {x: touch.clientX - rect.left, y: touch.clientY - rect.top};
+    }
+
+    function updateKnob(px, py){
+        var dx = px - joyCX, dy = py - joyCY;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var clamped = Math.min(dist, maxDist);
+        var angle = Math.atan2(dy, dx);
+        var kx = Math.cos(angle)*clamped;
+        var ky = Math.sin(angle)*clamped;
+        knob.style.transform = 'translate(calc(-50% + '+kx+'px), calc(-50% + '+ky+'px))';
+        joyX = kx / maxDist;
+        joyY = ky / maxDist;
+    }
+
+    function resetKnob(){
+        knob.style.transform = 'translate(-50%, -50%)';
+        joyX = 0; joyY = 0;
+    }
+
+    // Map joystick axes to keys
+    var DEAD = 0.18;
+    function applyJoy(){
+        // Y axis: forward/backward
+        keys['ArrowUp']   = joyY < -DEAD;
+        keys['KeyW']      = joyY < -DEAD;
+        keys['ArrowDown'] = joyY >  DEAD;
+        keys['KeyS']      = joyY >  DEAD;
+        // X axis: left/right
+        keys['ArrowLeft']  = joyX < -DEAD;
+        keys['KeyA']       = joyX < -DEAD;
+        keys['ArrowRight'] = joyX >  DEAD;
+        keys['KeyD']       = joyX >  DEAD;
+    }
+
+    zone.addEventListener('touchstart', function(e){
+        e.preventDefault();
+        var t = e.changedTouches[0];
+        joyId = t.identifier;
+        joyActive = true;
+        startAudio();
+        var p = getZonePos(t);
+        updateKnob(p.x, p.y);
+    }, {passive:false});
+
+    zone.addEventListener('touchmove', function(e){
+        e.preventDefault();
+        for(var i=0;i<e.changedTouches.length;i++){
+            if(e.changedTouches[i].identifier === joyId){
+                var p = getZonePos(e.changedTouches[i]);
+                updateKnob(p.x, p.y);
+            }
+        }
+    }, {passive:false});
+
+    function joyEnd(e){
+        e.preventDefault();
+        for(var i=0;i<e.changedTouches.length;i++){
+            if(e.changedTouches[i].identifier === joyId){
+                joyActive = false;
+                joyId = null;
+                resetKnob();
+                joyX = 0; joyY = 0;
+            }
+        }
+    }
+    zone.addEventListener('touchend', joyEnd, {passive:false});
+    zone.addEventListener('touchcancel', joyEnd, {passive:false});
+
+    // Poll joystick into keys each frame
+    (function joyPoll(){
+        requestAnimationFrame(joyPoll);
+        if(joyActive) applyJoy();
+        else {
+            keys['ArrowUp']=false;keys['KeyW']=false;
+            keys['ArrowDown']=false;keys['KeyS']=false;
+            keys['ArrowLeft']=false;keys['KeyA']=false;
+            keys['ArrowRight']=false;keys['KeyD']=false;
+        }
+    })();
+
+    // Action buttons
+    function makeBtn(id, downFn, upFn){
+        var el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('touchstart', function(e){
+            e.preventDefault();
+            el.classList.add('pressed');
+            startAudio();
+            if(downFn) downFn();
+        }, {passive:false});
+        el.addEventListener('touchend', function(e){
+            e.preventDefault();
+            el.classList.remove('pressed');
+            if(upFn) upFn();
+        }, {passive:false});
+        el.addEventListener('touchcancel', function(e){
+            e.preventDefault();
+            el.classList.remove('pressed');
+            if(upFn) upFn();
+        }, {passive:false});
+    }
+
+    // FIRE: hold fires rapidly
+    var fireInterval = null;
+    makeBtn('btnFire',
+        function(){ firePlayerMissile(); fireInterval = setInterval(firePlayerMissile, 600); },
+        function(){ clearInterval(fireInterval); fireInterval = null; }
+    );
+
+    // BOOST: hold shift
+    makeBtn('btnBoost',
+        function(){ keys['ShiftLeft'] = true; },
+        function(){ keys['ShiftLeft'] = false; }
+    );
+
+    // NOVA: tap space
+    makeBtn('btnNova',
+        function(){ keys['Space'] = true; },
+        function(){ keys['Space'] = false; }
+    );
+
+    // FULLSCREEN
+    makeBtn('btnFS',
+        function(){ toggleFS(); },
+        null
+    );
+
+    // Prevent default on entire touch control area to avoid scroll
+    document.getElementById('touchControls').addEventListener('touchmove', function(e){
+        e.preventDefault();
+    }, {passive:false});
+
+    // Update Nova button glow based on ready state
+    var btnNova = document.getElementById('btnNova');
+    setInterval(function(){
+        if(G && G.shockwaveReady){
+            btnNova.style.boxShadow = '0 0 22px rgba(255,68,136,0.9)';
+            btnNova.style.borderColor = 'rgba(255,68,136,1)';
+        } else {
+            btnNova.style.boxShadow = '0 0 14px rgba(255,68,136,0.25)';
+            btnNova.style.borderColor = 'rgba(255,68,136,0.4)';
+        }
+        // Boost glow
+        var btnBoost = document.getElementById('btnBoost');
+        if(G && G.boostMeter > 10){
+            btnBoost.style.opacity = '1';
+        } else {
+            btnBoost.style.opacity = '0.4';
+        }
+    }, 200);
+
+})();
 </script>
 
 <div id="llcFooter">&copy; 2026 ITOSHIRO ZUNA LLC &nbsp;&mdash;&nbsp; ALL RIGHTS RESERVED</div>
