@@ -1,0 +1,2313 @@
+<!--
+  Nightmare Eclipse ✦ Rewrite the Dark
+  Copyright (c) 2026 Itoshiro Zuna LLC. All rights reserved.
+
+  This software and all associated game assets, code, visual design, narrative,
+  and gameplay mechanics are the proprietary intellectual property of
+  Itoshiro Zuna LLC. Unauthorized reproduction, distribution, modification,
+  reverse-engineering, or commercial use of this software, in whole or in part,
+  is strictly prohibited without the express prior written permission of
+  Itoshiro Zuna LLC.
+
+  Published by Itoshiro Zuna LLC · Clovis, California, USA
+  Author: Nicolas B. Quiroz (Itoshiro Zuna) · nicolasquirozmd.com
+  ORCID: 0009-0003-8431-0048
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Nightmare Eclipse ✦ Rewrite the Dark</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #050010;
+      --deep: #0a001f;
+      --purple: #6600ff;
+      --magenta: #ff00cc;
+      --cyan: #00ffee;
+      --gold: #ffcc00;
+      --glow-soft: rgba(102,0,255,0.3);
+      --panel-bg: rgba(8,0,25,0.97);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--void);
+      font-family: 'Share Tech Mono', monospace;
+      color: #ddccff;
+      overflow: hidden;
+      width: 100vw; height: 100vh;
+      user-select: none;
+    }
+    #game-wrapper {
+      display: flex;
+      width: 100vw; height: 100vh;
+    }
+    #canvas-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    /* HUD overlays */
+    #hud-top {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: linear-gradient(to bottom, rgba(5,0,16,0.9), transparent);
+      pointer-events: none;
+    }
+    #hud-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem; font-weight: 900;
+      color: var(--magenta);
+      text-shadow: 0 0 20px var(--magenta), 0 0 40px var(--purple);
+      letter-spacing: 4px;
+    }
+    #hud-level {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem; color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan);
+    }
+    #hud-allies {
+      font-size: 0.8rem; color: var(--gold);
+      text-shadow: 0 0 8px var(--gold);
+    }
+
+    /* Nightmare status bar */
+    #nightmare-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 10px 20px 14px;
+      background: linear-gradient(to top, rgba(5,0,16,0.95), transparent);
+      pointer-events: none;
+    }
+    #nightmare-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem; color: #ff88ff;
+      margin-bottom: 4px;
+    }
+    #fear-bar-wrap {
+      height: 8px; background: rgba(255,0,100,0.15);
+      border: 1px solid rgba(255,0,100,0.4);
+      border-radius: 4px; overflow: hidden;
+    }
+    #fear-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff0055, #ff00cc, #8800ff);
+      width: 100%;
+      transition: width 0.8s ease, background 0.8s ease;
+      box-shadow: 0 0 10px #ff00cc;
+    }
+    #dream-message {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem; font-weight: 900;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      text-shadow: 0 0 40px currentColor;
+    }
+
+    /* === UI PANEL === */
+    #ui-panel {
+      width: 310px;
+      background: var(--panel-bg);
+      border-left: 2px solid rgba(102,0,255,0.6);
+      display: flex; flex-direction: column;
+      overflow: hidden; /* panel itself clips */
+      height: 100%;
+    }
+    /* Everything below the header scrolls as one unit */
+    #panel-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: thin;
+      scrollbar-color: var(--purple) transparent;
+      /* iOS momentum scroll */
+      -webkit-overflow-scrolling: touch;
+      min-height: 0; /* critical for flex children to scroll */
+    }
+    #panel-scroll-body::-webkit-scrollbar { width: 3px; }
+    #panel-scroll-body::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 2px; }
+    #panel-header {
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(102,0,255,0.2), rgba(255,0,204,0.1));
+      border-bottom: 1px solid rgba(102,0,255,0.4);
+    }
+    #panel-header h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem; font-weight: 900;
+      color: var(--cyan);
+      text-shadow: 0 0 15px var(--cyan);
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+    }
+    #companion-status {
+      font-size: 0.72rem; color: #aa88ff;
+    }
+
+    /* Mode toggle */
+    #mode-toggle {
+      display: flex; margin: 6px 10px 0;
+      border: 1px solid rgba(102,0,255,0.5);
+      border-radius: 8px; overflow: hidden;
+    }
+    .mode-btn {
+      flex: 1; padding: 5px; font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; cursor: pointer; border: none;
+      background: transparent; color: #8877aa;
+      transition: all 0.3s;
+    }
+    .mode-btn.active {
+      background: rgba(102,0,255,0.4);
+      color: var(--cyan);
+      text-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* Codex blocks */
+    #codex-area {
+      flex: 1; overflow-y: auto; padding: 6px 10px;
+      scrollbar-width: thin; scrollbar-color: var(--purple) transparent;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+      align-content: start;
+    }
+    #codex-area::-webkit-scrollbar { width: 3px; }
+    #codex-area::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 2px; }
+
+    .codex-section-title {
+      grid-column: 1 / -1;
+      font-size: 0.58rem; color: #5544aa;
+      letter-spacing: 2px; margin: 4px 0 2px;
+      text-transform: uppercase;
+    }
+    .spell-block {
+      padding: 6px 8px; margin: 0;
+      background: linear-gradient(135deg, rgba(68,0,102,0.7), rgba(34,0,51,0.9));
+      border: 1px solid rgba(255,136,255,0.35);
+      border-radius: 7px; cursor: grab;
+      transition: all 0.2s ease;
+      position: relative; overflow: hidden;
+    }
+    .spell-block::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,0,204,0.08));
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .spell-block:hover { border-color: rgba(255,136,255,0.8); transform: scale(1.03); }
+    .spell-block:hover::before { opacity: 1; }
+    .spell-block:active { cursor: grabbing; transform: scale(0.96); }
+    .spell-block .spell-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.58rem; font-weight: 700;
+      color: #ff88ff;
+      text-shadow: 0 0 6px rgba(255,0,204,0.5);
+      margin-bottom: 2px; line-height: 1.2;
+    }
+    .spell-block .spell-code {
+      font-size: 0.54rem; color: #8855aa; line-height: 1.2;
+    }
+    .spell-block .spell-icon { float: right; font-size: 0.9rem; margin-left: 2px; }
+    .spell-block[data-category="light"] { border-color: rgba(255,204,0,0.4); }
+    .spell-block[data-category="light"] .spell-name { color: var(--gold); text-shadow: 0 0 6px rgba(255,204,0,0.5); }
+    .spell-block[data-category="heal"] { border-color: rgba(0,255,238,0.4); }
+    .spell-block[data-category="heal"] .spell-name { color: var(--cyan); text-shadow: 0 0 6px rgba(0,255,238,0.5); }
+    .spell-block[data-category="refactor"] { border-color: rgba(0,200,255,0.4); }
+    .spell-block[data-category="refactor"] .spell-name { color: #00ccff; text-shadow: 0 0 6px rgba(0,200,255,0.5); }
+
+    /* Drop zone */
+    #drop-zone {
+      margin: 0 10px 6px;
+      min-height: 52px;
+      border: 2px dashed rgba(102,0,255,0.4);
+      border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      font-size: 0.65rem; color: #554477;
+      transition: all 0.3s;
+      position: relative;
+      cursor: copy;
+    }
+    #drop-zone.drag-over {
+      border-color: var(--magenta);
+      background: rgba(255,0,204,0.08);
+      color: var(--magenta);
+      box-shadow: 0 0 20px rgba(255,0,204,0.3);
+    }
+    #drop-zone.success {
+      border-color: var(--cyan);
+      background: rgba(0,255,238,0.06);
+      box-shadow: 0 0 20px rgba(0,255,238,0.3);
+    }
+    #drop-zone-label {
+      pointer-events: none;
+      padding: 8px;
+    }
+    #queued-spells {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      padding: 6px;
+    }
+    .queued-tag {
+      font-size: 0.62rem; padding: 3px 8px;
+      background: rgba(102,0,255,0.3);
+      border: 1px solid rgba(102,0,255,0.6);
+      border-radius: 20px; color: #cc99ff;
+    }
+
+    /* JS Mode textarea */
+    #visual-mode { display: flex; flex-direction: column; }
+    #js-mode { display: none; padding: 0 10px; flex-direction: column; gap: 5px; }
+    #js-mode.visible { display: flex; }
+    #spell-editor {
+      width: 100%; height: 120px;
+      background: rgba(5,0,16,0.8);
+      border: 1px solid rgba(102,0,255,0.5);
+      border-radius: 8px; color: #00ffcc;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem; padding: 10px;
+      resize: none; outline: none;
+    }
+    #spell-editor:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,255,238,0.2); }
+    #cast-btn {
+      width: 100%; padding: 10px;
+      background: linear-gradient(135deg, rgba(102,0,255,0.6), rgba(255,0,204,0.4));
+      border: 1px solid var(--magenta);
+      border-radius: 8px; color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 2px;
+      transition: all 0.3s;
+    }
+    #cast-btn:hover { box-shadow: 0 0 20px rgba(255,0,204,0.5); transform: translateY(-1px); }
+
+    /* Cast button (drag mode) */
+    #cast-spell-btn {
+      margin: 0 10px 6px;
+      padding: 8px;
+      background: linear-gradient(135deg, rgba(102,0,255,0.5), rgba(255,0,204,0.3));
+      border: 1px solid rgba(255,0,204,0.6);
+      border-radius: 10px; color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 2px;
+      transition: all 0.3s; text-align: center;
+    }
+    #cast-spell-btn:hover:not(:disabled) { box-shadow: 0 0 25px rgba(255,0,204,0.5); transform: translateY(-1px); }
+    #cast-spell-btn:disabled { opacity: 0.35; cursor: default; }
+
+    /* Ally gallery */
+    #ally-gallery {
+      padding: 5px 10px;
+      border-top: 1px solid rgba(102,0,255,0.3);
+    }
+    #ally-gallery h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem; color: var(--gold);
+      text-shadow: 0 0 8px var(--gold);
+      letter-spacing: 2px; margin-bottom: 4px;
+    }
+    #ally-list {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .ally-chip {
+      padding: 5px 10px;
+      background: linear-gradient(135deg, rgba(0,255,238,0.15), rgba(0,200,255,0.05));
+      border: 1px solid rgba(0,255,238,0.4);
+      border-radius: 20px; font-size: 0.65rem; color: var(--cyan);
+      cursor: pointer; transition: all 0.3s;
+    }
+    .ally-chip:hover { box-shadow: 0 0 12px rgba(0,255,238,0.4); transform: scale(1.05); }
+
+    /* Dreamweaver speech bubble */
+    #speech-bubble {
+      position: absolute; left: 16px; bottom: 60px;
+      max-width: 260px;
+      background: rgba(10,0,30,0.95);
+      border: 1px solid rgba(0,255,238,0.5);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.72rem; color: #aaffee;
+      pointer-events: none;
+      opacity: 0; transition: opacity 0.5s;
+      box-shadow: 0 0 20px rgba(0,255,238,0.15);
+      z-index: 10;
+    }
+    #speech-bubble.visible { opacity: 1; }
+    #speech-bubble::after {
+      content: '';
+      position: absolute; bottom: -8px; left: 30px;
+      border: 8px solid transparent;
+      border-top-color: rgba(0,255,238,0.5);
+      border-bottom: none;
+    }
+
+    /* Level complete screen */
+    #level-screen {
+      position: absolute; inset: 0; z-index: 20;
+      background: rgba(5,0,16,0.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; z-index: 20;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.6s;
+    }
+    #level-screen.visible { opacity: 1; pointer-events: all; }
+    #level-screen h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem; font-weight: 900;
+      text-shadow: 0 0 40px currentColor;
+      text-align: center;
+    }
+    #level-screen p {
+      font-size: 0.9rem; color: #aa88ff;
+      max-width: 400px; text-align: center;
+      line-height: 1.6;
+    }
+    #level-screen .backstory {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 0.85rem; color: #ccbbff;
+      max-width: 380px; text-align: center;
+      padding: 14px; border: 1px solid rgba(102,0,255,0.4);
+      border-radius: 10px; background: rgba(102,0,255,0.08);
+      font-style: italic;
+    }
+    .neon-btn {
+      padding: 14px 36px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 3px; cursor: pointer;
+      border-radius: 10px; transition: all 0.3s;
+      background: transparent;
+    }
+    .neon-btn.primary {
+      border: 2px solid var(--cyan); color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan);
+      box-shadow: 0 0 20px rgba(0,255,238,0.2);
+    }
+    .neon-btn.primary:hover { background: rgba(0,255,238,0.1); box-shadow: 0 0 40px rgba(0,255,238,0.4); }
+    .neon-btn.secondary {
+      border: 2px solid var(--gold); color: var(--gold);
+      text-shadow: 0 0 10px var(--gold);
+    }
+    .neon-btn.secondary:hover { background: rgba(255,204,0,0.1); box-shadow: 0 0 30px rgba(255,204,0,0.3); }
+
+    /* Intro screen */
+    #intro-screen {
+      position: fixed; inset: 0;
+      background: #000008;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 28px; z-index: 30;
+    }
+    #intro-bg-canvas {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    }
+    #intro-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 24px;
+    }
+    #intro-screen h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.4rem; font-weight: 900;
+      color: #ff00cc;
+      text-shadow: 0 0 20px #ff00cc, 0 0 60px #ff00cc, 0 0 120px #6600ff;
+      text-align: center; letter-spacing: 6px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 20px #ff00cc, 0 0 60px #ff00cc, 0 0 120px #6600ff; }
+      50% { text-shadow: 0 0 40px #ff00cc, 0 0 100px #ff00cc, 0 0 200px #6600ff, 0 0 250px rgba(255,0,204,0.4); }
+    }
+    #intro-screen .subtitle {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1.05rem; color: #ccaaff; letter-spacing: 2px;
+      text-align: center; max-width: 520px; line-height: 1.7;
+      text-shadow: 0 0 10px rgba(200,150,255,0.4);
+    }
+    #intro-screen .tagline {
+      font-size: 0.72rem; color: #553366; letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    #intro-stars { position: absolute; inset: 0; pointer-events: none; }
+    #start-btn {
+      padding: 16px 48px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 4px; cursor: pointer;
+      border-radius: 12px;
+      background: transparent;
+      border: 2px solid #00ffee;
+      color: #00ffee;
+      text-shadow: 0 0 15px #00ffee;
+      box-shadow: 0 0 30px rgba(0,255,238,0.25), inset 0 0 20px rgba(0,255,238,0.05);
+      transition: all 0.3s;
+      animation: btnPulse 3s ease-in-out infinite;
+    }
+    #start-btn:hover {
+      background: rgba(0,255,238,0.12);
+      box-shadow: 0 0 60px rgba(0,255,238,0.5), inset 0 0 30px rgba(0,255,238,0.1);
+      transform: scale(1.04);
+    }
+    @keyframes btnPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(0,255,238,0.25), inset 0 0 20px rgba(0,255,238,0.05); }
+      50% { box-shadow: 0 0 50px rgba(0,255,238,0.45), inset 0 0 30px rgba(0,255,238,0.1); }
+    }
+
+    /* Loyalty meter */
+    #loyalty-wrap { padding: 0 10px 6px; }
+    #loyalty-label { font-size: 0.65rem; color: #776699; letter-spacing: 2px; margin-bottom: 4px; }
+    #loyalty-bar-wrap {
+      height: 6px; background: rgba(255,204,0,0.1);
+      border: 1px solid rgba(255,204,0,0.3); border-radius: 3px; overflow: hidden;
+    }
+    #loyalty-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #ff8800, #ffcc00, #ffff00);
+      transition: width 1s ease;
+      box-shadow: 0 0 8px #ffcc00;
+    }
+
+    /* Boss attack */
+    #attack-warning {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem; font-weight: 900;
+      color: #ff0044;
+      text-shadow: 0 0 30px #ff0044, 0 0 60px #ff0000;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 15; text-align: center;
+      letter-spacing: 4px;
+    }
+    #attack-warning.visible { opacity: 1; }
+    #attack-timer-ring {
+      position: absolute; bottom: 55px; right: 12px;
+      width: 48px; height: 48px;
+      pointer-events: none; z-index: 5;
+      opacity: 0; transition: opacity 0.4s;
+    }
+    #attack-timer-ring.visible { opacity: 1; }
+    #player-hp-wrap {
+      position: absolute; top: 50px; left: 20px;
+      pointer-events: none;
+    }
+    #player-hp-label {
+      font-size: 0.6rem; color: #aa4466; letter-spacing: 2px; margin-bottom: 3px;
+    }
+    #player-hp-bar-outer {
+      width: 120px; height: 7px;
+      background: rgba(255,0,68,0.15);
+      border: 1px solid rgba(255,0,68,0.4);
+      border-radius: 4px; overflow: hidden;
+    }
+    #player-hp-bar {
+      height: 100%; width: 100%;
+      background: linear-gradient(90deg, #ff0044, #ff4488);
+      transition: width 0.5s ease;
+      box-shadow: 0 0 8px #ff0044;
+    }
+
+    /* Instructions tooltip */
+    #instructions {
+      position: absolute; top: 60px; right: 10px;
+      background: rgba(10,0,30,0.9);
+      border: 1px solid rgba(102,0,255,0.4);
+      border-radius: 10px; padding: 12px 16px;
+      font-size: 0.68rem; color: #886699;
+      max-width: 200px; line-height: 1.7;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #instructions strong { color: #aa88ff; }
+
+    /* ── FULLSCREEN + IPAD RESPONSIVE LAYOUT ── */
+    html, body {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+    #game-wrapper {
+      width: 100%; height: 100%;
+    }
+
+    /* Legal footer */
+    #legal-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 5; font-family: 'Share Tech Mono', monospace;
+      font-size: 0.55rem; color: rgba(180,150,255,0.25);
+      letter-spacing: 2px; text-align: center;
+      padding: 3px 8px;
+      pointer-events: none;
+    }
+
+    /* Fullscreen button */
+    #fs-btn {
+      position: fixed; top: 10px; right: 10px; z-index: 50;
+      background: rgba(8,0,25,0.8); border: 1px solid rgba(102,0,255,0.5);
+      color: #8866cc; font-size: 0.65rem; font-family: 'Share Tech Mono',monospace;
+      padding: 5px 9px; border-radius: 5px; cursor: pointer;
+      letter-spacing: 1px; transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #fs-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
+    /* ── DESKTOP (wide): side panel ── */
+    @media (min-width: 769px) {
+      #ui-panel {
+        width: 310px;
+        height: 100%;
+        position: relative;
+        flex-shrink: 0;
+      }
+      #mobile-panel-toggle { display: none; }
+      #panel-drag-hint { display: none; }
+      #legal-footer { display: block; }
+    }
+
+    /* ── TABLET / IPAD (≤ 768px): bottom drawer ── */
+    @media (max-width: 768px) {
+      #game-wrapper { flex-direction: column; }
+
+      #canvas-area { flex: 1; height: 100%; }
+
+      /* Panel slides up from bottom */
+      #ui-panel {
+        position: fixed !important;
+        left: 0; right: 0; bottom: 0;
+        width: 100% !important;
+        height: 58vh;
+        max-height: 58vh;
+        border-left: none !important;
+        border-top: 2px solid rgba(102,0,255,0.7) !important;
+        border-radius: 18px 18px 0 0;
+        transform: translateY(calc(100% - 52px));
+        transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1);
+        z-index: 40;
+        overflow: hidden;
+        flex-direction: column;
+        display: flex !important;
+      }
+      #ui-panel.panel-open {
+        transform: translateY(0);
+      }
+
+      /* Drag handle bar */
+      #panel-drag-hint {
+        display: block;
+        width: 44px; height: 5px;
+        background: rgba(102,0,255,0.6);
+        border-radius: 3px;
+        margin: 8px auto 0;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      /* Toggle button (shows above panel) */
+      #mobile-panel-toggle {
+        display: flex;
+        position: fixed;
+        bottom: 45px; left: 50%;
+        transform: translateX(-50%);
+        z-index: 45;
+        background: rgba(5,0,16,0.92);
+        border: 1px solid var(--magenta);
+        color: var(--magenta);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.65rem; font-weight: 700;
+        letter-spacing: 2px;
+        padding: 8px 22px;
+        border-radius: 20px;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(255,0,204,0.3);
+        align-items: center; gap: 6px;
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.3s;
+      }
+      #mobile-panel-toggle:hover { box-shadow: 0 0 30px rgba(255,0,204,0.5); }
+      #mobile-panel-toggle.panel-open { bottom: calc(58vh + 6px); }
+
+      /* Spell grid → 3-column on iPad */
+      #codex-area {
+        grid-template-columns: 1fr 1fr 1fr;
+        max-height: 34vh;
+        overflow-y: auto;
+      }
+
+      /* Tap-to-queue highlight */
+      .spell-block.touch-queued {
+        border-color: var(--magenta) !important;
+        box-shadow: 0 0 16px rgba(255,0,204,0.6);
+        background: linear-gradient(135deg, rgba(120,0,180,0.8), rgba(60,0,90,0.95)) !important;
+      }
+
+      /* Instructions hidden on mobile */
+      #instructions { display: none; }
+
+      /* Shrink score font */
+      #intro-screen h1 { font-size: 2.2rem; }
+
+      /* Attack ring repositioned */
+      #attack-timer-ring { bottom: 65px; right: 16px; }
+
+      /* Nightmare bar higher on mobile */
+      #nightmare-bar { padding-bottom: 56px; }
+
+      /* Legal footer */
+      #legal-footer { font-size: 0.5rem; bottom: 52px; }
+    }
+
+    /* ── PHONE (≤ 480px) ── */
+    @media (max-width: 480px) {
+      #codex-area { grid-template-columns: 1fr 1fr; }
+      #ui-panel { height: 62vh; max-height: 62vh; transform: translateY(calc(100% - 52px)); }
+      #mobile-panel-toggle.panel-open { bottom: calc(62vh + 6px); }
+      #intro-screen h1 { font-size: 1.7rem; }
+      .spell-block .spell-name { font-size: 0.52rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <canvas id="intro-bg-canvas"></canvas>
+  <div id="intro-content">
+    <h1>✦ NIGHTMARE ECLIPSE ✦</h1>
+    <p class="subtitle">Enter the Dream Abyss. Rewrite the fears.<br>Transform darkness into loyal cosmic heroes.</p>
+    <button id="start-btn" onclick="neAudio.ensureInit(); neAudio.sfxClick(); startGame()">⟴ ENTER THE ABYSS</button>
+    <p class="tagline">DRAG SPELLS • CAST CODE • BEFRIEND NIGHTMARES</p>
+  </div>
+</div>
+
+<!-- GAME WRAPPER -->
+<div id="game-wrapper">
+  <div id="canvas-area">
+    <canvas id="canvas"></canvas>
+
+    <!-- HUD TOP -->
+    <div id="hud-top">
+      <div id="hud-title">✦ NIGHTMARE ECLIPSE</div>
+      <div id="hud-level">LEVEL <span id="level-num">1</span> / 5 — <span id="level-name">Void Horror</span></div>
+      <div id="hud-allies">⬡ ALLIES: <span id="ally-count">0</span></div>
+    </div>
+
+    <!-- PLAYER HP -->
+    <div id="player-hp-wrap">
+      <div id="player-hp-label">DREAMER HP</div>
+      <div id="player-hp-bar-outer"><div id="player-hp-bar"></div></div>
+    </div>
+
+    <!-- ATTACK WARNING -->
+    <div id="attack-warning">⚠ NIGHTMARE ATTACKS!</div>
+
+    <!-- ATTACK TIMER RING -->
+    <svg id="attack-timer-ring" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,0,68,0.2)" stroke-width="4"/>
+      <circle id="timer-arc" cx="24" cy="24" r="20" fill="none" stroke="#ff0044"
+        stroke-width="4" stroke-linecap="round"
+        stroke-dasharray="125.6" stroke-dashoffset="0"
+        transform="rotate(-90 24 24)"
+        style="transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 6px #ff0044)"/>
+      <text x="24" y="29" text-anchor="middle" font-family="Orbitron" font-size="11"
+        fill="#ff4466" id="timer-text">9</text>
+    </svg>
+
+    <!-- NIGHTMARE STATUS -->
+    <div id="nightmare-bar">
+      <div id="nightmare-name">▶ VOID HORROR — Fear Intensity</div>
+      <div id="fear-bar-wrap"><div id="fear-bar"></div></div>
+    </div>
+
+    <!-- BIG MESSAGE FLASH -->
+    <div id="dream-message"></div>
+
+    <!-- SPEECH BUBBLE -->
+    <div id="speech-bubble" id="speech">...</div>
+
+    <!-- INSTRUCTIONS -->
+    <div id="instructions">
+      <strong>HOW TO PLAY:</strong><br>
+      Drag spell blocks from the panel<br>into the Drop Zone, then hit<br><strong>CAST SPELL</strong> to transform<br>the nightmare.<br><br>
+      Try different combos!<br>Some spells unlock secrets.
+    </div>
+
+    <!-- LEVEL COMPLETE OVERLAY -->
+    <div id="level-screen">
+      <h1 id="level-title" style="color:var(--cyan)">NIGHTMARE REWRITTEN</h1>
+      <p id="level-sub">The darkness has been transformed!</p>
+      <div class="backstory" id="ally-backstory">Backstory loading...</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+        <button class="neon-btn primary" onclick="neAudio.sfxClick(); nextLevel()">⟶ NEXT NIGHTMARE</button>
+        <button class="neon-btn secondary" onclick="neAudio.sfxClick(); viewAlly()">⬡ VIEW ALLY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI PANEL -->
+  <div id="ui-panel">
+    <div id="panel-drag-hint" onclick="toggleMobilePanel()"></div>
+    <div id="panel-header">
+      <h2>✦ DREAMWEAVER CODEX</h2>
+      <div id="companion-status">COMPANION: <span id="dw-name">Aethon</span> · Mood: <span id="dw-mood">Focused</span></div>
+    </div>
+
+    <!-- Mode toggle -->
+    <div id="mode-toggle">
+      <button class="mode-btn active" id="btn-visual" onclick="setMode('visual')">⬡ VISUAL BLOCKS</button>
+      <button class="mode-btn" id="btn-code" onclick="setMode('code')">{ JS MODE }</button>
+    </div>
+
+    <!-- VISUAL MODE -->
+    <div id="visual-mode">
+      <!-- Spell blocks -->
+      <div id="codex-area">
+        <div class="codex-section-title">▶ LIGHT SPELLS</div>
+
+        <div class="spell-block" draggable="true" data-code="negate_dark" data-category="light"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">☀</span>
+          <div class="spell-name">LIGHTEN THE VOID</div>
+          <div class="spell-code">if(!nightmare.isDark) addGlow()</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="shatter_fear" data-category="light"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">✦</span>
+          <div class="spell-name">SHATTER FEAR CRYSTAL</div>
+          <div class="spell-code">fear.strength -= BoolNot(fear)</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="star_crown" data-category="light"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">♛</span>
+          <div class="spell-name">CROWN OF STARS</div>
+          <div class="spell-code">accessory.push("star-crown")</div>
+        </div>
+
+        <div class="codex-section-title">▶ HEAL SPELLS</div>
+
+        <div class="spell-block" draggable="true" data-code="calm_rage" data-category="heal"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">✿</span>
+          <div class="spell-name">CALM THE RAGE</div>
+          <div class="spell-code">while(isAngry) playFriendLoop()</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="add_laugh" data-category="heal"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">✺</span>
+          <div class="spell-name">COMEDY OVERRIDE</div>
+          <div class="spell-code">pattern = "laughLoop" || "danceRave"</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="give_wings" data-category="heal"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">⚘</span>
+          <div class="spell-name">DREAM WINGS</div>
+          <div class="spell-code">accessory.push("light-wings")</div>
+        </div>
+
+        <div class="codex-section-title">▶ REFACTOR SPELLS</div>
+
+        <div class="spell-block" draggable="true" data-code="refactor_pattern" data-category="refactor"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">⟳</span>
+          <div class="spell-name">REFACTOR FEAR</div>
+          <div class="spell-code">pattern → heroPattern(∀ loops)</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="glitch_comedy" data-category="refactor"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">⚡</span>
+          <div class="spell-name">GLITCH TO COMEDY</div>
+          <div class="spell-code">errorSpam.map(e => dance(e))</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="memory_seed" data-category="refactor"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">◈</span>
+          <div class="spell-name">MEMORY SEED</div>
+          <div class="spell-code">nightmare.memory = selfWitness()</div>
+        </div>
+
+        <div class="codex-section-title">▶ ULTIMATE SPELLS</div>
+
+        <div class="spell-block" draggable="true" data-code="full_rewrite" data-category="light"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">⬟</span>
+          <div class="spell-name">FULL REWRITE ∞</div>
+          <div class="spell-code">nightmare.core = new CosmicHero(∞)</div>
+        </div>
+
+        <div class="spell-block" draggable="true" data-code="befriend_boss" data-category="heal"
+          ondragstart="onBlockDrag(event)">
+          <span class="spell-icon">♾</span>
+          <div class="spell-name">BEFRIEND THE ABYSS</div>
+          <div class="spell-code">abyss.ally = true; cosmos.expand()</div>
+        </div>
+      </div>
+
+      <!-- DROP ZONE -->
+      <div id="drop-zone"
+        ondragover="onDragOver(event)"
+        ondragleave="onDragLeave(event)"
+        ondrop="onDrop(event)">
+        <div id="drop-zone-label">Drop spells here to build your incantation</div>
+        <div id="queued-spells"></div>
+      </div>
+
+      <!-- LOYALTY METER -->
+      <div id="loyalty-wrap">
+        <div id="loyalty-label">LOYALTY METER</div>
+        <div id="loyalty-bar-wrap"><div id="loyalty-bar"></div></div>
+      </div>
+
+      <!-- CAST BUTTON -->
+      <button id="cast-spell-btn" disabled onclick="neAudio.sfxClick(); castQueuedSpells()">⬟ CAST SPELL</button>
+    </div>
+
+    <!-- JS MODE -->
+    <div id="js-mode">
+      <div style="font-size:0.7rem;color:#664488;padding:0 0 4px;line-height:1.5">
+        Write your spell in dream-code.<br>
+        Use: negate_dark · calm_rage · refactor_pattern · full_rewrite · befriend_boss
+      </div>
+      <textarea id="spell-editor" placeholder="// Your spell code here&#10;negate_dark&#10;calm_rage&#10;full_rewrite"></textarea>
+      <button id="cast-btn" onclick="neAudio.sfxClick(); castCodeSpell()">⟴ CAST CODE SPELL</button>
+    </div>
+
+    <!-- ALLY GALLERY -->
+    <div id="ally-gallery">
+      <h3>◈ COSMIC ALLIES</h3>
+      <div id="ally-list"><span style="font-size:0.65rem;color:#443355;letter-spacing:1px">None yet — rewrite a nightmare!</span></div>
+    </div>
+  </div>
+</div><!-- /game-wrapper -->
+
+<!-- MOBILE PANEL TOGGLE -->
+<button id="mobile-panel-toggle" onclick="toggleMobilePanel()">⬟ CODEX</button>
+
+<!-- FULLSCREEN BUTTON -->
+<button id="fs-btn" onclick="toggleFS()">⛶ FS</button>
+
+<!-- COPYRIGHT FOOTER -->
+<div id="legal-footer">© 2026 ITOSHIRO ZUNA LLC — ALL RIGHTS RESERVED — nicolasquirozmd.com</div>
+
+<script>
+// ─────────────────────────────────────────
+//  NIGHTMARE ECLIPSE — Full Game Engine
+// ─────────────────────────────────────────
+
+// Canvas setup
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    // On mobile the canvas fills the full viewport (panel overlays on top)
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  } else {
+    const area = document.getElementById('canvas-area');
+    const w = area.offsetWidth || (window.innerWidth - 310);
+    const h = area.offsetHeight || window.innerHeight;
+    canvas.width  = w > 0 ? w : window.innerWidth - 310;
+    canvas.height = h > 0 ? h : window.innerHeight;
+  }
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); });
+document.addEventListener('fullscreenchange', resizeCanvas);
+
+// ─── PARTICLES ───
+const particles = [];
+
+class Particle {
+  constructor(x, y, color, vx, vy, size, life) {
+    this.x = x; this.y = y;
+    this.color = color;
+    this.vx = vx; this.vy = vy;
+    this.maxLife = life || 80;
+    this.life = this.maxLife;
+    this.size = size || (Math.random() * 6 + 2);
+    this.shape = Math.random() > 0.5 ? 'circle' : 'rect';
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    this.vy += 0.04; // gravity
+    this.vx *= 0.99;
+    this.life--;
+    this.size *= 0.98;
+  }
+  draw() {
+    const alpha = Math.pow(this.life / this.maxLife, 1.5);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = this.color;
+    ctx.fillStyle = this.color;
+    if (this.shape === 'circle') {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+    }
+    ctx.restore();
+  }
+}
+
+function burst(x, y, color, count, speed) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+    const s = (speed || 6) * (0.5 + Math.random());
+    particles.push(new Particle(x, y, color, Math.cos(angle)*s, Math.sin(angle)*s));
+  }
+}
+
+function rain(x, y, colors, count) {
+  for (let i = 0; i < count; i++) {
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    particles.push(new Particle(
+      x + (Math.random()-0.5)*120,
+      y + (Math.random()-0.5)*80,
+      c, (Math.random()-0.5)*8, Math.random()*-12,
+      Math.random()*10+3, 100+Math.random()*60
+    ));
+  }
+}
+
+// ─── STARFIELD ───
+const stars = [];
+for (let i = 0; i < 200; i++) {
+  stars.push({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 1.8 + 0.2,
+    twinkle: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.02 + 0.005
+  });
+}
+
+function drawStarfield() {
+  stars.forEach(s => {
+    s.twinkle += s.speed;
+    const alpha = 0.3 + 0.7 * Math.abs(Math.sin(s.twinkle));
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 4; ctx.shadowColor = '#aaaaff';
+    ctx.beginPath();
+    ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// ─── DREAMWEAVER ───
+class Dreamweaver {
+  constructor() {
+    this.x = 0; this.y = 0;
+    this.angle = 0;
+    this.hoverY = 0;
+    this.personality = localStorage.getItem('dwPersonality') || 'wise';
+    this.name = localStorage.getItem('dwName') || 'Aethon';
+    this.energy = 100;
+    this.staffGlow = 0;
+    this.shakeTimer = 0;
+    this.ringAngle = 0;
+    document.getElementById('dw-name').textContent = this.name;
+  }
+  update() {
+    this.angle += 0.03;
+    this.hoverY = Math.sin(this.angle) * 10;
+    this.ringAngle += 0.05;
+    this.staffGlow = 0.7 + 0.3 * Math.sin(this.angle * 2);
+    if (this.shakeTimer > 0) this.shakeTimer--;
+  }
+  draw() {
+    const shk = this.shakeTimer > 0 ? (Math.random()-0.5)*8 : 0;
+    const cx = this.x + shk, cy = this.y + this.hoverY + shk;
+    ctx.save();
+
+    // Outer ring
+    ctx.strokeStyle = `rgba(0,255,238,${this.staffGlow * 0.3})`;
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 20; ctx.shadowColor = '#00ffee';
+    for (let i = 0; i < 3; i++) {
+      const a = this.ringAngle + (i * Math.PI * 2 / 3);
+      const rx = Math.cos(a) * 60, ry = Math.sin(a) * 25;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 60, 25, a * 0.5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Body glow
+    const grd = ctx.createRadialGradient(cx, cy, 5, cx, cy, 38);
+    grd.addColorStop(0, 'rgba(0,255,238,0.9)');
+    grd.addColorStop(0.4, 'rgba(100,0,255,0.6)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.shadowBlur = 40; ctx.shadowColor = '#00ffee';
+    ctx.beginPath(); ctx.arc(cx, cy, 38, 0, Math.PI * 2); ctx.fill();
+
+    // Core
+    ctx.fillStyle = '#00ffee';
+    ctx.shadowBlur = 20; ctx.shadowColor = '#00ffee';
+    ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2); ctx.fill();
+
+    // Eye
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(cx, cy - 4, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#001a33';
+    ctx.beginPath(); ctx.arc(cx - 1, cy - 4, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#00ffee';
+    ctx.beginPath(); ctx.arc(cx + 1, cy - 6, 2, 0, Math.PI * 2); ctx.fill();
+
+    // Staff
+    const sx = cx + 30, sy1 = cy - 60, sy2 = cy + 30;
+    ctx.strokeStyle = `rgba(0,255,238,${this.staffGlow})`;
+    ctx.lineWidth = 3; ctx.shadowBlur = 15; ctx.shadowColor = '#00ffee';
+    ctx.beginPath(); ctx.moveTo(sx, sy1); ctx.lineTo(sx, sy2); ctx.stroke();
+    // Staff tip
+    ctx.fillStyle = '#ffcc00'; ctx.shadowColor = '#ffcc00';
+    ctx.beginPath(); ctx.arc(sx, sy1, 7, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+// ─── NIGHTMARE ───
+const NIGHTMARE_DEFS = [
+  {
+    id: 'void_horror',
+    name: 'VOID HORROR',
+    title: 'Screaming Black Hole',
+    color: '#8800aa',
+    eyeColor: '#ff0000',
+    fearDesc: 'Consumes hope; screams in recursive loops',
+    backstory: "Born from forgotten dreams, now guardian of the Dream Archive. It stores lost memories so no child's hope is ever truly gone.",
+    allyName: 'Luminos the Archivist',
+    allyColor: '#00ffcc',
+    requiredSpells: 1,
+    weakness: 'light'
+  },
+  {
+    id: 'fear_golem',
+    name: 'FEAR GOLEM',
+    title: 'Stone-Eater of Patterns',
+    color: '#443300',
+    eyeColor: '#ff8800',
+    fearDesc: 'Repeats fear patterns endlessly in nested loops',
+    backstory: "A pattern-weaver who memorized every child's worry. Now reformed, it teaches rhythmic dream navigation to lost dreamers.",
+    allyName: 'Kodex the Pattern-Sage',
+    allyColor: '#ffcc00',
+    requiredSpells: 2,
+    weakness: 'refactor'
+  },
+  {
+    id: 'glitch_beast',
+    name: 'GLITCH BEAST',
+    title: 'Error-Spam Hydra',
+    color: '#004444',
+    eyeColor: '#00ff44',
+    fearDesc: 'Floods the mind with error spam and recursive noise',
+    backstory: 'The comedy sidekick of the cosmos. Its glitches became dance moves; now it performs the "Error Waltz" at dream festivals.',
+    allyName: 'Bugsy the Star Dancer',
+    allyColor: '#44ff88',
+    requiredSpells: 2,
+    weakness: 'heal'
+  },
+  {
+    id: 'shadow_pantheon',
+    name: 'SHADOW PANTHEON',
+    title: 'Three-Headed Doubt Engine',
+    color: '#220044',
+    eyeColor: '#ff00ff',
+    fearDesc: 'Manifests as three simultaneous fears attacking at once',
+    backstory: 'Three voices of doubt silenced forever. Now a trinity of encouragement — each head whispers a different kind of courage.',
+    allyName: 'The Triad of Courage',
+    allyColor: '#ff88ff',
+    requiredSpells: 3,
+    weakness: 'light'
+  },
+  {
+    id: 'abyss_itself',
+    name: 'THE ABYSS ITSELF',
+    title: 'The Final Nightmare',
+    color: '#000033',
+    eyeColor: '#ffffff',
+    fearDesc: 'The source of all nightmares — it is the fear of fear itself',
+    backstory: 'The Abyss was never evil — it was lonely. Now befriended, it expands into the Infinite Dream Garden where all nightmares bloom as flowers.',
+    allyName: 'Infinitus, The Dream Garden',
+    allyColor: '#ff00cc',
+    requiredSpells: 3,
+    weakness: 'any',
+    isFinalBoss: true
+  }
+];
+
+class NightmareEntity {
+  constructor(def) {
+    this.def = def;
+    this.x = 0; this.y = 0;
+    this.isAlly = false;
+    this.fearLevel = 100;
+    this.angle = 0;
+    this.shake = 0;
+    this.pulseAngle = 0;
+    this.tentacleAngle = 0;
+    this.transformProgress = 0; // 0 = nightmare, 1 = ally
+    this.accessories = [];
+    this.laughMode = false;
+    this.glitchOffset = 0;
+    this.eyeOpen = true;
+    this.blinkTimer = 0;
+  }
+  update() {
+    this.angle += 0.02;
+    this.pulseAngle += 0.04;
+    this.tentacleAngle += 0.06;
+    if (this.shake > 0) { this.shake -= 0.5; }
+    if (this.blinkTimer > 0) {
+      this.blinkTimer--;
+      this.eyeOpen = this.blinkTimer > 5;
+    } else if (Math.random() < 0.008) {
+      this.blinkTimer = 14;
+    }
+    if (this.laughMode) this.glitchOffset = (Math.random()-0.5)*8;
+    if (this.isAlly) {
+      this.transformProgress = Math.min(1, this.transformProgress + 0.015);
+    }
+  }
+  draw() {
+    const t = this.transformProgress;
+    const sx = this.x + (this.shake > 0 ? (Math.random()-0.5)*this.shake : 0);
+    const sy = this.y + Math.sin(this.pulseAngle) * 8 + this.glitchOffset;
+    const baseColor = this.def.color;
+    const allyColor = this.def.allyColor;
+    const lerpColor = lerpHex(baseColor, allyColor, t);
+
+    ctx.save();
+
+    // Tentacles / spikes (only for nightmare)
+    if (t < 0.8) {
+      const tentCount = this.def.isFinalBoss ? 10 : 6;
+      for (let i = 0; i < tentCount; i++) {
+        const a = this.tentacleAngle + (i * Math.PI * 2 / tentCount);
+        const len = 60 + Math.sin(a * 3 + this.angle) * 20;
+        const tx = sx + Math.cos(a) * len;
+        const ty = sy + Math.sin(a) * len * 0.6;
+        const alpha = (1 - t) * 0.7;
+        ctx.strokeStyle = `rgba(${hexToRgb(baseColor)}, ${alpha})`;
+        ctx.lineWidth = 4 - t * 3;
+        ctx.shadowBlur = 15; ctx.shadowColor = baseColor;
+        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+      }
+    }
+
+    // Wings (appear when ally)
+    if (t > 0.3) {
+      const wingAlpha = (t - 0.3) / 0.7;
+      const wingSpan = 90 * wingAlpha;
+      ctx.strokeStyle = `rgba(255,255,200,${wingAlpha * 0.6})`;
+      ctx.lineWidth = 2; ctx.shadowBlur = 20; ctx.shadowColor = '#ffffaa';
+      // Left wing
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.quadraticCurveTo(sx - wingSpan, sy - 40, sx - wingSpan * 0.5, sy - 70);
+      ctx.quadraticCurveTo(sx - wingSpan * 0.3, sy - 50, sx, sy);
+      ctx.stroke();
+      // Right wing
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.quadraticCurveTo(sx + wingSpan, sy - 40, sx + wingSpan * 0.5, sy - 70);
+      ctx.quadraticCurveTo(sx + wingSpan * 0.3, sy - 50, sx, sy);
+      ctx.stroke();
+    }
+
+    // Body aura
+    const auraR = 85 + Math.sin(this.pulseAngle) * 8;
+    const aura = ctx.createRadialGradient(sx, sy, 20, sx, sy, auraR);
+    const auraColor = this.isAlly ? allyColor : baseColor;
+    aura.addColorStop(0, `rgba(${hexToRgb(auraColor)}, 0.4)`);
+    aura.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = aura;
+    ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(sx, sy, auraR, 0, Math.PI * 2); ctx.fill();
+
+    // Main body
+    const radius = 55 + Math.sin(this.pulseAngle * 1.5) * 4;
+    ctx.shadowBlur = this.isAlly ? 40 : 20;
+    ctx.shadowColor = lerpColor;
+    ctx.fillStyle = lerpColor;
+    ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI * 2); ctx.fill();
+
+    // Inner gradient
+    const inner = ctx.createRadialGradient(sx - 10, sy - 10, 5, sx, sy, radius);
+    inner.addColorStop(0, 'rgba(255,255,255,0.2)');
+    inner.addColorStop(1, 'rgba(0,0,0,0.4)');
+    ctx.fillStyle = inner;
+    ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI * 2); ctx.fill();
+
+    // Eyes
+    const eyeColor = lerpHex(this.def.eyeColor, '#ffff00', t);
+    const eyeY = sy - 18;
+    const eyeH = this.eyeOpen ? 14 : 3;
+
+    // Left eye
+    ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 5;
+    ctx.beginPath(); ctx.ellipse(sx - 20, eyeY, 10, eyeH, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = eyeColor; ctx.shadowColor = eyeColor; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.ellipse(sx - 20, eyeY, 6, Math.max(eyeH-3,1), 0, 0, Math.PI * 2); ctx.fill();
+
+    // Right eye
+    ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 5; ctx.shadowColor = '';
+    ctx.beginPath(); ctx.ellipse(sx + 20, eyeY, 10, eyeH, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = eyeColor; ctx.shadowColor = eyeColor; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.ellipse(sx + 20, eyeY, 6, Math.max(eyeH-3,1), 0, 0, Math.PI * 2); ctx.fill();
+
+    // Mouth
+    ctx.strokeStyle = this.isAlly ? '#ffff88' : 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 3; ctx.shadowBlur = this.isAlly ? 10 : 0;
+    ctx.shadowColor = '#ffff88';
+    ctx.beginPath();
+    if (this.isAlly) {
+      // Smile
+      ctx.arc(sx, sy + 8, 22, 0.2, Math.PI - 0.2);
+    } else if (this.laughMode) {
+      // Big laugh
+      ctx.arc(sx, sy + 12, 18, 0, Math.PI);
+    } else {
+      // Scream / frown
+      ctx.arc(sx, sy + 20, 18, Math.PI, Math.PI * 2);
+    }
+    ctx.stroke();
+
+    // Accessories
+    if (this.accessories.includes('star-crown')) {
+      this.drawCrown(sx, sy - radius - 10, t);
+    }
+    if (this.accessories.includes('light-wings')) {
+      // Already drawn above as part of ally transform
+    }
+
+    // Glitch effect for glitch beast
+    if (this.def.id === 'glitch_beast' && !this.isAlly) {
+      ctx.strokeStyle = `rgba(0,255,68,${0.5 + Math.random()*0.5})`;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 5; i++) {
+        const gy = sy - 40 + i * 20;
+        const shift = (Math.random()-0.5)*30;
+        ctx.beginPath(); ctx.moveTo(sx-60+shift, gy); ctx.lineTo(sx+60+shift, gy); ctx.stroke();
+      }
+    }
+
+    // Fear level display (rings)
+    if (!this.isAlly && this.fearLevel > 0) {
+      const rings = Math.ceil(this.fearLevel / 33);
+      for (let r = 0; r < rings; r++) {
+        const rr = radius + 20 + r * 15;
+        ctx.strokeStyle = `rgba(255,0,100,${0.2 - r*0.05})`;
+        ctx.lineWidth = 1.5; ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(sx, sy, rr, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  drawCrown(cx, cy, t) {
+    const alpha = Math.min(t + 0.3, 1);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#ffcc00'; ctx.shadowBlur = 15; ctx.shadowColor = '#ffcc00';
+    const pts = [
+      [cx-20, cy+10], [cx-15, cy-5], [cx-8, cy+5], [cx, cy-15],
+      [cx+8, cy+5], [cx+15, cy-5], [cx+20, cy+10]
+    ];
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    pts.forEach(p => ctx.lineTo(p[0], p[1]));
+    ctx.closePath(); ctx.fill();
+    // Stars on crown tips
+    [pts[1], pts[3], pts[5]].forEach(p => {
+      ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#ffff00';
+      ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.restore();
+  }
+}
+
+// ─── ALLY PARTICLE BURST ───
+function transformExplosion(x, y, color) {
+  rain(x, y, [color, '#ffcc00', '#ffffff', '#ff88ff', '#00ffcc'], 120);
+  burst(x, y, color, 40, 10);
+  burst(x, y, '#ffffff', 30, 7);
+  burst(x, y, '#ffcc00', 20, 14);
+}
+
+// ─── GAME STATE ───
+let gameState = 'intro'; // intro, playing, level_complete, final
+let currentLevel = 0;
+let nightmare = null;
+let dreamweaver = null;
+let allies = JSON.parse(localStorage.getItem('nmAllies') || '[]');
+let queuedSpells = [];
+let loyalty = 0;
+let time = 0;
+let speechTimer = 0;
+let bgFlash = 0;
+
+// Boss attack system
+let attackTimer = 0;        // counts up in frames (60fps)
+const ATTACK_INTERVAL = 9 * 60; // 9 seconds * 60fps
+let attackCooldown = 0;     // brief lockout after an attack
+let playerHP = 100;
+let attackProjectiles = []; // flying projectiles
+let attackWarningTimer = 0; // flash warning
+let dreamweaverShield = false; // DW can sometimes block
+
+class AttackProjectile {
+  constructor(fromX, fromY, toX, toY, color) {
+    this.x = fromX; this.y = fromY;
+    this.tx = toX; this.ty = toY;
+    const dx = toX - fromX, dy = toY - fromY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    this.vx = (dx/dist) * 8; this.vy = (dy/dist) * 8;
+    this.color = color || '#ff0044';
+    this.size = 10;
+    this.life = 120;
+    this.hit = false;
+    this.trail = [];
+  }
+  update() {
+    this.trail.push({x: this.x, y: this.y});
+    if (this.trail.length > 12) this.trail.shift();
+    this.x += this.vx; this.y += this.vy;
+    this.life--;
+    // Check if near dreamweaver (player position)
+    if (dreamweaver) {
+      const dx = this.x - dreamweaver.x, dy = this.y - dreamweaver.y;
+      if (Math.sqrt(dx*dx + dy*dy) < 50 && !this.hit) {
+        this.hit = true;
+        bossHitsPlayer();
+      }
+    }
+  }
+  draw() {
+    // Trail
+    this.trail.forEach((p, i) => {
+      const alpha = (i / this.trail.length) * 0.5;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 8; ctx.shadowColor = this.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, this.size * 0.4, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+    // Head
+    ctx.save();
+    ctx.fillStyle = this.color;
+    ctx.shadowBlur = 20; ctx.shadowColor = this.color;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+    // Inner glow
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 0.4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ─── BOSS ATTACK FUNCTIONS ───
+function triggerBossAttack() {
+  if (!nightmare || nightmare.isAlly || nightmare.fearLevel <= 0) return;
+  if (attackCooldown > 0) return;
+
+  attackCooldown = 3 * 60; // 3 sec cooldown after attack
+  attackWarningTimer = 60;
+
+  // Show warning
+  const warn = document.getElementById('attack-warning');
+  warn.textContent = nightmare.def.isFinalBoss ? '♾ THE ABYSS STRIKES!' : '⚠ NIGHTMARE ATTACKS!';
+  warn.classList.add('visible');
+  setTimeout(() => warn.classList.remove('visible'), 1200);
+
+  // Play attack sound
+  neAudio.sfxBossAttack();
+
+  // Launch projectiles based on level
+  const nx = nightmare.x, ny = nightmare.y;
+  const dwx = dreamweaver ? dreamweaver.x : canvas.width * 0.22;
+  const dwy = dreamweaver ? dreamweaver.y : canvas.height * 0.52;
+  const count = Math.min(1 + Math.floor(currentLevel * 0.7), 4);
+  const colors = ['#ff0044', '#ff4400', '#ff00aa', '#aa0088'];
+
+  for (let i = 0; i < count; i++) {
+    const spread = (i - (count-1)/2) * 30;
+    attackProjectiles.push(new AttackProjectile(
+      nx, ny,
+      dwx + spread, dwy + spread * 0.5,
+      colors[i % colors.length]
+    ));
+  }
+
+  // Nightmare does a lunge shake
+  nightmare.shake = 15;
+  bgFlash = 15;
+
+  const attackLines = [
+    `The ${nightmare.def.name} counterattacks! Dodge and cast!`,
+    'It fights back! Cast faster!',
+    'Incoming dream-shards! The nightmare rages!',
+    `The ${nightmare.def.title} is furious — rewrite it NOW!`,
+  ];
+  showSpeech(attackLines[Math.floor(Math.random() * attackLines.length)], 140);
+}
+
+function bossHitsPlayer() {
+  const dmg = 10 + currentLevel * 4;
+  playerHP = Math.max(0, playerHP - dmg);
+  updatePlayerHP();
+  bgFlash = 20;
+  neAudio.sfxPlayerHit();
+
+  // Screen shake effect via DW shake
+  if (dreamweaver) dreamweaver.shakeTimer = 20;
+
+  showMessage(`-${dmg} HP — CAST YOUR SPELLS!`, '#ff0044');
+
+  if (playerHP <= 0) {
+    // Player dies — restore some HP but add fear back
+    setTimeout(() => {
+      playerHP = 40;
+      nightmare.fearLevel = Math.min(100, nightmare.fearLevel + 20);
+      updatePlayerHP();
+      updateFearBar();
+      showMessage('DREAMER STAGGERED — Fear surges back!', '#ff4400');
+      showSpeech('Rise, Coder! The nightmare feeds on your hesitation!', 200);
+    }, 600);
+  }
+}
+
+function updatePlayerHP() {
+  document.getElementById('player-hp-bar').style.width = playerHP + '%';
+}
+
+function updateAttackTimer(frameDelta) {
+  if (!nightmare || nightmare.isAlly || gameState !== 'playing') return;
+  if (attackCooldown > 0) { attackCooldown--; }
+
+  attackTimer += frameDelta;
+
+  // Update ring UI
+  const ring = document.getElementById('attack-timer-ring');
+  const arc = document.getElementById('timer-arc');
+  const txt = document.getElementById('timer-text');
+  const pct = Math.min(attackTimer / ATTACK_INTERVAL, 1);
+  const circumference = 125.6;
+  arc.setAttribute('stroke-dashoffset', circumference * (1 - pct));
+  const secsLeft = Math.max(0, Math.ceil((ATTACK_INTERVAL - attackTimer) / 60));
+  txt.textContent = secsLeft;
+
+  // Color shift as it gets close
+  if (pct > 0.7) {
+    arc.setAttribute('stroke', '#ff4400');
+    arc.style.filter = 'drop-shadow(0 0 10px #ff4400)';
+  } else {
+    arc.setAttribute('stroke', '#ff0044');
+    arc.style.filter = 'drop-shadow(0 0 6px #ff0044)';
+  }
+
+  if (attackTimer >= ATTACK_INTERVAL) {
+    attackTimer = 0;
+    triggerBossAttack();
+  }
+}
+
+// Dreamweaver lines
+const DW_LINES = {
+  wise: [
+    "Every darkness contains a hidden pattern. Find it.",
+    "The void is not evil — it is just unfinished.",
+    "Code is compassion made executable.",
+    "Refactor fear, one boolean at a time.",
+    "Even glitches can dance if you let them.",
+    "Remember: the abyss was once a star.",
+    "Your code echoes across the Dream Archive.",
+  ],
+  playful: [
+    "Oh no the nightmares are vibing rn 💀✨",
+    "Did you know glitch beasts love jazz? TRUE FACT.",
+    "What if the void just needed a hug this whole time",
+    "Error 404: Fear not found (after your spell lol)",
+    "Boss fight speedrun any%? We got this!",
+  ]
+};
+
+function getDWLine() {
+  const pool = DW_LINES[dreamweaver?.personality] || DW_LINES.wise;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function showSpeech(msg, duration) {
+  const el = document.getElementById('speech-bubble');
+  el.textContent = msg;
+  el.classList.add('visible');
+  speechTimer = duration || 200;
+}
+
+function showMessage(text, color) {
+  const el = document.getElementById('dream-message');
+  el.textContent = text;
+  el.style.color = color || '#00ffee';
+  el.style.opacity = '1';
+  setTimeout(() => el.style.opacity = '0', 2200);
+}
+
+// ─── LEVEL SETUP ───
+function startLevel(idx) {
+  const def = NIGHTMARE_DEFS[idx];
+  if (!def) { showFinalScreen(); return; }
+  currentLevel = idx;
+  nightmare = new NightmareEntity(def);
+  nightmare.fearLevel = 100;
+  loyalty = 0;
+  queuedSpells = [];
+  updateQueueUI();
+
+  document.getElementById('level-num').textContent = idx + 1;
+  document.getElementById('level-name').textContent = def.name;
+  document.getElementById('nightmare-name').textContent = `▶ ${def.name} — ${def.fearDesc}`;
+  document.getElementById('level-screen').classList.remove('visible');
+  updateFearBar();
+  updateLoyaltyBar();
+  document.getElementById('cast-spell-btn').disabled = true;
+
+  const dwLines = [
+    `The ${def.title} appears. It is ${def.fearDesc.toLowerCase()}.`,
+    `Approach with care. Drag your spells and cast your rewrite.`,
+    `This one fears ${def.weakness === 'light' ? 'illumination' : def.weakness === 'heal' ? 'warmth' : 'transformation'}.`
+  ];
+  showSpeech(dwLines[Math.floor(Math.random() * dwLines.length)], 280);
+  updateAllyGallery();
+
+  // Reset attack system
+  attackTimer = 0;
+  attackCooldown = 60; // 1 sec grace period at start
+  playerHP = 100;
+  attackProjectiles = [];
+  updatePlayerHP();
+  document.getElementById('attack-timer-ring').classList.add('visible');
+}
+
+// ─── SPELL CASTING ───
+const SPELL_EFFECTS = {
+  negate_dark: { power: 30, loyalty: 15, particle: '#ffff00', msg: '¬DARK NEGATED' },
+  shatter_fear: { power: 25, loyalty: 10, particle: '#ff88ff', msg: 'FEAR SHATTERED' },
+  star_crown: { power: 20, loyalty: 20, particle: '#ffcc00', msg: '♛ CROWNED' },
+  calm_rage: { power: 25, loyalty: 15, particle: '#00ffcc', msg: 'RAGE CALMED' },
+  add_laugh: { power: 20, loyalty: 12, particle: '#88ff00', msg: 'COMEDY OVERRIDE!' },
+  give_wings: { power: 20, loyalty: 18, particle: '#aaffff', msg: '⚘ WINGS GRANTED' },
+  refactor_pattern: { power: 30, loyalty: 20, particle: '#00ccff', msg: '⟳ PATTERN REFACTORED' },
+  glitch_comedy: { power: 25, loyalty: 15, particle: '#44ff88', msg: 'GLITCH → DANCE!' },
+  memory_seed: { power: 20, loyalty: 22, particle: '#aa88ff', msg: '◈ MEMORY PLANTED' },
+  full_rewrite: { power: 60, loyalty: 35, particle: '#ff00cc', msg: '∞ FULL REWRITE!' },
+  befriend_boss: { power: 80, loyalty: 50, particle: '#ff00cc', msg: '♾ ABYSS BEFRIENDED' },
+};
+
+function castQueuedSpells() {
+  if (!nightmare || nightmare.isAlly || queuedSpells.length === 0) return;
+
+  let totalPower = 0, totalLoyalty = 0;
+  const colors = [];
+
+  queuedSpells.forEach(spellId => {
+    const eff = SPELL_EFFECTS[spellId];
+    if (!eff) return;
+    totalPower += eff.power;
+    totalLoyalty += eff.loyalty;
+    colors.push(eff.particle);
+    // Special accessory effects
+    if (spellId === 'star_crown') nightmare.accessories.push('star-crown');
+    if (spellId === 'give_wings') nightmare.accessories.push('light-wings');
+    if (spellId === 'add_laugh' || spellId === 'glitch_comedy') nightmare.laughMode = true;
+  });
+
+  nightmare.fearLevel = Math.max(0, nightmare.fearLevel - totalPower);
+  nightmare.shake = 20;
+  loyalty = Math.min(100, loyalty + totalLoyalty);
+
+  neAudio.sfxCast(totalPower);
+  setTimeout(() => neAudio.sfxNightmareHit(), 200);
+
+  // Particle burst
+  const nx = nightmare.x, ny = nightmare.y;
+  colors.forEach(c => burst(nx, ny, c, 25, 8));
+  rain(nx, ny - 40, colors, 40);
+
+  // Show message
+  const lastSpell = SPELL_EFFECTS[queuedSpells[queuedSpells.length-1]];
+  if (lastSpell) showMessage(lastSpell.msg, lastSpell.particle);
+
+  // Flash bg
+  bgFlash = 30;
+
+  updateFearBar();
+  updateLoyaltyBar();
+
+  // Check if defeated
+  if (nightmare.fearLevel <= 0) {
+    setTimeout(() => allyTransform(), 800);
+  } else {
+    // Update dreamweaver commentary
+    const lines = [
+      `Fear reduced to ${nightmare.fearLevel.toFixed(0)}%! Keep going!`,
+      `Your spells are working. The ${nightmare.def.name} is weakening!`,
+      `${totalPower} power cast. ${nightmare.fearLevel.toFixed(0)} fear remains.`,
+    ];
+    showSpeech(lines[Math.floor(Math.random() * lines.length)], 160);
+  }
+
+  queuedSpells = [];
+  updateQueueUI();
+}
+
+function castCodeSpell() {
+  const code = document.getElementById('spell-editor').value.toLowerCase();
+  const detected = [];
+
+  Object.keys(SPELL_EFFECTS).forEach(k => {
+    if (code.includes(k.replace('_', '_')) || code.includes(k)) detected.push(k);
+  });
+
+  if (detected.length === 0) {
+    showSpeech('No valid spell keywords found. Try: negate_dark, calm_rage, full_rewrite...', 200);
+    return;
+  }
+
+  queuedSpells = detected;
+  castQueuedSpells();
+}
+
+function allyTransform() {
+  nightmare.isAlly = true;
+  nightmare.fearLevel = 0;
+  transformExplosion(nightmare.x, nightmare.y, nightmare.def.allyColor);
+  bgFlash = 80;
+
+  // Audio
+  neAudio.sfxTransform(nightmare.def.allyColor);
+
+  // Web Speech
+  try {
+    const msg = `I am ${nightmare.def.allyName}! ${nightmare.def.backstory}`;
+    const utt = new SpeechSynthesisUtterance(msg);
+    utt.rate = 0.9; utt.pitch = 1.3;
+    speechSynthesis.speak(utt);
+  } catch(e) {}
+
+  // Save ally
+  const newAlly = {
+    id: nightmare.def.id,
+    name: nightmare.def.allyName,
+    color: nightmare.def.allyColor,
+    backstory: nightmare.def.backstory,
+    loyalty: loyalty,
+    accessories: [...nightmare.accessories]
+  };
+  allies.push(newAlly);
+  localStorage.setItem('nmAllies', JSON.stringify(allies));
+  document.getElementById('ally-count').textContent = allies.length;
+
+  // DW personality shift
+  if (nightmare.def.id === 'glitch_beast') {
+    dreamweaver.personality = 'playful';
+    localStorage.setItem('dwPersonality', 'playful');
+    document.getElementById('dw-mood').textContent = 'Hilarious';
+  }
+
+  // Stop attack timer
+  attackProjectiles = [];
+  document.getElementById('attack-timer-ring').classList.remove('visible');
+  setTimeout(() => showLevelComplete(), 1200);
+}
+
+function showLevelComplete() {
+  neAudio.sfxLevelComplete();
+  const def = NIGHTMARE_DEFS[currentLevel];
+  const isFinal = def.isFinalBoss;
+
+  document.getElementById('level-title').textContent = isFinal
+    ? '♾ THE ABYSS BEFRIENDED' : '✦ NIGHTMARE REWRITTEN';
+  document.getElementById('level-title').style.color = isFinal ? '#ff00cc' : '#00ffee';
+  document.getElementById('level-sub').textContent = isFinal
+    ? 'You befriended the source of all nightmares. The cosmos blooms.'
+    : `The ${def.name} is now your cosmic ally!`;
+  document.getElementById('ally-backstory').textContent = `"${def.backstory}" — ${def.allyName}`;
+  document.getElementById('level-screen').classList.add('visible');
+
+  updateAllyGallery();
+}
+
+function nextLevel() {
+  startLevel(currentLevel + 1);
+}
+
+function viewAlly() {
+  const ally = allies[allies.length - 1];
+  if (!ally) return;
+  showSpeech(`${ally.name}: "${ally.backstory.substring(0,80)}..." Loyalty: ${ally.loyalty}/100`, 400);
+  document.getElementById('level-screen').classList.remove('visible');
+}
+
+// ─── UI UPDATE ───
+function updateFearBar() {
+  const bar = document.getElementById('fear-bar');
+  const v = nightmare ? nightmare.fearLevel : 100;
+  bar.style.width = v + '%';
+  if (v < 30) {
+    bar.style.background = 'linear-gradient(90deg, #0088ff, #00ffcc)';
+  } else {
+    bar.style.background = 'linear-gradient(90deg, #ff0055, #ff00cc, #8800ff)';
+  }
+}
+
+function updateLoyaltyBar() {
+  document.getElementById('loyalty-bar').style.width = loyalty + '%';
+}
+
+function updateQueueUI() {
+  const container = document.getElementById('queued-spells');
+  const label = document.getElementById('drop-zone-label');
+
+  if (queuedSpells.length === 0) {
+    container.innerHTML = '';
+    label.textContent = 'Drop spells here to build your incantation';
+    label.style.display = 'flex';
+    document.getElementById('cast-spell-btn').disabled = true;
+    document.getElementById('drop-zone').classList.remove('success');
+  } else {
+    label.style.display = 'none';
+    container.innerHTML = queuedSpells.map(s =>
+      `<span class="queued-tag">${s.replace(/_/g, ' ').toUpperCase()}</span>`
+    ).join('');
+    document.getElementById('cast-spell-btn').disabled = false;
+    document.getElementById('drop-zone').classList.add('success');
+  }
+}
+
+function updateAllyGallery() {
+  const list = document.getElementById('ally-list');
+  if (allies.length === 0) {
+    list.innerHTML = '<span style="font-size:0.65rem;color:#443355;letter-spacing:1px">None yet — rewrite a nightmare!</span>';
+    return;
+  }
+  list.innerHTML = allies.map(a =>
+    `<div class="ally-chip" title="${a.backstory}" style="border-color:${a.color}40;color:${a.color}">${a.name.split(' ')[0]}</div>`
+  ).join('');
+}
+
+// ─── DRAG & DROP ───
+function onBlockDrag(e) {
+  e.dataTransfer.setData('spellId', e.currentTarget.dataset.code);
+}
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.add('drag-over');
+}
+function onDragLeave() {
+  document.getElementById('drop-zone').classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const spellId = e.dataTransfer.getData('spellId');
+  if (spellId && !queuedSpells.includes(spellId)) {
+    queuedSpells.push(spellId);
+    updateQueueUI();
+  }
+}
+
+// ─── MODE TOGGLE ───
+function setMode(mode) {
+  document.getElementById('btn-visual').classList.toggle('active', mode === 'visual');
+  document.getElementById('btn-code').classList.toggle('active', mode === 'code');
+  document.getElementById('visual-mode').style.display = mode === 'visual' ? 'flex' : 'none';
+  document.getElementById('visual-mode').style.flexDirection = 'column';
+  document.getElementById('js-mode').classList.toggle('visible', mode === 'code');
+}
+
+// ─── UTILS ───
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+function lerpHex(a, b, t) {
+  const ar = parseInt(a.slice(1,3),16), ag = parseInt(a.slice(3,5),16), ab = parseInt(a.slice(5,7),16);
+  const br = parseInt(b.slice(1,3),16), bg = parseInt(b.slice(3,5),16), bb = parseInt(b.slice(5,7),16);
+  const r = Math.round(ar + (br-ar)*t);
+  const g = Math.round(ag + (bg-ag)*t);
+  const bv = Math.round(ab + (bb-ab)*t);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${bv.toString(16).padStart(2,'0')}`;
+}
+
+// ─── BACKGROUND NEBULA ───
+let nebulaTime = 0;
+function drawNebula() {
+  nebulaTime += 0.003;
+  const w = canvas.width, h = canvas.height;
+
+  // Void gradient
+  const vg = ctx.createRadialGradient(w*0.5, h*0.5, 50, w*0.5, h*0.5, w*0.7);
+  if (bgFlash > 0) {
+    const flashAlpha = bgFlash / 80 * 0.3;
+    vg.addColorStop(0, `rgba(255,200,255,${flashAlpha})`);
+    vg.addColorStop(1, 'rgba(5,0,16,0)');
+    bgFlash--;
+  } else {
+    vg.addColorStop(0, 'rgba(102,0,150,0.08)');
+    vg.addColorStop(1, 'rgba(5,0,16,0)');
+  }
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, w, h);
+
+  // Nebula wisps
+  for (let i = 0; i < 3; i++) {
+    const nx = w * (0.2 + i * 0.3) + Math.sin(nebulaTime + i) * 80;
+    const ny = h * (0.3 + i * 0.2) + Math.cos(nebulaTime * 0.7 + i) * 60;
+    const ng = ctx.createRadialGradient(nx, ny, 10, nx, ny, 150);
+    ng.addColorStop(0, i===1 ? 'rgba(255,0,100,0.04)' : 'rgba(102,0,255,0.06)');
+    ng.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = ng; ctx.fillRect(0, 0, w, h);
+  }
+}
+
+// ─── MAIN RENDER LOOP ───
+function renderLoop() {
+  if (gameState !== 'playing' && gameState !== 'final') {
+    requestAnimationFrame(renderLoop);
+    return;
+  }
+
+  const w = canvas.width, h = canvas.height;
+
+  // Clear with fade
+  ctx.fillStyle = 'rgba(5,0,16,0.2)';
+  ctx.fillRect(0, 0, w, h);
+
+  drawNebula();
+  drawStarfield();
+
+  // Position entities
+  if (nightmare) {
+    nightmare.x = w * 0.62;
+    nightmare.y = h * 0.48;
+    nightmare.update();
+    nightmare.draw();
+  }
+  if (dreamweaver) {
+    dreamweaver.x = w * 0.22;
+    dreamweaver.y = h * 0.52;
+    dreamweaver.update();
+    dreamweaver.draw();
+    // DW label
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,255,238,0.7)';
+    ctx.font = '11px "Share Tech Mono"';
+    ctx.textAlign = 'center';
+    ctx.fillText(dreamweaver.name, dreamweaver.x, dreamweaver.y + 55);
+    ctx.restore();
+  }
+
+  // Draw nightmare label
+  if (nightmare) {
+    ctx.save();
+    ctx.fillStyle = nightmare.isAlly ? nightmare.def.allyColor : '#ff88ff';
+    ctx.font = 'bold 13px "Share Tech Mono"';
+    ctx.textAlign = 'center';
+    ctx.shadowBlur = 10; ctx.shadowColor = ctx.fillStyle;
+    ctx.fillText(nightmare.isAlly ? nightmare.def.allyName : nightmare.def.name, nightmare.x, nightmare.y - 75);
+    ctx.restore();
+  }
+
+  // Boss attack projectiles
+  for (let i = attackProjectiles.length - 1; i >= 0; i--) {
+    const p = attackProjectiles[i];
+    p.update(); p.draw();
+    if (p.life <= 0 || p.hit) attackProjectiles.splice(i, 1);
+  }
+
+  // Attack timer (1 frame = 1 delta)
+  updateAttackTimer(1);
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update(); particles[i].draw();
+    if (particles[i].life <= 0) particles.splice(i, 1);
+  }
+
+  // Speech timer
+  if (speechTimer > 0) {
+    speechTimer--;
+    if (speechTimer <= 0) {
+      document.getElementById('speech-bubble').classList.remove('visible');
+      if (Math.random() < 0.3) {
+        setTimeout(() => showSpeech(getDWLine(), 180), 3000 + Math.random()*4000);
+      }
+    }
+  }
+
+  time++;
+  requestAnimationFrame(renderLoop);
+}
+
+// ─── INTRO STARFIELD ───
+function animateIntro() {
+  const ic = document.getElementById('intro-bg-canvas');
+  if (!ic) return;
+  const ix = ic.getContext('2d');
+  ic.width = window.innerWidth; ic.height = window.innerHeight;
+  let t = 0;
+  const iStars = Array.from({length:300}, () => ({
+    x: Math.random(), y: Math.random(),
+    r: Math.random()*2+0.3, tw: Math.random()*Math.PI*2, sp: Math.random()*0.02+0.005
+  }));
+  // Draw dark radial glow in center
+  function draw() {
+    ix.fillStyle = 'rgba(0,0,8,0.18)'; ix.fillRect(0,0,ic.width,ic.height);
+    // Central nebula
+    const ng = ix.createRadialGradient(ic.width*0.5, ic.height*0.5, 30, ic.width*0.5, ic.height*0.5, ic.width*0.5);
+    ng.addColorStop(0, 'rgba(80,0,120,0.12)');
+    ng.addColorStop(0.4, 'rgba(40,0,80,0.06)');
+    ng.addColorStop(1, 'rgba(0,0,0,0)');
+    ix.fillStyle = ng; ix.fillRect(0,0,ic.width,ic.height);
+    // Stars
+    iStars.forEach(s => {
+      s.tw += s.sp;
+      const alpha = 0.5 + 0.5*Math.abs(Math.sin(s.tw));
+      ix.globalAlpha = alpha;
+      ix.shadowBlur = s.r > 1.5 ? 12 : 5;
+      ix.shadowColor = s.r > 1.5 ? '#cc88ff' : '#ffffff';
+      ix.fillStyle = s.r > 1.5 ? '#ffffff' : '#ddbbff';
+      ix.beginPath(); ix.arc(s.x*ic.width, s.y*ic.height, s.r, 0, Math.PI*2); ix.fill();
+    });
+    ix.globalAlpha = 1; ix.shadowBlur = 0; t++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── GAME START ───
+function startGame() {
+  neAudio.sfxGameStart();
+  neAudio.setAmbient(true);
+  document.getElementById('intro-screen').style.opacity = '0';
+  document.getElementById('intro-screen').style.transition = 'opacity 0.8s';
+  setTimeout(() => {
+    document.getElementById('intro-screen').style.display = 'none';
+  }, 800);
+
+  gameState = 'playing';
+  setTimeout(() => {
+    resizeCanvas();
+  }, 50);
+  dreamweaver = new Dreamweaver();
+  document.getElementById('ally-count').textContent = allies.length;
+  updateAllyGallery();
+
+  // Spawn ambient speech
+  setTimeout(() => showSpeech("Welcome, Coder of Dreams. The nightmares sense your presence...", 300), 1000);
+  setTimeout(() => startLevel(0), 500);
+  renderLoop();
+}
+
+function showFinalScreen() {
+  gameState = 'final';
+  showMessage('∞ ALL NIGHTMARES BEFRIENDED ∞', '#ff00cc');
+  setTimeout(() => {
+    showSpeech("You did it. Every nightmare is now a cosmic ally. The Dream Abyss is at peace. You are the Dreamweaver.", 999);
+  }, 1500);
+}
+
+// ─── KEYBOARD SHORTCUTS ───
+document.addEventListener('keydown', e => {
+  if (gameState !== 'playing') return;
+  if (e.key === 'Enter' && queuedSpells.length > 0) castQueuedSpells();
+  if (e.key === 'Escape') { queuedSpells = []; updateQueueUI(); }
+});
+
+// ─── FULLSCREEN ───
+function toggleFS() {
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  document.getElementById('fs-btn').textContent = document.fullscreenElement ? '✕ FS' : '⛶ FS';
+});
+
+// ─── MOBILE PANEL TOGGLE ───
+let panelOpen = false;
+function toggleMobilePanel() {
+  panelOpen = !panelOpen;
+  const panel = document.getElementById('ui-panel');
+  const btn = document.getElementById('mobile-panel-toggle');
+  panel.classList.toggle('panel-open', panelOpen);
+  btn.classList.toggle('panel-open', panelOpen);
+  btn.textContent = panelOpen ? '✕ CLOSE' : '⬟ CODEX';
+  neAudio.sfxClick();
+}
+
+// ─── TOUCH-TO-QUEUE (tap spell blocks on iPad) ───
+function initTouchSpells() {
+  document.querySelectorAll('.spell-block').forEach(block => {
+    block.addEventListener('touchend', e => {
+      e.preventDefault();
+      const code = block.dataset.code;
+      if (!code || nightmare?.isAlly) return;
+      if (!queuedSpells.includes(code)) {
+        queuedSpells.push(code);
+        block.classList.add('touch-queued');
+        setTimeout(() => block.classList.remove('touch-queued'), 600);
+        updateQueueUI();
+        neAudio.sfxSpellPick();
+      }
+    }, { passive: false });
+  });
+
+  // Touch on drop-zone casts
+  const dz = document.getElementById('drop-zone');
+  if (dz) {
+    dz.addEventListener('touchend', e => {
+      if (queuedSpells.length > 0) {
+        e.preventDefault();
+        castQueuedSpells();
+      }
+    }, { passive: false });
+  }
+}
+
+// ─══════════════════════════════════════════════
+//  NIGHTMARE ECLIPSE — PROCEDURAL AUDIO ENGINE
+// ═══════════════════════════════════════════════
+const neAudio = (() => {
+  let ac = null, masterGain = null, reverbSend = null, reverbNode = null;
+  let ambientOsc = null, ambientGain = null;
+  let initialized = false;
+
+  function makeReverb(dur, decay) {
+    const len = Math.ceil(ac.sampleRate * dur);
+    const buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, decay);
+    }
+    const conv = ac.createConvolver(); conv.buffer = buf; return conv;
+  }
+
+  function noiseBuf(dur) {
+    const len = Math.ceil(ac.sampleRate * dur);
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random()*2-1;
+    return buf;
+  }
+
+  function init() {
+    if (initialized) return;
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ac.createGain(); masterGain.gain.value = 0.65;
+      masterGain.connect(ac.destination);
+      reverbNode = makeReverb(1.6, 2.8); reverbNode.connect(masterGain);
+      reverbSend = ac.createGain(); reverbSend.gain.value = 0.18; reverbSend.connect(reverbNode);
+
+      // Ambient void drone
+      ambientOsc = ac.createOscillator(); ambientOsc.type = 'sine'; ambientOsc.frequency.value = 55;
+      const ambFilt = ac.createBiquadFilter(); ambFilt.type = 'lowpass'; ambFilt.frequency.value = 200;
+      ambientGain = ac.createGain(); ambientGain.gain.value = 0;
+      ambientOsc.connect(ambFilt); ambFilt.connect(ambientGain); ambientGain.connect(masterGain);
+      ambientOsc.start();
+
+      initialized = true;
+    } catch(e) {}
+  }
+
+  function ensureInit() { if (!initialized) init(); if (ac?.state === 'suspended') ac.resume(); }
+
+  // Fade ambient in/out
+  function setAmbient(on) {
+    ensureInit();
+    if (!ambientGain) return;
+    ambientGain.gain.setTargetAtTime(on ? 0.06 : 0, ac.currentTime, 1.5);
+  }
+
+  // UI click
+  function sfxClick() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = 660;
+    const g = ac.createGain(); g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.06);
+    o.connect(g); g.connect(masterGain); o.start(t); o.stop(t+0.07);
+  }
+
+  // Spell picked up from codex
+  function sfxSpellPick() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator(); o.type = 'triangle';
+    o.frequency.setValueAtTime(440, t); o.frequency.linearRampToValueAtTime(660, t+0.08);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.16, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.12);
+    o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+    o.start(t); o.stop(t+0.13);
+  }
+
+  // Spell cast — dramatic sweep
+  function sfxCast(power) {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const vol = Math.min(0.5, 0.2 + power/200);
+    // Sweep up
+    const o = ac.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(1200, t+0.3);
+    const f = ac.createBiquadFilter(); f.type = 'lowpass';
+    f.frequency.setValueAtTime(300, t); f.frequency.exponentialRampToValueAtTime(4000, t+0.3);
+    const g = ac.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.4);
+    o.connect(f); f.connect(g); g.connect(masterGain); g.connect(reverbSend);
+    o.start(t); o.stop(t+0.42);
+    // Magic sparkle burst
+    [523, 659, 784, 1046].forEach((freq, i) => {
+      const o2 = ac.createOscillator(); o2.type = 'sine'; o2.frequency.value = freq;
+      const g2 = ac.createGain(); const st = t+0.18+i*0.07;
+      g2.gain.setValueAtTime(vol*0.5, st); g2.gain.exponentialRampToValueAtTime(0.001, st+0.3);
+      o2.connect(g2); g2.connect(masterGain); g2.connect(reverbSend);
+      o2.start(st); o2.stop(st+0.32);
+    });
+  }
+
+  // Nightmare hit / fear reduced
+  function sfxNightmareHit() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const src = ac.createBufferSource(); src.buffer = noiseBuf(0.08);
+    const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 800; f.Q.value = 4;
+    const g = ac.createGain(); g.gain.setValueAtTime(0.35, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.1);
+    src.connect(f); f.connect(g); g.connect(masterGain);
+    src.start(t);
+    // Low impact thud
+    const o = ac.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(40, t+0.18);
+    const og = ac.createGain(); og.gain.setValueAtTime(0.4, t); og.gain.exponentialRampToValueAtTime(0.001, t+0.2);
+    o.connect(og); og.connect(masterGain); o.start(t); o.stop(t+0.22);
+  }
+
+  // Boss attack incoming — tense alarm
+  function sfxBossAttack() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(60, t+0.4);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.5);
+    o.connect(g); g.connect(masterGain);
+    o.start(t); o.stop(t+0.5);
+    // Warning pulse
+    const o2 = ac.createOscillator(); o2.type = 'square'; o2.frequency.value = 220;
+    const g2 = ac.createGain(); g2.gain.setValueAtTime(0, t+0.1); g2.gain.linearRampToValueAtTime(0.15, t+0.15);
+    g2.gain.linearRampToValueAtTime(0, t+0.2); g2.gain.linearRampToValueAtTime(0.15, t+0.25);
+    g2.gain.linearRampToValueAtTime(0, t+0.35);
+    o2.connect(g2); g2.connect(masterGain); o2.start(t+0.1); o2.stop(t+0.36);
+  }
+
+  // Player hit
+  function sfxPlayerHit() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const src = ac.createBufferSource(); src.buffer = noiseBuf(0.1);
+    const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1000;
+    const g = ac.createGain(); g.gain.setValueAtTime(0.45, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.12);
+    src.connect(f); f.connect(g); g.connect(masterGain); g.connect(reverbSend);
+    src.start(t);
+  }
+
+  // Ally transform — triumphant cascade
+  function sfxTransform(allyColor) {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    // Rising chord bloom
+    [261.63, 329.63, 392, 523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+      const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+      const g = ac.createGain(); const st = t + i*0.1;
+      g.gain.setValueAtTime(0.18, st); g.gain.exponentialRampToValueAtTime(0.001, st+0.9);
+      o.connect(g); g.connect(masterGain); g.connect(reverbSend);
+      o.start(st); o.stop(st+0.95);
+    });
+    // Sub boom
+    const sub = ac.createOscillator(); sub.type = 'sine';
+    sub.frequency.setValueAtTime(80, t); sub.frequency.exponentialRampToValueAtTime(20, t+1.0);
+    const sg = ac.createGain(); sg.gain.setValueAtTime(0.55, t); sg.gain.exponentialRampToValueAtTime(0.001, t+1.0);
+    sub.connect(sg); sg.connect(masterGain); sub.start(t); sub.stop(t+1.05);
+  }
+
+  // Game start
+  function sfxGameStart() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(60, t); o.frequency.exponentialRampToValueAtTime(520, t+0.5);
+    const f = ac.createBiquadFilter(); f.type = 'lowpass';
+    f.frequency.setValueAtTime(200, t); f.frequency.exponentialRampToValueAtTime(3000, t+0.5);
+    const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.3, t+0.15);
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.6);
+    o.connect(f); f.connect(g); g.connect(masterGain); g.connect(reverbSend);
+    o.start(t); o.stop(t+0.65);
+  }
+
+  // Level complete fanfare
+  function sfxLevelComplete() {
+    ensureInit(); if (!ac) return;
+    const t = ac.currentTime;
+    [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((freq, i) => {
+      const o = ac.createOscillator(); o.type = 'square'; o.frequency.value = freq;
+      const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2000;
+      const g = ac.createGain(); const st = t + i*0.12;
+      g.gain.setValueAtTime(0, st); g.gain.linearRampToValueAtTime(0.18, st+0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, st+0.5);
+      o.connect(f); f.connect(g); g.connect(masterGain); g.connect(reverbSend);
+      o.start(st); o.stop(st+0.55);
+    });
+  }
+
+  return { init, ensureInit, setAmbient, sfxClick, sfxSpellPick, sfxCast, sfxNightmareHit, sfxBossAttack, sfxPlayerHit, sfxTransform, sfxGameStart, sfxLevelComplete };
+})();
+
+// ─── INIT ───
+animateIntro();
+updateAllyGallery();
+initTouchSpells();
+
+// Unlock audio on first interaction
+document.addEventListener('pointerdown', () => neAudio.ensureInit(), { once: true });
+document.addEventListener('touchstart', () => neAudio.ensureInit(), { once: true });
+</script>
+</body>
+</html>
