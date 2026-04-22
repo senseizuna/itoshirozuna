@@ -533,6 +533,23 @@
     }
     #instructions strong { color: #aa88ff; }
 
+    #ally-preview-back {
+      position: absolute;
+      left: 16px;
+      top: 110px;
+      z-index: 18;
+      display: none;
+      padding: 10px 18px;
+      letter-spacing: 2px;
+      font-size: 0.72rem;
+      box-shadow: 0 0 24px rgba(255,204,0,0.2);
+    }
+    #ally-preview-back.visible {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* ── FULLSCREEN + IPAD RESPONSIVE LAYOUT ── */
     html, body {
       position: fixed; inset: 0;
@@ -567,7 +584,7 @@
 
     #siteNavWrap{
       position:fixed;
-      top:14px;
+      top:54px;
       left:50%;
       transform:translateX(-50%);
       z-index:210;
@@ -718,7 +735,7 @@
 
       /* Legal footer */
       #legal-footer { font-size: 0.5rem; bottom: 52px; }
-      #siteNavWrap{top:10px;gap:5px;max-width:calc(100vw - 140px)}
+      #siteNavWrap{top:52px;gap:5px;max-width:calc(100vw - 140px)}
       #siteMiniBrand{display:none}
       #siteNav{gap:6px}
       .navTab{font-size:.52rem;padding:5px 8px}
@@ -730,7 +747,7 @@
       #ui-panel { height: 62vh; max-height: 62vh; transform: translateY(calc(100% - 52px)); }
       #mobile-panel-toggle.panel-open { bottom: calc(62vh + 6px); }
       #intro-screen h1 { font-size: 1.7rem; }
-      #siteNavWrap{left:50%;transform:translateX(-50%);top:8px;max-width:calc(100vw - 150px)}
+      #siteNavWrap{left:50%;transform:translateX(-50%);top:50px;max-width:calc(100vw - 150px)}
       #siteNav{display:grid;grid-template-columns:repeat(2,max-content);justify-content:center}
       .spell-block .spell-name { font-size: 0.52rem; }
     }
@@ -740,7 +757,7 @@
 
 
 <div id="siteNavWrap">
-  <div id="siteMiniBrand">ITOSHIRO ZUNA LLC</div>
+  
   <div id="siteNav">
     <a class="navTab" href="index.html">HOME</a>
     <a class="navTab" href="apps.html">APPS</a>
@@ -748,7 +765,6 @@
 </div>
 
 
-<!-- INTRO SCREEN -->
 <div id="intro-screen">
   <canvas id="intro-bg-canvas"></canvas>
   <div id="intro-content">
@@ -759,7 +775,6 @@
   </div>
 </div>
 
-<!-- GAME WRAPPER -->
 <div id="game-wrapper">
   <div id="canvas-area">
     <canvas id="canvas"></canvas>
@@ -804,6 +819,8 @@
     <!-- SPEECH BUBBLE -->
     <div id="speech-bubble">...</div>
 
+    <button id="ally-preview-back" class="neon-btn secondary" onclick="neAudio.sfxClick(); exitAllyView()">BACK TO GAME</button>
+
     <!-- INSTRUCTIONS -->
     <div id="instructions">
       <strong>HOW TO PLAY:</strong><br>
@@ -819,7 +836,6 @@
       <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
         <button class="neon-btn primary" onclick="neAudio.sfxClick(); nextLevel()">⟶ NEXT NIGHTMARE</button>
         <button class="neon-btn secondary" onclick="neAudio.sfxClick(); viewAlly()">⬡ VIEW ALLY</button>
-        <button class="neon-btn secondary" onclick="neAudio.sfxClick(); closeVictoryOverlay()">✦ BACK</button>
       </div>
     </div>
   </div>
@@ -968,14 +984,11 @@
   </div>
 </div><!-- /game-wrapper -->
 
-<!-- MOBILE PANEL TOGGLE -->
 <button id="mobile-panel-toggle" onclick="toggleMobilePanel()">⬟ CODEX</button>
 
-<!-- FULLSCREEN BUTTON -->
 <button id="fs-btn" onclick="toggleFS()">⛶ FS</button>
 
-<!-- COPYRIGHT FOOTER -->
-<div id="legal-footer">© 2026 ITOSHIRO ZUNA LLC — ALL RIGHTS RESERVED — nicolasquirozmd.com</div>
+<div id="legal-footer"></div>
 
 <script>
 // ─────────────────────────────────────────
@@ -1444,6 +1457,14 @@ let loyalty = 0;
 let time = 0;
 let speechTimer = 0;
 let bgFlash = 0;
+let victoryScreenState = {
+  mode: 'victory',
+  title: '',
+  titleColor: '',
+  subtitle: '',
+  backstory: ''
+};
+let allyPreviewVisible = false;
 
 // Boss attack system
 let attackTimer = 0;        // counts up in frames (60fps)
@@ -1880,24 +1901,44 @@ function allyTransform() {
   setTimeout(() => showLevelComplete(), 1200);
 }
 
+function setAllyPreviewVisible(visible) {
+  allyPreviewVisible = visible;
+  document.getElementById('ally-preview-back').classList.toggle('visible', visible);
+}
+
+function restoreVictoryOverlay() {
+  document.getElementById('level-title').textContent = victoryScreenState.title;
+  document.getElementById('level-title').style.color = victoryScreenState.titleColor;
+  document.getElementById('level-sub').textContent = victoryScreenState.subtitle;
+  document.getElementById('ally-backstory').textContent = victoryScreenState.backstory;
+}
+
 function showLevelComplete() {
   neAudio.sfxLevelComplete();
   const def = NIGHTMARE_DEFS[currentLevel];
   const isFinal = def.isFinalBoss;
 
-  document.getElementById('level-title').textContent = isFinal
-    ? '♾ THE ABYSS BEFRIENDED' : '✦ NIGHTMARE REWRITTEN';
-  document.getElementById('level-title').style.color = isFinal ? '#ff00cc' : '#00ffee';
-  document.getElementById('level-sub').textContent = isFinal
-    ? 'You befriended the source of all nightmares. The cosmos blooms.'
-    : `The ${def.name} is now your cosmic ally!`;
-  document.getElementById('ally-backstory').textContent = `"${def.backstory}" — ${def.allyName}`;
+  victoryScreenState = {
+    mode: 'victory',
+    title: isFinal ? 'THE ABYSS BEFRIENDED' : 'NIGHTMARE REWRITTEN',
+    titleColor: isFinal ? '#ff00cc' : '#00ffee',
+    subtitle: isFinal
+      ? 'You befriended the source of all nightmares. The cosmos blooms.'
+      : 'The ' + def.name + ' is now your cosmic ally!',
+    backstory: '"' + def.backstory + '" - ' + def.allyName
+  };
+
+  setAllyPreviewVisible(false);
+  restoreVictoryOverlay();
   document.getElementById('level-screen').classList.add('visible');
 
   updateAllyGallery();
 }
 
 function nextLevel() {
+  setAllyPreviewVisible(false);
+  document.getElementById('level-screen').classList.remove('visible');
+  victoryScreenState.mode = 'victory';
   startLevel(currentLevel + 1);
 }
 
@@ -1905,18 +1946,43 @@ function viewAlly() {
   const ally = allies[allies.length - 1];
   if (!ally) return;
 
-  document.getElementById('level-title').textContent = ally.name;
-  document.getElementById('level-title').style.color = ally.color;
-  document.getElementById('level-sub').textContent = `Loyalty: ${ally.loyalty}/100`;
-  document.getElementById('ally-backstory').textContent = `"${ally.backstory}"`;
+  victoryScreenState.mode = 'ally';
+  document.getElementById('level-screen').classList.remove('visible');
+  setAllyPreviewVisible(true);
 
-  showSpeech(`${ally.name}: "${ally.backstory.substring(0, 120)}..."`, 400);
-  document.getElementById('level-screen').classList.add('visible');
+  showMessage('VIEWING ALLY: ' + ally.name.toUpperCase(), ally.color || '#00ffee');
+  showSpeech(ally.name + ': "' + ally.backstory.substring(0, 120) + '..."', 400);
 }
 
-function closeVictoryOverlay() {
+function exitAllyView() {
+  setAllyPreviewVisible(false);
+  victoryScreenState.mode = 'victory';
+  restoreVictoryOverlay();
+  document.getElementById('level-screen').classList.add('visible');
+}
+function overlayBackAction() {
+  if (victoryScreenState.mode === 'ally') {
+    closeVictoryOverlay(true);
+    return;
+  }
+
+  closeVictoryOverlay(false);
+}
+
+function closeVictoryOverlay(returnToGame = false) {
   document.getElementById('level-screen').classList.remove('visible');
+  setAllyPreviewVisible(false);
+
+  if (victoryScreenState.title) {
+    restoreVictoryOverlay();
+  }
+
+  victoryScreenState.mode = 'victory';
   setMode('visual');
+
+  if (returnToGame) {
+    gameState = 'playing';
+  }
 }
 
 // ─── UI UPDATE ───
