@@ -1,0 +1,1244 @@
+<!--
+    AI Hero Quest — Epic Edition
+    Copyright (c) 2026 Itoshiro Zuna LLC
+    All rights reserved.
+
+    This software and all associated game assets, code, visual design, and gameplay
+    are the proprietary property of Itoshiro Zuna LLC. Unauthorized reproduction,
+    distribution, or modification, in whole or in part, is strictly prohibited
+    without the express written permission of Itoshiro Zuna LLC.
+
+    itoshirozuna.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI Hero Quest — Epic Edition · Itoshiro Zuna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --c-void:#050a14;
+  --c-deep:#0a1628;
+  --c-mid:#0f2040;
+  --c-border:#1e3a6e;
+  --c-gold:#f5c842;
+  --c-glow:#a78bfa;
+  --c-cyan:#22d3ee;
+  --c-green:#10b981;
+  --c-red:#f43f5e;
+  --c-orange:#fb923c;
+  --c-panel:#0d1f3c;
+  --c-accent:#7c3aed;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--c-void);}
+body{font-family:'Orbitron',sans-serif;color:#e2e8f0;display:flex;flex-direction:column;}
+
+/* STARFIELD BG */
+#starfield{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* HEADER */
+#header{
+  position:relative;z-index:10;
+  background:linear-gradient(180deg,rgba(5,10,20,1) 0%,rgba(10,22,40,0.95) 100%);
+  border-bottom:2px solid var(--c-border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:38px 16px 8px 16px;
+  flex-shrink:0;
+}
+@media(max-width:600px){#header{padding:8px 16px;}}
+#logo{display:flex;align-items:center;gap:12px;}
+#logo-icon{
+  width:48px;height:48px;
+  background:linear-gradient(135deg,#f5c842,#fb923c);
+  border-radius:12px;border:3px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;box-shadow:0 0 20px #f5c84280;
+  flex-shrink:0;
+}
+#logo-text{line-height:1;}
+#logo-title{font-size:clamp(10px,2vw,18px);font-weight:900;color:#fff;text-shadow:0 0 20px var(--c-glow);letter-spacing:2px;}
+#logo-sub{font-size:clamp(7px,1vw,10px);color:var(--c-glow);letter-spacing:3px;margin-top:2px;}
+
+#header-right{display:flex;align-items:center;gap:10px;}
+.hdr-stat{
+  background:var(--c-panel);border:1px solid var(--c-border);
+  border-radius:10px;padding:6px 12px;
+  display:flex;flex-direction:column;align-items:center;
+  min-width:64px;
+}
+.hdr-stat-val{font-size:clamp(12px,2vw,18px);font-weight:900;color:var(--c-gold);}
+.hdr-stat-label{font-size:7px;color:#94a3b8;letter-spacing:1px;margin-top:1px;}
+#btn-help{
+  background:var(--c-panel);border:1px solid var(--c-border);
+  border-radius:10px;padding:8px 14px;cursor:pointer;
+  font-size:10px;font-family:'Orbitron',sans-serif;
+  color:#94a3b8;transition:all .2s;
+}
+#btn-help:hover{border-color:var(--c-glow);color:var(--c-glow);}
+
+/* MAIN LAYOUT */
+#game-layout{
+  position:relative;z-index:5;
+  flex:1;display:flex;gap:0;overflow:hidden;
+}
+
+/* LEFT PANEL */
+#panel-left{
+  width:220px;flex-shrink:0;
+  background:var(--c-panel);
+  border-right:2px solid var(--c-border);
+  display:flex;flex-direction:column;
+  padding:12px;gap:10px;
+  overflow-y:auto;
+}
+@media(max-width:900px){#panel-left{width:180px;padding:8px;}}
+@media(max-width:700px){#panel-left{display:none;}}
+
+.panel-section{border:1px solid var(--c-border);border-radius:12px;padding:10px;background:rgba(0,0,0,.3);}
+.panel-label{font-size:7px;letter-spacing:2px;color:var(--c-glow);margin-bottom:6px;}
+#level-title-left{font-size:13px;font-weight:900;color:var(--c-gold);line-height:1.2;margin-bottom:4px;}
+#level-sub-left{font-size:8px;color:#94a3b8;letter-spacing:1px;margin-bottom:8px;}
+#level-desc-left{font-size:9px;color:#cbd5e1;line-height:1.5;font-family:'Exo 2',sans-serif;}
+#concepts-left{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.concept-tag{background:#1e3a6e;color:#a5b4fc;font-size:7px;padding:3px 8px;border-radius:20px;font-family:'Exo 2',sans-serif;}
+
+/* LEVEL PROGRESS */
+#level-dots-left{display:flex;flex-wrap:wrap;gap:5px;}
+.ldot{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;cursor:pointer;
+  border:2px solid var(--c-border);
+  background:rgba(0,0,0,.4);color:#64748b;
+  transition:all .2s;
+}
+.ldot.active{background:var(--c-accent);border-color:#fff;color:#fff;box-shadow:0 0 12px var(--c-accent);}
+.ldot.done{background:#1e3a6e;border-color:#a78bfa;color:#a5b4fc;}
+.ldot:hover{border-color:var(--c-glow);}
+
+#optimal-left{font-size:8px;color:#94a3b8;font-family:'Exo 2',sans-serif;}
+#cmd-count-left{color:var(--c-gold);font-weight:700;}
+#hint-btn-left{
+  width:100%;padding:7px;border-radius:8px;
+  border:1px solid var(--c-border);background:transparent;
+  color:#94a3b8;font-size:8px;font-family:'Orbitron',sans-serif;
+  cursor:pointer;margin-top:6px;transition:all .2s;
+}
+#hint-btn-left:hover{border-color:#fbbf24;color:#fbbf24;}
+
+/* CENTER */
+#center-area{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:12px;gap:10px;overflow:hidden;
+  min-width:0;
+}
+
+/* LEVEL DOTS TOP (mobile) */
+#level-dots-top{
+  display:none;flex-wrap:wrap;gap:5px;justify-content:center;
+}
+@media(max-width:700px){#level-dots-top{display:flex;}}
+
+#canvas-wrapper{
+  position:relative;
+  flex-shrink:1;
+}
+#game-canvas{
+  display:block;border-radius:16px;
+  border:3px solid var(--c-border);
+  box-shadow:0 0 50px rgba(124,58,237,.5),inset 0 0 30px rgba(0,0,0,.8);
+  image-rendering:pixelated;
+  touch-action:none;
+}
+
+/* CONTROLS */
+#controls-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;
+  flex-shrink:0;
+}
+.ctrl-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 16px;border-radius:12px;
+  border:2px solid var(--c-border);
+  background:var(--c-panel);color:#e2e8f0;
+  font-size:10px;font-family:'Orbitron',sans-serif;
+  cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none;
+}
+.ctrl-btn:active{transform:translateY(2px);filter:brightness(.85);}
+.ctrl-btn:hover{border-color:var(--c-glow);}
+#btn-run{
+  background:linear-gradient(135deg,#059669,#0d9488);
+  border-color:#10b981;color:#fff;font-weight:900;font-size:13px;
+  padding:12px 28px;
+  box-shadow:0 0 25px #10b98160;
+}
+#btn-run:hover{box-shadow:0 0 35px #10b98190;}
+#btn-run.running{background:linear-gradient(135deg,#b45309,#d97706);border-color:#f59e0b;}
+
+#speed-row{display:flex;align-items:center;gap:8px;font-size:8px;color:#64748b;}
+input[type=range]{accent-color:var(--c-glow);width:90px;}
+
+/* RIGHT PANEL - CODE */
+#panel-right{
+  width:230px;flex-shrink:0;
+  background:var(--c-panel);
+  border-left:2px solid var(--c-border);
+  display:flex;flex-direction:column;
+  padding:12px;gap:8px;
+  overflow:hidden;
+}
+@media(max-width:900px){#panel-right{width:190px;padding:8px;}}
+@media(max-width:600px){
+  #panel-right{
+    position:fixed;bottom:0;left:0;right:0;width:100%;
+    height:auto;max-height:45vh;border-left:none;border-top:2px solid var(--c-border);
+    z-index:20;flex-direction:column;
+  }
+}
+
+#code-header{display:flex;justify-content:space-between;align-items:center;}
+#code-title{font-size:11px;font-weight:900;}
+#btn-clear{font-size:8px;color:var(--c-red);cursor:pointer;font-family:'Orbitron',sans-serif;background:none;border:none;}
+#btn-clear:hover{color:#fca5a5;}
+
+#program-list{
+  flex:1;background:rgba(0,0,0,.5);border:1px solid var(--c-border);
+  border-radius:10px;padding:8px;overflow-y:auto;
+  min-height:80px;max-height:200px;
+}
+@media(max-width:600px){#program-list{max-height:80px;}}
+
+.prog-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#0d1f3c;border:1px solid var(--c-border);
+  border-radius:8px;padding:5px 8px;margin-bottom:4px;
+  font-size:9px;transition:all .15s;
+}
+.prog-item.executing{
+  background:#1e3a00;border-color:#10b981;
+  box-shadow:0 0 12px #10b98160;
+  animation:pulseExec .5s infinite alternate;
+}
+@keyframes pulseExec{from{transform:scale(1);}to{transform:scale(1.02);}}
+.prog-item-icon{margin-right:5px;font-size:11px;}
+.prog-item-del{color:#f43f5e;cursor:pointer;padding:0 4px;font-size:14px;line-height:1;}
+.prog-item-del:hover{color:#fca5a5;}
+
+/* COMMAND BUTTONS */
+#cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0;}
+.cmd-btn{
+  padding:9px 6px;border-radius:10px;border:2px solid;
+  font-size:8px;font-family:'Orbitron',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  font-weight:700;transition:all .12s;
+  -webkit-user-select:none;user-select:none;
+}
+.cmd-btn:active{transform:scale(.95);}
+.cmd-blue{background:#1e3a6e;border-color:#3b82f6;color:#93c5fd;}
+.cmd-blue:hover{background:#1d4ed8;border-color:#60a5fa;}
+.cmd-amber{background:#3d1f00;border-color:#d97706;color:#fbbf24;}
+.cmd-amber:hover{background:#b45309;}
+.cmd-red{background:#3d0012;border-color:#f43f5e;color:#fca5a5;}
+.cmd-red:hover{background:#be123c;}
+.cmd-green{background:#003d1f;border-color:#10b981;color:#6ee7b7;}
+.cmd-green:hover{background:#047857;}
+.cmd-purple{background:#2d1b6e;border-color:#7c3aed;color:#c4b5fd;}
+.cmd-purple:hover{background:#5b21b6;}
+.cmd-cyan{background:#003d4f;border-color:#0891b2;color:#67e8f9;}
+.cmd-cyan:hover{background:#0e7490;}
+.cmd-span2{grid-column:span 2;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  padding:10px 20px;border-radius:20px;font-size:10px;
+  pointer-events:none;z-index:1000;
+  animation:toastFade 3s forwards;
+  font-family:'Orbitron',sans-serif;
+}
+@keyframes toastFade{0%{opacity:0;transform:translateX(-50%) translateY(10px);}10%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;}}
+.toast-win{background:#064e3b;border:1px solid #10b981;color:#6ee7b7;}
+.toast-lose{background:#4c0519;border:1px solid #f43f5e;color:#fca5a5;}
+.toast-info{background:#1e1b4b;border:1px solid #7c3aed;color:#c4b5fd;}
+.toast-hint{background:#1c1917;border:1px solid #d97706;color:#fbbf24;}
+
+/* WIN MODAL */
+#win-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);
+  display:none;align-items:center;justify-content:center;z-index:500;
+}
+#win-box{
+  background:linear-gradient(135deg,#0a1628,#1e1b4b);
+  border:3px solid var(--c-gold);border-radius:24px;
+  padding:32px;max-width:360px;width:90%;text-align:center;
+  box-shadow:0 0 60px #f5c84240;
+}
+#win-title{font-size:24px;font-weight:900;color:var(--c-gold);margin-bottom:8px;}
+#win-text{font-size:10px;color:#c4b5fd;font-family:'Exo 2',sans-serif;margin-bottom:16px;line-height:1.6;}
+#win-stars{display:flex;justify-content:center;gap:8px;font-size:36px;margin-bottom:20px;}
+#win-btns{display:flex;gap:10px;}
+#win-btns button{
+  flex:1;padding:12px;border-radius:12px;font-family:'Orbitron',sans-serif;
+  font-size:10px;font-weight:900;cursor:pointer;border:none;transition:all .2s;
+}
+#btn-next{background:linear-gradient(135deg,#059669,#0d9488);color:#fff;}
+#btn-replay{background:#1e3a6e;color:#93c5fd;border:1px solid #3b82f6;}
+
+/* HELP MODAL */
+#help-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:500;}
+#help-box{
+  background:var(--c-panel);border:2px solid var(--c-border);
+  border-radius:20px;padding:28px;max-width:380px;width:90%;
+  max-height:90vh;overflow-y:auto;
+}
+#help-box h3{font-size:18px;color:var(--c-gold);margin-bottom:16px;}
+#help-box p{font-size:9px;color:#cbd5e1;font-family:'Exo 2',sans-serif;line-height:1.8;margin-bottom:8px;}
+#help-box button{margin-top:16px;width:100%;padding:10px;border-radius:10px;background:var(--c-accent);border:none;color:#fff;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
+
+/* Particles */
+.particle{position:fixed;border-radius:50%;pointer-events:none;animation:particleAnim 1.2s forwards;z-index:999;}
+@keyframes particleAnim{0%{transform:scale(1) translate(0,0);opacity:1;}100%{transform:scale(0) translate(var(--tx),var(--ty));opacity:0;}}
+
+/* Enemy HP pips */
+.boss-hp{position:absolute;display:flex;gap:3px;}
+.hp-pip{width:8px;height:8px;border-radius:2px;background:#f43f5e;border:1px solid #fff;}
+.hp-pip.empty{background:#374151;}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;top:8px;left:50%;transform:translateX(-50%);
+  z-index:200;display:flex;gap:8px;pointer-events:auto;
+}
+.nav-btn{
+  padding:5px 13px;border:1px solid rgba(0,245,255,.35);
+  background:rgba(0,8,20,.85);color:#00f5ff;
+  text-decoration:none;font-size:10px;border-radius:4px;
+  letter-spacing:2px;font-family:'Orbitron',sans-serif;
+  box-shadow:0 0 8px rgba(0,245,255,.12);transition:all .18s;
+}
+.nav-btn:hover{background:rgba(0,245,255,.12);box-shadow:0 0 8px #00f5ff,0 0 20px #00f5ff80;transform:translateY(-1px);}
+@media(max-width:600px){#nav{display:none;}}
+
+/* ── LEGAL FOOTER ── */
+#legal-footer{
+  position:fixed;bottom:3px;left:50%;transform:translateX(-50%);
+  font-size:7px;opacity:.3;color:#ffffff60;
+  letter-spacing:2px;text-align:center;pointer-events:none;
+  font-family:'Share Tech Mono',monospace;white-space:nowrap;z-index:200;
+}
+
+/* Legal block in modals */
+.legal-block{
+  margin-top:16px;max-width:480px;padding:10px 14px;
+  border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);
+  font-family:'Share Tech Mono',monospace;font-size:7px;line-height:1.9;
+  letter-spacing:1px;color:#ffffff50;text-align:center;border-radius:6px;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div id="nav">
+  <a class="nav-btn" href="index.html">HOME</a>
+  <a class="nav-btn" href="fractal-pong.html">FRACTAL PONG</a>
+  <a class="nav-btn" href="fractal-racers.html">RACERS</a>
+  <a class="nav-btn" href="fractile.html">FRACTILE</a>
+  <a class="nav-btn" href="kai-fighters-legends.html">KAI FIGHTERS</a>
+</div>
+
+<!-- LEGAL FOOTER -->
+<div id="legal-footer">© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED · ITOSHIROZUNA.COM</div>
+
+<canvas id="starfield"></canvas>
+
+<div id="header">
+  <div id="logo">
+    <div id="logo-icon">⚔️</div>
+    <div id="logo-text">
+      <div id="logo-title">AI HERO QUEST</div>
+      <div id="logo-sub">EPIC EDITION</div>
+    </div>
+  </div>
+  <div id="header-right">
+    <div class="hdr-stat"><div class="hdr-stat-val" id="stat-level">1</div><div class="hdr-stat-label">LEVEL</div></div>
+    <div class="hdr-stat"><div class="hdr-stat-val" id="stat-stars">0</div><div class="hdr-stat-label">STARS</div></div>
+    <div class="hdr-stat"><div class="hdr-stat-val" id="stat-score">0</div><div class="hdr-stat-label">SCORE</div></div>
+    <button id="btn-help" onclick="showHelp()">❓ HOW TO PLAY</button>
+  </div>
+</div>
+
+<div id="game-layout">
+
+  <!-- LEFT PANEL -->
+  <div id="panel-left">
+    <div class="panel-section">
+      <div class="panel-label">CURRENT QUEST</div>
+      <div id="level-title-left">—</div>
+      <div id="level-sub-left">—</div>
+      <div id="level-desc-left">—</div>
+      <div id="concepts-left"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">LEVELS</div>
+      <div id="level-dots-left"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">PROGRESS</div>
+      <div id="optimal-left" style="margin-bottom:6px;">Commands used: <span id="cmd-count-left" style="color:var(--c-gold)">0</span> / <span id="optimal-val-left">—</span> optimal</div>
+      <button id="hint-btn-left" onclick="showHint()">💡 GET HINT</button>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div id="center-area">
+    <div id="level-dots-top"></div>
+    <div id="canvas-wrapper">
+      <canvas id="game-canvas"></canvas>
+    </div>
+    <div id="controls-row">
+      <button class="ctrl-btn" onclick="stepProgram()">⏭ STEP</button>
+      <button class="ctrl-btn" id="btn-run" onclick="toggleRun()">▶ RUN AI CODE</button>
+      <button class="ctrl-btn" onclick="resetHero()">↺ RESET</button>
+    </div>
+    <div id="speed-row">
+      <span>SPEED</span>
+      <input type="range" id="speed-slider" min="100" max="700" step="50" value="350" oninput="updateSpeed()">
+      <span id="speed-val">3.5x</span>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="panel-right">
+    <div id="code-header">
+      <div id="code-title">⚙ AI PROGRAM</div>
+      <button id="btn-clear" onclick="clearProgram()">🗑 CLEAR</button>
+    </div>
+    <div id="program-list"><div style="text-align:center;color:#475569;font-size:8px;padding:16px 0;font-family:'Exo 2',sans-serif;">Add commands to program your hero!</div></div>
+    <div id="cmd-grid">
+      <button class="cmd-btn cmd-blue" onclick="addCmd('forward')">↑ FORWARD</button>
+      <button class="cmd-btn cmd-blue" onclick="addCmd('back')">↓ BACK</button>
+      <button class="cmd-btn cmd-amber" onclick="addCmd('left')">↺ TURN L</button>
+      <button class="cmd-btn cmd-amber" onclick="addCmd('right')">↻ TURN R</button>
+      <button class="cmd-btn cmd-red" onclick="addCmd('attack')">⚔ ATTACK</button>
+      <button class="cmd-btn cmd-cyan" onclick="addCmd('shield')">🛡 SHIELD</button>
+      <button class="cmd-btn cmd-green cmd-span2" onclick="addCmd('collect')">💎 COLLECT GEM</button>
+      <button class="cmd-btn cmd-purple cmd-span2" onclick="openRepeat()">🔄 ADD LOOP</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- WIN MODAL -->
+<div id="win-modal">
+  <div id="win-box">
+    <div id="win-title">QUEST COMPLETE!</div>
+    <div id="win-stars"></div>
+    <div id="win-text"></div>
+    <div id="win-btns">
+      <button id="btn-replay" onclick="closeWin(false)">↺ REPLAY</button>
+      <button id="btn-next" onclick="closeWin(true)">NEXT LEVEL ▶</button>
+    </div>
+    <div class="legal-block">
+      © 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED<br>
+      ITOSHIROZUNA.COM
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div id="help-modal">
+  <div id="help-box">
+    <h3>⚔ HOW TO PLAY</h3>
+    <p>1. <strong>Build your program</strong> by tapping command buttons on the right.</p>
+    <p>2. Press <strong>RUN AI CODE</strong> to watch your hero execute your commands.</p>
+    <p>3. Use <strong>STEP</strong> to test one command at a time.</p>
+    <p>4. <strong>FORWARD / BACK</strong> — move your hero in the direction it's facing.</p>
+    <p>5. <strong>TURN LEFT / RIGHT</strong> — rotate your hero without moving.</p>
+    <p>6. <strong>ATTACK</strong> — strike the enemy directly ahead of your hero.</p>
+    <p>7. <strong>SHIELD</strong> — deflect traps and magic hazards in front of you.</p>
+    <p>8. <strong>COLLECT GEM</strong> — pick up a gem on your current tile.</p>
+    <p>9. <strong>ADD LOOP</strong> — repeat the entire program N times.</p>
+    <p>10. Fewer commands = more ⭐ stars. Think like a clever AI!</p>
+    <p style="color:#f5c842;">KEYBOARD: Arrow keys move, A=Attack, S=Shield, C=Collect, Space/Enter=Run, R=Reset</p>
+    <div class="legal-block">
+      © 2026 ITOSHIRO ZUNA LLC. ALL RIGHTS RESERVED.<br>
+      AI HERO QUEST AND ALL ASSOCIATED CODE, VISUAL DESIGN, AND GAMEPLAY<br>
+      ARE PROPRIETARY WORKS OF ITOSHIRO ZUNA LLC.<br>
+      ITOSHIROZUNA.COM
+    </div>
+    <button onclick="document.getElementById('help-modal').style.display='none'">GOT IT! LET'S GO!</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// AI Hero Quest — Epic Edition
+// © 2026 Itoshiro Zuna LLC — All Rights Reserved
+// itoshirozuna.com
+// ═══════════════════════════════════════════════════════
+
+// STARFIELD
+// ═══════════════════════════════════════════════════════
+(function initStarfield(){
+  const c=document.getElementById('starfield');
+  const ctx=c.getContext('2d');
+  const stars=[];
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<200;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.5+.3,s:Math.random()*.5+.1,o:Math.random()});
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      s.o+=s.s*.01;
+      const a=.3+.7*Math.abs(Math.sin(s.o));
+      ctx.globalAlpha=a;
+      ctx.fillStyle='#a5b4fc';
+      ctx.beginPath();
+      ctx.arc(s.x*c.width,s.y*c.height,s.r,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══════════════════════════════════════════════════════
+// LEVELS  (10 total)
+// ═══════════════════════════════════════════════════════
+const LEVELS = [
+  {
+    name:"AWAKENING",subtitle:"THE TRAINING GROUNDS",
+    desc:"Guide your AI Hero to the glowing portal. Learn the basics of sequencing!",
+    concepts:["Sequencing","Directions"],
+    grid:5,start:{x:0,y:0,dir:1},goal:{x:4,y:4},
+    walls:[],enemies:[],gems:[],traps:[],
+    optimal:7,hint:"Forward 4 → Turn Right → Forward 4",
+    bg:"#030a18",theme:"blue"
+  },
+  {
+    name:"ENCHANTED MAZE",subtitle:"MYSTIC FOREST",
+    desc:"Navigate through the trees. Plan every turn carefully!",
+    concepts:["Planning","Turning"],
+    grid:7,start:{x:0,y:3,dir:1},goal:{x:6,y:3},
+    walls:[[1,2],[1,3],[1,4],[3,1],[3,2],[3,4],[3,5],[5,2],[5,3],[5,4]],
+    enemies:[],gems:[],traps:[],
+    optimal:11,hint:"Go around the trees — use left and right turns!",
+    bg:"#031a0a",theme:"green"
+  },
+  {
+    name:"GOBLIN AMBUSH",subtitle:"DARK WOODS",
+    desc:"Defeat the goblin scouts! Face each enemy and ATTACK before moving past!",
+    concepts:["Combat Logic","Timing"],
+    grid:7,start:{x:1,y:1,dir:1},goal:{x:5,y:5},
+    walls:[[2,2],[2,3],[4,3],[4,4]],
+    enemies:[{x:3,y:1,hp:1,maxhp:1,type:'goblin'},{x:4,y:2,hp:1,maxhp:1,type:'goblin'}],
+    gems:[],traps:[],
+    optimal:14,hint:"Face the goblin and use ATTACK before moving!",
+    bg:"#0a0a03",theme:"red"
+  },
+  {
+    name:"CRYSTAL CAVERN",subtitle:"GEM HUNT",
+    desc:"Collect ALL magic crystals AND reach the portal. Plan the most efficient path!",
+    concepts:["Efficiency","Pathfinding"],
+    grid:8,start:{x:1,y:1,dir:1},goal:{x:6,y:6},
+    walls:[[2,3],[3,3],[3,4],[5,2],[5,3],[5,5],[6,5]],
+    enemies:[],
+    gems:[{x:2,y:5},{x:5,y:1},{x:3,y:6}],
+    traps:[],
+    optimal:18,hint:"Plan a smart route to collect every gem!",
+    bg:"#050318",theme:"purple"
+  },
+  {
+    name:"THE TRAP GAUNTLET",subtitle:"FORBIDDEN CORRIDOR",
+    desc:"Fire traps block your path. Use SHIELD to deflect them, then advance!",
+    concepts:["Shield Logic","Hazards"],
+    grid:7,start:{x:0,y:1,dir:1},goal:{x:6,y:5},
+    walls:[[1,0],[1,3],[3,0],[3,3],[5,0],[5,3]],
+    enemies:[{x:2,y:1,hp:1,maxhp:1,type:'skeleton'},{x:4,y:5,hp:1,maxhp:1,type:'skeleton'}],
+    gems:[{x:3,y:5}],
+    traps:[{x:1,y:1,dir:'E'},{x:3,y:5,dir:'E'},{x:5,y:2,dir:'S'}],
+    optimal:20,hint:"SHIELD before stepping into a fire trap tile!",
+    bg:"#1a0300",theme:"orange"
+  },
+  {
+    name:"THE KNIGHT'S TRIAL",subtitle:"IRON FORTRESS",
+    desc:"Defeat multiple knights in this fortress. Each takes ONE hit. Don't get cornered!",
+    concepts:["Multi-enemy","Routing"],
+    grid:9,start:{x:0,y:4,dir:1},goal:{x:8,y:4},
+    walls:[[2,1],[2,2],[2,6],[2,7],[4,2],[4,3],[4,5],[4,6],[6,1],[6,2],[6,6],[6,7]],
+    enemies:[{x:3,y:4,hp:1,maxhp:1,type:'knight'},{x:5,y:2,hp:1,maxhp:1,type:'knight'},{x:5,y:6,hp:1,maxhp:1,type:'knight'}],
+    gems:[{x:2,y:4},{x:6,y:4}],
+    traps:[],
+    optimal:24,hint:"Attack each knight while facing them!",
+    bg:"#0a0a10",theme:"blue"
+  },
+  {
+    name:"SHADOW DRAGON LAIR",subtitle:"DRAGON'S DEN",
+    desc:"The Shadow Dragon has 3 HP! Attack it THREE times while facing it to win!",
+    concepts:["Boss Battle","Strategy"],
+    grid:8,start:{x:1,y:6,dir:1},goal:{x:6,y:1},
+    walls:[[2,2],[2,3],[2,4],[2,5],[3,2],[4,5],[5,2],[5,3],[5,4],[5,5]],
+    enemies:[{x:3,y:3,hp:3,maxhp:3,type:'dragon'}],
+    gems:[{x:4,y:3}],
+    traps:[],
+    optimal:22,hint:"Attack the dragon 3 times! Get adjacent and face it!",
+    bg:"#100003",theme:"red"
+  },
+  {
+    name:"THE LABYRINTH",subtitle:"ANCIENT RUINS",
+    desc:"This complex maze hides two gems and a powerful enemy. Chart your path!",
+    concepts:["Complex Pathfinding","Multi-objective"],
+    grid:10,start:{x:0,y:0,dir:1},goal:{x:9,y:9},
+    walls:[[1,0],[1,1],[1,3],[1,4],[1,5],[1,7],[1,8],
+           [3,1],[3,2],[3,4],[3,6],[3,7],[3,9],
+           [5,0],[5,2],[5,3],[5,5],[5,7],[5,8],
+           [7,1],[7,3],[7,4],[7,6],[7,7],[7,9],
+           [8,0],[8,1],[8,5],[8,6]],
+    enemies:[{x:5,y:5,hp:2,maxhp:2,type:'knight'}],
+    gems:[{x:2,y:8},{x:8,y:2}],
+    traps:[],
+    optimal:30,hint:"Map out the maze first. Find both gems!",
+    bg:"#050505",theme:"purple"
+  },
+  {
+    name:"TWIN DRAGONS",subtitle:"VOLCANIC SUMMIT",
+    desc:"Two Fire Dragons guard the summit! Each needs 2 hits. Coordinate your attacks!",
+    concepts:["Multi-boss","Efficiency"],
+    grid:9,start:{x:4,y:8,dir:0},goal:{x:4,y:0},
+    walls:[[1,2],[2,2],[3,2],[5,2],[6,2],[7,2],[1,6],[2,6],[3,6],[5,6],[6,6],[7,6],[3,4],[5,4]],
+    enemies:[{x:2,y:4,hp:2,maxhp:2,type:'dragon'},{x:6,y:4,hp:2,maxhp:2,type:'dragon'}],
+    gems:[{x:4,y:4}],
+    traps:[{x:3,y:4,dir:'E'},{x:5,y:4,dir:'W'}],
+    optimal:28,hint:"Attack each dragon twice. Use SHIELD near the traps!",
+    bg:"#1a0800",theme:"orange"
+  },
+  {
+    name:"THE FINAL NEXUS",subtitle:"LAST STAND",
+    desc:"The Nexus Guardian is nearly invincible — 5 HP! Collect the power gems first to weaken it!",
+    concepts:["Final Boss","Mastery"],
+    grid:10,start:{x:0,y:9,dir:1},goal:{x:9,y:0},
+    walls:[[1,1],[1,2],[1,7],[1,8],[2,1],[2,8],[3,3],[3,4],[3,5],[3,6],
+           [4,3],[4,6],[5,3],[5,6],[6,3],[6,4],[6,5],[6,6],[7,1],[7,8],[8,1],[8,2],[8,7],[8,8]],
+    enemies:[{x:5,y:5,hp:5,maxhp:5,type:'nexus'}],
+    gems:[{x:2,y:5},{x:8,y:5},{x:5,y:2},{x:5,y:8}],
+    traps:[{x:3,y:5,dir:'E'},{x:7,y:5,dir:'W'},{x:5,y:3,dir:'S'},{x:5,y:7,dir:'N'}],
+    optimal:40,hint:"Collect all 4 power gems before attacking the Guardian!",
+    bg:"#02000a",theme:"purple"
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let canvas, ctx;
+let hero = {x:0,y:0,dir:1};
+let program = [];
+let isRunning = false;
+let stepIndex = 0;
+let intervalId = null;
+let currentLevel = 0;
+let speed = 350;
+let totalScore = 0;
+let levelStars = new Array(LEVELS.length).fill(0);
+let shielded = false;
+let animTick = 0;
+let animFrame;
+
+// Deep clone level state
+function getLevelState(i) {
+  const l = LEVELS[i];
+  return {
+    enemies: l.enemies.map(e=>({...e})),
+    gems: l.gems.map(g=>({...g,collected:false})),
+    traps: (l.traps||[]).map(t=>({...t}))
+  };
+}
+let levelStates = LEVELS.map((_,i)=>getLevelState(i));
+
+// ═══════════════════════════════════════════════════════
+// CANVAS SIZING
+// ═══════════════════════════════════════════════════════
+function sizeCanvas(){
+  canvas = document.getElementById('game-canvas');
+  const centerArea = document.getElementById('center-area');
+  const controlsH = document.getElementById('controls-row').offsetHeight + document.getElementById('speed-row').offsetHeight + 32;
+  const dotsH = document.getElementById('level-dots-top').offsetHeight + 10;
+  const maxW = centerArea.clientWidth - 24;
+  const maxH = centerArea.clientHeight - controlsH - dotsH - 24;
+  const sz = Math.floor(Math.min(maxW, maxH, 600));
+  canvas.width = sz;
+  canvas.height = sz;
+  ctx = canvas.getContext('2d');
+}
+
+// ═══════════════════════════════════════════════════════
+// LEVEL DOTS
+// ═══════════════════════════════════════════════════════
+function buildDots(){
+  ['level-dots-left','level-dots-top'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.innerHTML='';
+    LEVELS.forEach((_,i)=>{
+      const d = document.createElement('div');
+      d.className='ldot'+(i===currentLevel?' active':'')+(levelStars[i]>0&&i!==currentLevel?' done':'');
+      d.textContent = i+1;
+      d.onclick=()=>loadLevel(i);
+      el.appendChild(d);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAW ENGINE
+// ═══════════════════════════════════════════════════════
+const THEMES = {
+  blue:  {floor1:'#0a1a30',floor2:'#0d1f3c',wall1:'#1e3a6e',wall2:'#2563eb',grid:'#1e293b'},
+  green: {floor1:'#071a0a',floor2:'#0a2010',wall1:'#1e4d2b',wall2:'#15803d',grid:'#1a2e1a'},
+  red:   {floor1:'#1a0505',floor2:'#200a0a',wall1:'#4c0519',wall2:'#b91c1c',grid:'#2a1010'},
+  purple:{floor1:'#0a0715',floor2:'#130a20',wall1:'#3b0764',wall2:'#7c3aed',grid:'#1e1530'},
+  orange:{floor1:'#1a0800',floor2:'#200e00',wall1:'#7c2d12',wall2:'#ea580c',grid:'#2a1800'},
+};
+
+function getCellSize(){ return canvas.width/LEVELS[currentLevel].grid; }
+
+function drawCheckerFloor(){
+  const lvl = LEVELS[currentLevel];
+  const t = THEMES[lvl.theme]||THEMES.blue;
+  const cell = getCellSize();
+  for(let y=0;y<lvl.grid;y++){
+    for(let x=0;x<lvl.grid;x++){
+      ctx.fillStyle=(x+y)%2===0?t.floor1:t.floor2;
+      ctx.fillRect(x*cell,y*cell,cell,cell);
+    }
+  }
+  // Grid lines
+  ctx.strokeStyle=t.grid;ctx.lineWidth=1;
+  for(let i=0;i<=lvl.grid;i++){
+    ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,canvas.height);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(canvas.width,i*cell);ctx.stroke();
+  }
+}
+
+function drawWall(wx,wy,cell){
+  const lvl=LEVELS[currentLevel];
+  const t=THEMES[lvl.theme]||THEMES.blue;
+  const x=wx*cell,y=wy*cell;
+  // Main block
+  ctx.fillStyle=t.wall1;
+  ctx.fillRect(x+2,y+2,cell-4,cell-4);
+  // Highlight top
+  ctx.fillStyle=t.wall2;
+  ctx.fillRect(x+2,y+2,cell-4,5);
+  // Brick lines
+  ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1;
+  ctx.strokeRect(x+4,y+6,cell/2-4,cell/3);
+  ctx.strokeRect(x+cell/2,y+6+cell/3,(cell/2)-4,cell/3);
+}
+
+function drawGoal(cell){
+  const lvl=LEVELS[currentLevel];
+  const gx=lvl.goal.x*cell+cell/2;
+  const gy=lvl.goal.y*cell+cell/2;
+  const pulse=Math.sin(animTick*.08)*.3+.7;
+  // Outer glow
+  const grad=ctx.createRadialGradient(gx,gy,0,gx,gy,cell*.55);
+  grad.addColorStop(0,`rgba(167,139,250,${pulse*.6})`);
+  grad.addColorStop(1,'rgba(167,139,250,0)');
+  ctx.fillStyle=grad;
+  ctx.beginPath();ctx.arc(gx,gy,cell*.55,0,Math.PI*2);ctx.fill();
+  // Portal ring
+  ctx.save();
+  ctx.strokeStyle=`rgba(196,181,253,${pulse})`;
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(gx,gy,cell*.35,0,Math.PI*2);ctx.stroke();
+  // Inner spiral
+  ctx.fillStyle=`rgba(139,92,246,${pulse})`;
+  ctx.beginPath();ctx.arc(gx,gy,cell*.2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font=`${cell*.35}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🌀',gx,gy);
+  ctx.restore();
+}
+
+function drawGem(g,cell){
+  if(g.collected)return;
+  const x=g.x*cell+cell/2,y=g.y*cell+cell/2;
+  const bob=Math.sin(animTick*.06+g.x+g.y)*.08*cell;
+  ctx.save();ctx.translate(x,y+bob);
+  // Glow
+  ctx.shadowColor='#67e8f9';ctx.shadowBlur=15;
+  // Diamond shape
+  ctx.fillStyle='#22d3ee';
+  ctx.beginPath();
+  ctx.moveTo(0,-cell*.3);
+  ctx.lineTo(cell*.2,0);
+  ctx.lineTo(0,cell*.3);
+  ctx.lineTo(-cell*.2,0);
+  ctx.closePath();ctx.fill();
+  // Shine
+  ctx.fillStyle='rgba(255,255,255,.5)';
+  ctx.beginPath();
+  ctx.moveTo(-cell*.05,-cell*.25);
+  ctx.lineTo(cell*.05,-cell*.1);
+  ctx.lineTo(-cell*.05,-cell*.1);
+  ctx.closePath();ctx.fill();
+  ctx.shadowBlur=0;ctx.restore();
+}
+
+function drawTrap(t,cell){
+  const x=t.x*cell+cell/2,y=t.y*cell+cell/2;
+  const pulse=Math.sin(animTick*.1)*.4+.6;
+  ctx.save();ctx.translate(x,y);
+  // Fire
+  ctx.shadowColor='#f97316';ctx.shadowBlur=20*pulse;
+  ctx.font=`${cell*.6}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.globalAlpha=pulse;
+  ctx.fillText('🔥',0,0);
+  ctx.restore();
+  // Direction arrow
+  ctx.fillStyle=`rgba(251,146,60,.6)`;
+  ctx.font=`${cell*.25}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
+  const arrows={N:'↑',E:'→',S:'↓',W:'←'};
+  ctx.fillText(arrows[t.dir]||'→',t.x*cell+cell*.8,t.y*cell+cell*.2);
+}
+
+const ENEMY_SPRITES = {
+  goblin:  {body:'#16a34a',head:'#15803d',emoji:'👹',label:'GOBLIN'},
+  skeleton:{body:'#e2e8f0',head:'#cbd5e1',emoji:'💀',label:'SKELETON'},
+  knight:  {body:'#64748b',head:'#475569',emoji:'🤺',label:'KNIGHT'},
+  dragon:  {body:'#dc2626',head:'#b91c1c',emoji:'🐉',label:'DRAGON'},
+  nexus:   {body:'#7c3aed',head:'#6d28d9',emoji:'👾',label:'NEXUS'},
+};
+
+function drawEnemy(e,cell){
+  if(e.defeated)return;
+  const x=e.x*cell+cell/2,y=e.y*cell+cell/2;
+  const sp=ENEMY_SPRITES[e.type]||ENEMY_SPRITES.goblin;
+  const shake=isRunning?Math.sin(animTick*.3)*(e.hp<e.maxhp?3:0):0;
+  ctx.save();ctx.translate(x+shake,y);
+  ctx.shadowColor=sp.body;ctx.shadowBlur=20;
+  ctx.font=`${cell*.65}px Arial`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(sp.emoji,0,0);
+  // HP bar
+  if(e.maxhp>1){
+    const barW=cell*.7,barH=5;
+    const bx=-barW/2,by=-cell*.5;
+    ctx.fillStyle='#374151';
+    ctx.fillRect(bx,by,barW,barH);
+    ctx.fillStyle=e.hp>2?'#10b981':e.hp>1?'#f59e0b':'#f43f5e';
+    ctx.fillRect(bx,by,(barW*e.hp/e.maxhp),barH);
+    ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=1;
+    ctx.strokeRect(bx,by,barW,barH);
+  }
+  ctx.shadowBlur=0;ctx.restore();
+}
+
+function drawHero(cell){
+  const x=hero.x*cell+cell/2;
+  const y=hero.y*cell+cell/2;
+  const r=cell*.3;
+  ctx.save();ctx.translate(x,y);
+  // Rotation: dir 0=N,1=E,2=S,3=W
+  ctx.rotate(hero.dir*Math.PI/2);
+  // Glow
+  ctx.shadowColor='#22d3ee';ctx.shadowBlur=20;
+  // Body
+  ctx.fillStyle='#0891b2';
+  ctx.fillRect(-r*.7,-r*.7,r*1.4,r*1.4);
+  // Helmet
+  ctx.fillStyle='#94a3b8';
+  ctx.fillRect(-r*.5,-r*.9,r*1,r*.45);
+  ctx.fillStyle='#67e8f9';
+  ctx.fillRect(-r*.35,-r*.85,r*.7,r*.25);
+  // Sword (pointing in dir=0=North after rotate, i.e., forward)
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=Math.max(2,cell*.04);
+  ctx.beginPath();ctx.moveTo(0,r*.05);ctx.lineTo(0,-r*1.1);ctx.stroke();
+  ctx.fillStyle='#fbbf24';
+  ctx.fillRect(-r*.15,-r*.05,r*.3,r*.2);
+  // Shield
+  if(shielded){
+    ctx.strokeStyle='#60a5fa';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(0,0,r*1.1,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.shadowBlur=0;ctx.restore();
+  // Label
+  ctx.fillStyle='#67e8f9';
+  ctx.font=`bold ${Math.max(7,cell*.12)}px monospace`;
+  ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText('KAI',x,y+r+2);
+}
+
+function draw(){
+  if(!ctx)return;
+  const lvl=LEVELS[currentLevel];
+  const state=levelStates[currentLevel];
+  const cell=getCellSize();
+  // Clear
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawCheckerFloor();
+  // Walls
+  lvl.walls.forEach(w=>drawWall(w[0],w[1],cell));
+  // Traps
+  (state.traps||[]).forEach(t=>drawTrap(t,cell));
+  // Gems
+  state.gems.forEach(g=>drawGem(g,cell));
+  // Goal
+  drawGoal(cell);
+  // Enemies
+  state.enemies.forEach(e=>drawEnemy(e,cell));
+  // Hero
+  drawHero(cell);
+}
+
+function animate(){
+  animTick++;
+  draw();
+  animFrame=requestAnimationFrame(animate);
+}
+
+// ═══════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════
+function updateLevelUI(){
+  const lvl=LEVELS[currentLevel];
+  document.getElementById('level-title-left').textContent=lvl.name;
+  document.getElementById('level-sub-left').textContent=lvl.subtitle;
+  document.getElementById('level-desc-left').textContent=lvl.desc;
+  const cc=document.getElementById('concepts-left');
+  cc.innerHTML=lvl.concepts.map(c=>`<span class="concept-tag">${c}</span>`).join('');
+  document.getElementById('stat-level').textContent=currentLevel+1;
+  document.getElementById('optimal-val-left').textContent=lvl.optimal;
+  updateCmdCount();
+  buildDots();
+}
+
+function updateCmdCount(){
+  const n=program.length;
+  document.getElementById('cmd-count-left').textContent=n;
+}
+
+const CMD_INFO={
+  forward:{icon:'⬆',label:'FORWARD',color:'cmd-blue'},
+  back:{icon:'⬇',label:'BACK',color:'cmd-blue'},
+  left:{icon:'↺',label:'TURN LEFT',color:'cmd-amber'},
+  right:{icon:'↻',label:'TURN RIGHT',color:'cmd-amber'},
+  attack:{icon:'⚔',label:'ATTACK',color:'cmd-red'},
+  shield:{icon:'🛡',label:'SHIELD',color:'cmd-cyan'},
+  collect:{icon:'💎',label:'COLLECT GEM',color:'cmd-green'},
+};
+
+function renderProgram(){
+  const c=document.getElementById('program-list');
+  if(program.length===0){
+    c.innerHTML='<div style="text-align:center;color:#475569;font-size:8px;padding:16px 0;font-family:\'Exo 2\',sans-serif;">Add commands to program your hero!</div>';
+    updateCmdCount();return;
+  }
+  c.innerHTML='';
+  program.forEach((cmd,i)=>{
+    const d=document.createElement('div');
+    d.className='prog-item';d.id=`prog-${i}`;
+    const info=CMD_INFO[cmd]||{icon:'?',label:cmd.toUpperCase()};
+    d.innerHTML=`<span><span class="prog-item-icon">${info.icon}</span>${info.label}</span><span class="prog-item-del" onclick="removeCmd(${i})">×</span>`;
+    c.appendChild(d);
+  });
+  updateCmdCount();
+}
+
+function addCmd(type){
+  if(isRunning)return;
+  program.push(type);
+  renderProgram();
+}
+
+function removeCmd(i){
+  if(isRunning)return;
+  program.splice(i,1);
+  renderProgram();
+}
+
+function clearProgram(){
+  if(isRunning)return;
+  program=[];renderProgram();
+}
+
+function openRepeat(){
+  if(isRunning)return;
+  const n=prompt('Repeat the whole program how many times?','2');
+  const count=parseInt(n);
+  if(!count||count<1)return;
+  for(let i=0;i<count-1;i++){
+    program=[...program,...program.slice(0,program.length)];
+    if(program.length>100){program=program.slice(0,100);break;}
+  }
+  renderProgram();
+  toast('🔄 Program repeated ×'+count,'toast-info');
+}
+
+// ═══════════════════════════════════════════════════════
+// EXECUTION
+// ═══════════════════════════════════════════════════════
+function executeStep(){
+  if(stepIndex>=program.length){finishRun();return;}
+  const cmd=program[stepIndex];
+  const lvl=LEVELS[currentLevel];
+  const state=levelStates[currentLevel];
+  // Highlight
+  document.querySelectorAll('.prog-item').forEach(el=>el.classList.remove('executing'));
+  const pi=document.getElementById(`prog-${stepIndex}`);
+  if(pi){pi.classList.add('executing');pi.scrollIntoView({block:'nearest'});}
+
+  const DIR={0:[0,-1],1:[1,0],2:[0,1],3:[-1,0]};
+  let success=true,msg='';
+
+  if(cmd==='forward'||cmd==='back'){
+    const mult=cmd==='back'?-1:1;
+    const [dx,dy]=DIR[hero.dir];
+    const nx=hero.x+dx*mult,ny=hero.y+dy*mult;
+    if(nx<0||nx>=lvl.grid||ny<0||ny>=lvl.grid){
+      success=false;msg='💥 Fell off the edge!';
+    } else if(lvl.walls.some(w=>w[0]===nx&&w[1]===ny)){
+      success=false;msg='🧱 Hit a wall!';
+    } else {
+      // Check trap
+      const trap=state.traps.find(t=>t.x===nx&&t.y===ny);
+      if(trap&&!shielded){success=false;msg='🔥 Burned by a fire trap! Use SHIELD!';}
+      else {
+        hero.x=nx;hero.y=ny;
+        shielded=false;
+        // Auto-collect
+        state.gems.forEach(g=>{
+          if(!g.collected&&g.x===hero.x&&g.y===hero.y){
+            g.collected=true;spawnParticles(hero.x,hero.y,'#22d3ee');
+          }
+        });
+      }
+    }
+  } else if(cmd==='left'){
+    hero.dir=(hero.dir-1+4)%4;
+  } else if(cmd==='right'){
+    hero.dir=(hero.dir+1)%4;
+  } else if(cmd==='attack'){
+    const [dx,dy]=DIR[hero.dir];
+    const tx=hero.x+dx,ty=hero.y+dy;
+    let hit=false;
+    state.enemies.forEach(e=>{
+      if(!e.defeated&&e.x===tx&&e.y===ty){
+        e.hp--;hit=true;
+        spawnParticles(tx,ty,'#f43f5e');
+        if(e.hp<=0){e.defeated=true;spawnParticles(tx,ty,'#fbbf24');}
+      }
+    });
+    if(!hit)msg='⚔ Swing and a miss!';
+  } else if(cmd==='shield'){
+    shielded=true;
+    spawnParticles(hero.x,hero.y,'#60a5fa');
+  } else if(cmd==='collect'){
+    let got=false;
+    state.gems.forEach(g=>{
+      if(!g.collected&&g.x===hero.x&&g.y===hero.y){
+        g.collected=true;got=true;
+        spawnParticles(hero.x,hero.y,'#22d3ee');
+      }
+    });
+    if(!got)msg='💎 Nothing to collect here';
+  }
+
+  if(!success){
+    isRunning=false;clearInterval(intervalId);intervalId=null;
+    setRunBtn(false);
+    document.querySelectorAll('.prog-item').forEach(el=>el.classList.remove('executing'));
+    toast(msg,'toast-lose');
+    return;
+  }
+  if(msg)toast(msg,'toast-info');
+  stepIndex++;
+  if(stepIndex>=program.length)setTimeout(finishRun,200);
+}
+
+function finishRun(){
+  isRunning=false;clearInterval(intervalId);intervalId=null;
+  setRunBtn(false);
+  document.querySelectorAll('.prog-item').forEach(el=>el.classList.remove('executing'));
+  checkWin();
+}
+
+function checkWin(){
+  const lvl=LEVELS[currentLevel];
+  const state=levelStates[currentLevel];
+  const atGoal=hero.x===lvl.goal.x&&hero.y===lvl.goal.y;
+  const allDead=state.enemies.every(e=>e.defeated);
+  const allGems=state.gems.every(g=>g.collected);
+  if(atGoal&&allDead&&allGems)showWin();
+}
+
+function toggleRun(){
+  if(isRunning){stopRun();}
+  else{startRun();}
+}
+
+function startRun(){
+  if(program.length===0){toast('Add some commands first!','toast-info');return;}
+  isRunning=true;stepIndex=0;
+  setRunBtn(true);
+  intervalId=setInterval(executeStep,speed);
+}
+
+function stopRun(){
+  isRunning=false;clearInterval(intervalId);intervalId=null;
+  setRunBtn(false);
+  document.querySelectorAll('.prog-item').forEach(el=>el.classList.remove('executing'));
+}
+
+function setRunBtn(running){
+  const b=document.getElementById('btn-run');
+  if(running){b.textContent='⏸ STOP';b.classList.add('running');}
+  else{b.textContent='▶ RUN AI CODE';b.classList.remove('running');}
+}
+
+function stepProgram(){
+  if(isRunning)return;
+  if(program.length===0)return;
+  if(stepIndex>=program.length)stepIndex=0;
+  executeStep();
+}
+
+function resetHero(){
+  stopRun();
+  const lvl=LEVELS[currentLevel];
+  hero={...lvl.start};
+  levelStates[currentLevel]=getLevelState(currentLevel);
+  stepIndex=0;shielded=false;
+  document.querySelectorAll('.prog-item').forEach(el=>el.classList.remove('executing'));
+}
+
+function loadLevel(i){
+  currentLevel=i;
+  const lvl=LEVELS[i];
+  hero={...lvl.start};
+  program=[];shielded=false;stepIndex=0;
+  levelStates[i]=getLevelState(i);
+  stopRun();
+  renderProgram();
+  updateLevelUI();
+}
+
+function updateSpeed(){
+  speed=parseInt(document.getElementById('speed-slider').value);
+  document.getElementById('speed-val').textContent=(speed/100).toFixed(1)+'x';
+  if(isRunning){clearInterval(intervalId);intervalId=setInterval(executeStep,speed);}
+}
+
+// ═══════════════════════════════════════════════════════
+// WIN
+// ═══════════════════════════════════════════════════════
+function showWin(){
+  const lvl=LEVELS[currentLevel];
+  const used=program.length,opt=lvl.optimal;
+  let stars=1;
+  if(used<=opt)stars=3;
+  else if(used<=opt*1.5)stars=2;
+  levelStars[currentLevel]=Math.max(levelStars[currentLevel],stars);
+  totalScore+=stars*100+(currentLevel+1)*50;
+  document.getElementById('stat-stars').textContent=levelStars.reduce((a,b)=>a+b,0);
+  document.getElementById('stat-score').textContent=totalScore;
+  const starsEl=document.getElementById('win-stars');
+  starsEl.innerHTML=['⭐','⭐','⭐'].map((s,i)=>i<stars?'⭐':'☆').join('');
+  document.getElementById('win-text').innerHTML=
+    `<strong>${stars===3?'PERFECT CODING! You\'re a true AI Master!':stars===2?'Excellent work, young wizard!':'Quest complete — try fewer commands for more stars!'}</strong><br><br>Used <strong>${used}</strong> commands / Optimal: <strong>${opt}</strong>`;
+  const nextBtn=document.getElementById('btn-next');
+  nextBtn.style.display=currentLevel<LEVELS.length-1?'block':'none';
+  document.getElementById('win-modal').style.display='flex';
+  for(let i=0;i<50;i++)setTimeout(()=>spawnConfetti(),i*30);
+}
+
+function closeWin(next){
+  document.getElementById('win-modal').style.display='none';
+  if(next&&currentLevel<LEVELS.length-1)loadLevel(currentLevel+1);
+  else resetHero();
+}
+
+// ═══════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════
+function spawnParticles(cx,cy,color){
+  const cell=getCellSize();
+  const rect=canvas.getBoundingClientRect();
+  const px=rect.left+cx*cell+cell/2;
+  const py=rect.top+cy*cell+cell/2;
+  for(let i=0;i<10;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`width:6px;height:6px;background:${color};left:${px-3}px;top:${py-3}px;--tx:${(Math.random()-0.5)*80}px;--ty:${(Math.random()-1)*80}px;animation-duration:${.8+Math.random()*.6}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1400);
+  }
+}
+
+function spawnConfetti(){
+  const colors=['#f5c842','#22d3ee','#a78bfa','#f43f5e','#10b981'];
+  const p=document.createElement('div');
+  p.className='particle';
+  const c=colors[Math.floor(Math.random()*colors.length)];
+  const x=Math.random()*window.innerWidth;
+  const y=Math.random()*window.innerHeight*.5;
+  p.style.cssText=`width:${4+Math.random()*6}px;height:${4+Math.random()*6}px;background:${c};left:${x}px;top:${y}px;border-radius:2px;--tx:${(Math.random()-0.5)*100}px;--ty:${-50-Math.random()*100}px;animation-duration:${1+Math.random()}s;`;
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),2000);
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST / HINT / HELP
+// ═══════════════════════════════════════════════════════
+let toastTimer=null;
+function toast(msg,cls='toast-info'){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className=`toast ${cls}`;t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+
+function showHint(){toast('💡 '+LEVELS[currentLevel].hint,'toast-hint');}
+
+function showHelp(){document.getElementById('help-modal').style.display='flex';}
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleRun();}
+  if(e.key.toLowerCase()==='r')resetHero();
+  if(e.key==='ArrowUp')addCmd('forward');
+  if(e.key==='ArrowDown')addCmd('back');
+  if(e.key==='ArrowLeft')addCmd('left');
+  if(e.key==='ArrowRight')addCmd('right');
+  if(e.key.toLowerCase()==='a')addCmd('attack');
+  if(e.key.toLowerCase()==='s')addCmd('shield');
+  if(e.key.toLowerCase()==='c')addCmd('collect');
+});
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load',()=>{
+  sizeCanvas();
+  loadLevel(0);
+  animate();
+  // Resize
+  window.addEventListener('resize',()=>{
+    sizeCanvas();
+  });
+  // Welcome
+  setTimeout(()=>toast('⚔ Welcome, Code Wizard! Build your program and hit RUN!','toast-info'),800);
+});
+</script>
+</body>
+</html>
