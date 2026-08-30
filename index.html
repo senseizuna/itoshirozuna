@@ -282,6 +282,29 @@
       text-transform: uppercase; cursor: pointer;
     }
     .chip.active, .chip:hover { color: #111; background: var(--gold); border-color: var(--gold); }
+    .imprint-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px;
+    }
+    .imprint {
+      text-align: left; cursor: pointer; width: 100%;
+      padding: 16px 16px 14px; border-radius: 14px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: inherit; transition: 0.25s;
+    }
+    .imprint:hover, .imprint.active { border-color: rgba(255,215,0,0.45); background: rgba(255,215,0,0.06); }
+    .imprint strong {
+      display: block; font-family: 'Orbitron', monospace; font-size: 0.72rem;
+      letter-spacing: 1.6px; color: var(--gold); margin-bottom: 4px;
+    }
+    .imprint span { display: block; font-size: 0.78rem; color: var(--muted); line-height: 1.45; }
+    .badge-soon {
+      display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px;
+      font-size: 0.5rem; letter-spacing: 1px; color: #111; background: var(--gold);
+      vertical-align: middle;
+    }
+    @media (max-width: 980px) {
+      .imprint-grid { grid-template-columns: repeat(2, 1fr); }
+    }
 
     .book-grid {
       display: grid;
@@ -474,9 +497,9 @@
           <a href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener" class="btn btn-ghost">Amazon Author Page</a>
         </div>
         <div class="hero-stats">
-          <div class="stat"><strong>14+</strong><span>Published titles</span></div>
+          <div class="stat"><strong>18+</strong><span>Published titles</span></div>
+          <div class="stat"><strong>4</strong><span>Imprints</span></div>
           <div class="stat"><strong>10</strong><span>Apps & games</span></div>
-          <div class="stat"><strong>5.0</strong><span>Amazon rating</span></div>
           <div class="stat"><strong>∞</strong><span>Fractal worlds</span></div>
         </div>
       </div>
@@ -487,8 +510,8 @@
 
     <div class="marquee-wrap" aria-hidden="true">
       <div class="marquee">
-        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> In the Image of God <span>✦</span> The Spiritual Energy <span>✦</span> The Inner Alchemy of Emotion <span>✦</span> The Astral Enigma <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span> The Fall of Imagination <span>✦</span> The Electromagnetic Life <span>✦</span></div>
-        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> In the Image of God <span>✦</span> The Spiritual Energy <span>✦</span> The Inner Alchemy of Emotion <span>✦</span> The Astral Enigma <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span> The Fall of Imagination <span>✦</span> The Electromagnetic Life <span>✦</span></div>
+        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> The Eye of Dominance <span>✦</span> The Pattern of Destiny <span>✦</span> Payaso el Clown <span>✦</span> The Marie Chronicles <span>✦</span> The Adventures of Kai <span>✦</span> Kai Wisdom Fighter <span>✦</span> Shit Stalkers <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span></div>
+        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> The Eye of Dominance <span>✦</span> The Pattern of Destiny <span>✦</span> Payaso el Clown <span>✦</span> The Marie Chronicles <span>✦</span> The Adventures of Kai <span>✦</span> Kai Wisdom Fighter <span>✦</span> Shit Stalkers <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span></div>
       </div>
     </div>
 
@@ -506,8 +529,8 @@
             <p style="margin-top:14px;">The visible and invisible dimensions of life are connected through pattern. See the pattern, and you can choose coherence over noise.</p>
           </div>
           <div class="card">
-            <h3>Built for two audiences</h3>
-            <p>Adults receive metaphysical nonfiction and visionary fiction — consciousness, sacred geometry, energy, and the war for imagination. Children receive STEM stories and games where curiosity is the superpower: Kai, Marie, Mr. Ito, and the dogs who run beside them.</p>
+            <h3>One house. Four voices.</h3>
+            <p>ITOSHIRO ZUNA LLC now carries four imprints: Itoshiro Zuna for metaphysics and visionary fiction, I Z for children’s stories, KAI for books written by his son, and BeiBei Rollings for dark-humor satire.</p>
             <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
               <a href="#books" class="btn btn-outline">Read</a>
               <a href="#kids" class="btn btn-outline" style="border-color:rgba(255,45,120,0.4);color:var(--magenta);">Play</a>
@@ -523,85 +546,157 @@
         <div class="section-head">
           <div class="section-label">Library</div>
           <h2 class="section-title">Published <em>Books</em></h2>
-          <p class="section-lead">A growing catalog of fractal philosophy, spiritual science, visionary fiction, and children’s STEM adventure. Every title is available on Amazon.</p>
+          <p class="section-lead">Four imprints under ITOSHIRO ZUNA LLC — metaphysics, children’s adventure, a young author’s first books, and dark-humor satire. Every title is on Amazon.</p>
+        </div>
+        <div class="imprint-grid">
+          <button class="imprint" type="button" data-filter="zuna"><strong>Itoshiro Zuna</strong><span>Metaphysics, spirit, and visionary fiction.</span></button>
+          <button class="imprint" type="button" data-filter="iz"><strong>I Z</strong><span>Children’s stories of pattern, play, and wonder.</span></button>
+          <button class="imprint" type="button" data-filter="kai"><strong>KAI</strong><span>Books written by his son. Knowledge as power.</span></button>
+          <button class="imprint" type="button" data-filter="beibei"><strong>BeiBei Rollings</strong><span>Dark humor and satire for adults.</span></button>
         </div>
         <div class="filters" role="tablist">
           <button class="chip active" data-filter="all">All</button>
-          <button class="chip" data-filter="metaphysics">Metaphysics</button>
-          <button class="chip" data-filter="fiction">Fiction</button>
+          <button class="chip" data-filter="zuna">Itoshiro Zuna</button>
+          <button class="chip" data-filter="iz">I Z</button>
+          <button class="chip" data-filter="kai">KAI</button>
+          <button class="chip" data-filter="beibei">BeiBei Rollings</button>
           <button class="chip" data-filter="kids">Kids</button>
         </div>
         <div class="book-grid" id="bookGrid">
-          <a class="book" data-cat="metaphysics" href="https://a.co/d/ct5lST4" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://a.co/d/ct5lST4" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/fractal-symphony-of-time.jpg" alt="Cover of The Fractal Symphony of Time">
             <div>
               <h3>The Fractal Symphony of Time</h3>
               <p>A journey through dimensions, imagination, and creation — time as a living spiral, not a straight line.</p>
-              <div class="meta">Metaphysics • Signature work</div>
+              <div class="meta">Itoshiro Zuna • Metaphysics</div>
             </div>
           </a>
-          <a class="book" data-cat="fiction" href="https://a.co/d/ijwoPSi" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="fiction" href="https://a.co/d/ijwoPSi" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/when-realms-bleed.jpg" alt="Cover of When Realms Bleed">
             <div>
               <h3>When Realms Bleed</h3>
               <p>Book 1 of a trilogy into nine realms. The world as Zuna sees it — sci-fi with a metaphysical pulse.</p>
-              <div class="meta">Fiction • Trilogy Book 1</div>
+              <div class="meta">Itoshiro Zuna • Fiction</div>
             </div>
           </a>
-          <a class="book" data-cat="metaphysics" href="https://a.co/d/hFYire8" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://a.co/d/hFYire8" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/in-the-image-of-god.jpg" alt="Cover of In the Image of God">
             <div>
               <h3>In the Image of God</h3>
               <p>The fractal mirror of creation. Imago Dei as a living pattern, not a static portrait.</p>
-              <div class="meta">Metaphysics • Sacred geometry</div>
+              <div class="meta">Itoshiro Zuna • Sacred geometry</div>
             </div>
           </a>
-          <a class="book" data-cat="metaphysics" href="https://a.co/d/bejn1PV" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://a.co/d/bejn1PV" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/the-spiritual-energy.jpg" alt="Cover of The Spiritual Energy">
             <div>
               <h3>The Spiritual Energy</h3>
               <p>A path to the soul — breath, vibration, memory, and light across traditions and science.</p>
-              <div class="meta">Metaphysics • Practice</div>
+              <div class="meta">Itoshiro Zuna • Practice</div>
             </div>
           </a>
-          <a class="book" data-cat="metaphysics" href="https://a.co/d/73qsznL" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://a.co/d/73qsznL" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/inner-alchemy-of-emotion.jpg" alt="Cover of The Inner Alchemy of Emotion">
             <div>
               <h3>The Inner Alchemy of Emotion</h3>
               <p>The soul’s path to transmutation. Feeling becomes fuel when it is witnessed and refined.</p>
-              <div class="meta">Metaphysics • Transformation</div>
+              <div class="meta">Itoshiro Zuna • Transformation</div>
             </div>
           </a>
-          <a class="book" data-cat="metaphysics" href="https://a.co/d/fSJJinz" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://a.co/d/fSJJinz" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/the-astral-enigma.jpg" alt="Cover of The Astral Enigma">
             <div>
               <h3>The Astral Enigma</h3>
               <p>Imagination, truth, and the beyond. Dreams as doorways — protection, travel, and the lightbody.</p>
-              <div class="meta">Metaphysics • Dreamwork</div>
+              <div class="meta">Itoshiro Zuna • Dreamwork</div>
             </div>
           </a>
-          <a class="book" data-cat="kids" href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener">
-            <img class="book-cover" src="assets/images/mr-ito-fractal-adventure.jpg" alt="Cover of Mr. Ito’s Fractal Adventure">
+          <a class="book" data-imprint="zuna" data-cat="fiction" href="https://a.co/d/0bPasNh5" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/the-eye-of-dominance.jpg" alt="Cover of The Eye of Dominance">
             <div>
-              <h3>Mr. Ito’s Fractal Adventure</h3>
-              <p>Kai, Marie, Akaya, and Benji hunt patterns in trees, snowflakes, rivers, and heartbeats. Ages 6–10.</p>
-              <div class="meta">Kids • STEM story</div>
+              <h3>The Eye of Dominance</h3>
+              <p>A study of power, perception, and the gaze that tries to own what it cannot understand.</p>
+              <div class="meta">Itoshiro Zuna • Visionary fiction</div>
             </div>
           </a>
-          <a class="book" data-cat="fiction" href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://a.co/d/09CDjOJT" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/the-pattern-of-destiny.jpg" alt="Cover of The Pattern of Destiny">
+            <div>
+              <h3>The Pattern of Destiny <span class="badge-soon">Sept 9</span></h3>
+              <p>Releases September 9, 2026. The architecture of fate, choice, and the pattern that keeps returning.</p>
+              <div class="meta">Itoshiro Zuna • Forthcoming</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="zuna" data-cat="fiction" href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/the-fall-of-imagination.jpg" alt="Cover of The Fall of Imagination">
             <div>
               <h3>The Fall of Imagination</h3>
               <p>The war for the human soul. The threat is not that machines become conscious — it is that we stop being human.</p>
-              <div class="meta">Fiction • Culture</div>
+              <div class="meta">Itoshiro Zuna • Culture</div>
             </div>
           </a>
-          <a class="book" data-cat="metaphysics" href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener">
+          <a class="book" data-imprint="zuna" data-cat="metaphysics" href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/the-electromagnetic-life.jpg" alt="Cover of The Electromagnetic Life">
             <div>
               <h3>The Electromagnetic Life</h3>
               <p>From grounding to space. Electricity and magnetism as the living pulse of body, mind, and cosmos.</p>
-              <div class="meta">Science • Spirit</div>
+              <div class="meta">Itoshiro Zuna • Science & spirit</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="iz" data-cat="kids" href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/mr-ito-fractal-adventure.jpg" alt="Cover of Mr. Ito’s Fractal Adventure">
+            <div>
+              <h3>Mr. Ito’s Fractal Adventure</h3>
+              <p>Kai, Marie, Akaya, and Benji hunt patterns in trees, snowflakes, rivers, and heartbeats. Ages 6–10.</p>
+              <div class="meta">I Z • Kids • STEM</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="iz" data-cat="kids" href="https://a.co/d/06ACAVqx" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/payaso-el-clown.jpg" alt="Cover of Payaso el Clown">
+            <div>
+              <h3>Payaso el Clown</h3>
+              <p>A trickster clown from another universe teaches breath, play, and the “5 Poyitos.” English edition.</p>
+              <div class="meta">I Z • Kids</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="iz" data-cat="kids" href="https://a.co/d/08cCl4pJ" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/payaso-el-clown-spanish.jpg" alt="Cover of Payaso el Clown Spanish edition">
+            <div>
+              <h3>Payaso el Clown (Spanish)</h3>
+              <p>La edición en español. El mismo payaso cósmico, las mismas respiraciones, ahora para lectores en español.</p>
+              <div class="meta">I Z • Kids • Español</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="iz" data-cat="kids" href="https://a.co/d/082gsWGs" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/the-marie-chronicles.jpg" alt="Cover of The Marie Chronicles">
+            <div>
+              <h3>The Marie Chronicles</h3>
+              <p>Marie’s own path through wonder, courage, and the patterns hiding in ordinary days.</p>
+              <div class="meta">I Z • Kids</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="iz" data-cat="kids" href="https://a.co/d/0cHtOcKk" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/the-adventures-of-kai.jpg" alt="Cover of The Adventures of Kai">
+            <div>
+              <h3>The Adventures of Kai</h3>
+              <p>Kai’s story of exploration, friendship, and finding the hidden geometry in the world around him.</p>
+              <div class="meta">I Z • Kids</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="kai" data-cat="kids" href="https://a.co/d/0acJYg2v" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/kai-wisdom-fighters.jpg" alt="Cover of Kai Wisdom Fighter">
+            <div>
+              <h3>Kai Wisdom Fighter</h3>
+              <p>Written by KAI. Knowledge is the superpower. Level up by solving real problems and staying curious.</p>
+              <div class="meta">KAI • Kids</div>
+            </div>
+          </a>
+          <a class="book" data-imprint="beibei" data-cat="satire" href="https://a.co/d/00b1kp7D" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/shit-stalkers.jpg" alt="Cover of Shit Stalkers">
+            <div>
+              <h3>Shit Stalkers</h3>
+              <p>Dark-humor satire from BeiBei Rollings — the newest voice inside the LLC. Adult readers only.</p>
+              <div class="meta">BeiBei Rollings • Satire</div>
             </div>
           </a>
         </div>
@@ -717,7 +812,23 @@
           </a>
           <a href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener" class="kid-card">
             <h4><i class="fas fa-book" style="margin-right:8px;"></i>Mr. Ito’s Fractal Adventure</h4>
-            <p>The children’s book that started the hunt — siblings, dogs, seasons, and secret geometry.</p>
+            <p>The children’s book that started the hunt — siblings, dogs, seasons, and secret geometry. I Z.</p>
+          </a>
+          <a href="https://a.co/d/06ACAVqx" target="_blank" rel="noopener" class="kid-card">
+            <h4><i class="fas fa-theater-masks" style="margin-right:8px;"></i>Payaso el Clown</h4>
+            <p>A cosmic clown teaches breath and play. English and Spanish editions. I Z.</p>
+          </a>
+          <a href="https://a.co/d/082gsWGs" target="_blank" rel="noopener" class="kid-card">
+            <h4><i class="fas fa-feather" style="margin-right:8px;"></i>The Marie Chronicles</h4>
+            <p>Marie’s story of wonder and courage. I Z.</p>
+          </a>
+          <a href="https://a.co/d/0cHtOcKk" target="_blank" rel="noopener" class="kid-card">
+            <h4><i class="fas fa-compass" style="margin-right:8px;"></i>The Adventures of Kai</h4>
+            <p>Kai explores the hidden geometry of ordinary days. I Z.</p>
+          </a>
+          <a href="https://a.co/d/0acJYg2v" target="_blank" rel="noopener" class="kid-card">
+            <h4><i class="fas fa-bolt" style="margin-right:8px;"></i>Kai Wisdom Fighter</h4>
+            <p>Written by KAI. Knowledge is the superpower.</p>
           </a>
         </div>
         <button type="button" class="btn btn-outline" style="border-color:rgba(255,45,120,0.35);color:var(--magenta);" onclick="alert('More Kid\'s Zone games are already in motion. Check back soon.')">
@@ -771,8 +882,8 @@
   <footer>
     <div class="footer-inner">
       <div>
-        <div class="footer-brand">ITOSHIRO ZUNA</div>
-        <p>Fractal stories, magical apps, and Kid's Zone adventures. You are the pattern. You are the symphony.</p>
+        <div class="footer-brand">ITOSHIRO ZUNA LLC</div>
+        <p>Itoshiro Zuna • I Z • KAI • BeiBei Rollings. Fractal stories, kids’ adventures, and dark-humor satire under one house.</p>
       </div>
       <div class="footer-links">
         <a href="#about">About</a>
@@ -787,7 +898,8 @@
         <a href="#contact">Message</a>
       </div>
     </div>
-    <p class="copy">&copy; 2026 Itoshiro Zuna • All rights reserved</p>
+    <p class="copy">&copy; 2026 ITOSHIRO ZUNA LLC • All rights reserved</p>
+    <p class="copy" style="margin-top:8px;"><a href="https://x.com/senseizuna" target="_blank" rel="noopener">@senseizuna on X</a></p>
   </footer>
 
   <button class="to-top" id="toTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
@@ -913,15 +1025,17 @@
     }, { threshold: 0.12 });
     reveals.forEach(el => io.observe(el));
 
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        const f = chip.dataset.filter;
-        document.querySelectorAll('#bookGrid .book').forEach(b => {
-          b.style.display = (f === 'all' || b.dataset.cat === f) ? '' : 'none';
-        });
+    function applyBookFilter(f) {
+      document.querySelectorAll('.chip, .imprint').forEach(c => {
+        c.classList.toggle('active', c.dataset.filter === f);
       });
+      document.querySelectorAll('#bookGrid .book').forEach(b => {
+        const match = f === 'all' || b.dataset.imprint === f || b.dataset.cat === f;
+        b.style.display = match ? '' : 'none';
+      });
+    }
+    document.querySelectorAll('.chip, .imprint').forEach(btn => {
+      btn.addEventListener('click', () => applyBookFilter(btn.dataset.filter));
     });
   </script>
 </body>
