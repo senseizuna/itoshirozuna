@@ -41,8 +41,35 @@
         }
         .hud > * { pointer-events: auto; }
 
+        .site-nav {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(0, 0, 0, 0.86); padding: 8px 12px;
+            pointer-events: auto;
+        }
+        .nav-links { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; align-items: center; }
+        .nav-links > a, .dropdown > a {
+            color: #ffcc00; text-decoration: none; font-size: 16px; font-weight: 700;
+        }
+        .nav-links a:hover { color: #ffdd33; }
+        .dropdown { position: relative; }
+        .dropdown-content {
+            display: none; position: absolute; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.94); min-width: 230px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.35); z-index: 1001;
+            border-radius: 6px; border: 1px solid rgba(255,204,0,.35); padding: 4px 0;
+        }
+        .dropdown:hover .dropdown-content, .dropdown:focus-within .dropdown-content { display: block; }
+        .dropdown-content a {
+            color: #ffcc00; padding: 10px 14px; display: block; text-align: left; font-size: 14px; text-decoration: none;
+        }
+        .dropdown-content a:hover { background: rgba(255, 204, 0, 0.18); }
+        .site-footer {
+            position: fixed; bottom: 0; width: 100%; z-index: 1000;
+            background: rgba(0,0,0,0.82); color: #ffcc00; text-align: center;
+            padding: 6px 8px; font-size: 12px; pointer-events: none;
+        }
         .top-bar {
-            position: absolute; top: 10px; left: 12px; right: 12px;
+            position: absolute; top: 48px; left: 12px; right: 12px;
             display: flex; justify-content: space-between; gap: 10px; align-items: flex-start;
         }
         .bar-card {
@@ -141,6 +168,29 @@
     </style>
 </head>
 <body>
+    <nav class="site-nav" aria-label="Itoshiro Zuna website">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <div class="dropdown">
+                <a href="apps.html">Apps</a>
+                <div class="dropdown-content">
+                    <a href="fractal-ai-research.html">Fractal AI Research</a>
+                    <a href="fractal-meditation.html">Fractal Meditation</a>
+                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                    <a href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a>
+                    <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
+                    <a href="app-instructions.html">Instructions</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Kid's Zone</a>
+                <div class="dropdown-content">
+                    <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
+                    <a href="certificate.html">Certificate</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div class="hud" id="hud" hidden>
         <div class="top-bar">
             <div class="bar-card">
@@ -1066,5 +1116,6 @@
         updateEnvironment(1);
         animate();
     </script>
+    <footer class="site-footer">© 2026 Itoshiro Zuna LLC. All rights reserved.</footer>
 </body>
 </html>
