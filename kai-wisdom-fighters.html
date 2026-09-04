@@ -2,1704 +2,1069 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Kai Wisdom Fighters - A math-based monster battling game by Itoshiro Zuna LLC.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Kai Wisdom Fighters — math monster battler by Itoshiro Zuna LLC.">
     <!--
-      Kai Wisdom Fighters
-      Itoshiro Zuna LLC
-      Copyright (c) 2025 Itoshiro Zuna LLC
+      Kai Wisdom Fighters v2
+      Itoshiro Zuna Games and Apps / Itoshiro Zuna LLC
+      Copyright (c) 2025–2026 Itoshiro Zuna LLC
       All rights reserved.
-      Unauthorized copying, modification, or distribution of this code is prohibited.
+
+      HOW TO RUN
+      1. Open this file in a modern browser (Chrome, Edge, Firefox, Safari).
+      2. Needs internet once to load Three.js from esm.sh.
+      3. Click Start, pick a grade, solve problems to attack.
+      Controls: Enter submit | 1–5 switch Kai | H hint | M mute | P pause | F fullscreen
     -->
     <title>Kai Wisdom Fighters</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; background: #000; font-family: 'Comic Sans MS', cursive, sans-serif; }
-        canvas { display: block; }
-        #ui {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 204, 0.8);
-            border: 3px solid #ffcc00;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none;
-            transition: background-color 0.3s;
+        :root {
+            --gold: #ffcc00;
+            --gold-2: #ffe066;
+            --ink: #1a1408;
+            --panel: rgba(255, 248, 210, 0.94);
+            --panel-edge: #e0a800;
+            --ok: #1f9d55;
+            --bad: #e53e3e;
         }
-        #mathProblem {
-            font-size: 32px;
-            color: #333;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100%; height: 100%; overflow: hidden; background: #050505;
+            font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+            color: var(--ink); user-select: none;
         }
-        #countingBlocks {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
+        canvas { display: block; width: 100%; height: 100%; }
+        button, select, input { font-family: inherit; }
+
+        .hud {
+            position: fixed; inset: 0; pointer-events: none; z-index: 20;
         }
-        .block {
-            width: 20px;
-            height: 20px;
-            margin: 2px;
-            border: 1px solid #333;
+        .hud > * { pointer-events: auto; }
+
+        .top-bar {
+            position: absolute; top: 10px; left: 12px; right: 12px;
+            display: flex; justify-content: space-between; gap: 10px; align-items: flex-start;
         }
+        .bar-card {
+            background: var(--panel); border: 3px solid var(--panel-edge);
+            border-radius: 12px; padding: 8px 12px; min-width: 180px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.35);
+        }
+        .label { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .7; }
+        .hp-track { height: 14px; background: #cfcfcf; border-radius: 7px; overflow: hidden; margin-top: 4px; border: 1px solid #333; }
+        .hp-fill { height: 100%; width: 100%; background: var(--ok); transition: width .35s ease, background .3s; }
+        .hp-fill.low { background: var(--bad); }
+        .meta { font-size: 13px; margin-top: 4px; display: flex; justify-content: space-between; gap: 8px; }
+        .lives { display: flex; gap: 4px; margin-top: 6px; }
+        .life { width: 12px; height: 12px; border-radius: 50%; background: #22c55e; border: 1px solid #14532d; }
+        .life.off { background: #9ca3af; }
+        .level-chip {
+            background: var(--panel); border: 3px solid var(--panel-edge); border-radius: 12px;
+            padding: 8px 14px; text-align: right; font-weight: 800; font-size: 18px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.35);
+        }
+        .timer-wrap { margin-top: 6px; }
+        .timer-track { height: 8px; background: #ddd; border-radius: 4px; overflow: hidden; }
+        .timer-fill { height: 100%; width: 100%; background: var(--gold); transition: width .2s linear; }
+
+        #roster {
+            position: absolute; left: 12px; bottom: 12px; width: min(260px, 42vw);
+            background: var(--panel); border: 3px solid var(--panel-edge); border-radius: 12px;
+            padding: 10px; max-height: 38vh; overflow: auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,.35);
+        }
+        #roster h3 { font-size: 15px; margin-bottom: 6px; }
+        .kai-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 13px;
+        }
+        .kai-row:hover, .kai-row.active { background: rgba(255,204,0,.35); }
+        .xp-mini { height: 4px; background: #ddd; border-radius: 2px; margin-top: 3px; }
+        .xp-mini > i { display: block; height: 100%; background: #7c3aed; width: 0; }
+
+        #panel {
+            position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+            width: min(720px, calc(100vw - 24px));
+            background: var(--panel); border: 3px solid var(--panel-edge); border-radius: 16px;
+            padding: 12px 14px 10px; text-align: center;
+            box-shadow: 0 10px 28px rgba(0,0,0,.4);
+        }
+        #mathProblem { font-size: clamp(22px, 4vw, 34px); font-weight: 800; margin-bottom: 8px; }
+        #blocks { display: flex; flex-wrap: wrap; justify-content: center; max-height: 48px; overflow: hidden; margin-bottom: 6px; }
+        .blk { width: 12px; height: 12px; margin: 1px; border: 1px solid #333; }
+        .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; align-items: center; }
         #answerInput {
-            padding: 8px;
-            font-size: 24px;
-            width: 120px;
-            border: 2px solid #ffcc00;
-            border-radius: 5px;
-            margin: 5px;
+            width: 110px; padding: 8px 10px; font-size: 22px; border: 2px solid var(--gold);
+            border-radius: 8px; text-align: center;
         }
-        #submitButton, #hintButton, #customizeButton, #gradeButton, #musicButton, #fullscreenButton {
-            padding: 8px 15px;
-            font-size: 20px;
-            background-color: #ffcc00;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        .btn {
+            padding: 8px 12px; font-size: 15px; font-weight: 700; border: 0; border-radius: 8px;
+            background: var(--gold); cursor: pointer; box-shadow: 0 2px 0 #c49200;
         }
-        #hintButton:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        .btn:hover { background: var(--gold-2); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+        .btn.ghost { background: #fff3b0; }
+        #feedback { min-height: 22px; margin-top: 6px; font-size: 16px; font-weight: 700; }
+        #scoreLine { font-size: 14px; margin-top: 2px; }
+
+        .toast {
+            position: absolute; top: 18%; left: 50%; transform: translateX(-50%);
+            background: var(--panel); border: 3px solid var(--panel-edge); border-radius: 12px;
+            padding: 14px 18px; font-size: 20px; font-weight: 700; text-align: center;
+            display: none; max-width: min(560px, 92vw); z-index: 30;
+            box-shadow: 0 10px 30px rgba(0,0,0,.45);
         }
-        #submitButton:hover, #hintButton:hover, #customizeButton:hover, #gradeButton:hover, #musicButton:hover, #fullscreenButton:hover {
-            background-color: #ffdd33;
+        #dmg { background: transparent; border: 0; color: #ff2d2d; font-size: 32px;
+            text-shadow: 0 2px 0 #400; top: 28%; pointer-events: none; }
+
+        .modal {
+            position: absolute; inset: 0; display: none; place-items: center;
+            background: rgba(0,0,0,.55); z-index: 40;
         }
-        #submitButton:focus, #hintButton:focus, #customizeButton:focus, #gradeButton:focus, #musicButton:focus, #fullscreenButton:focus {
-            outline: 2px solid #333;
+        .modal.show { display: grid; }
+        .sheet {
+            background: var(--panel); border: 3px solid var(--panel-edge); border-radius: 16px;
+            padding: 22px 24px; width: min(460px, 92vw); text-align: center;
+            box-shadow: 0 16px 40px rgba(0,0,0,.5);
         }
-        #feedback {
-            font-size: 24px;
-            color: red;
-            margin-top: 10px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        #scoreDisplay {
-            font-size: 20px;
-            color: #333;
-            margin-top: 5px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        #monsterRoster {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(255, 255, 204, 0.9);
-            border: 3px solid #ffcc00;
-            padding: 10px;
-            border-radius: 10px;
-            max-width: 250px;
-            display: none;
-        }
-        #monsterRoster h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        #monsterRoster div {
-            font-size: 16px;
-            margin: 5px 0;
-            cursor: pointer;
-        }
-        #monsterRoster div:hover {
-            color: #ffcc00;
-        }
-        #healthBar, #playerHealthBar {
-            position: absolute;
-            top: 10px;
-            width: 200px;
-            background: gray;
-            height: 20px;
-            border: 2px solid #ffcc00;
-            border-radius: 5px;
-            display: none;
-        }
-        #healthBar {
-            right: 20px;
-        }
-        #playerHealthBar {
-            left: 20px;
-        }
-        #healthFill, #playerHealthFill {
-            height: 100%;
-            background: green;
-            border-radius: 3px;
-            transition: width 0.5s ease-in-out, background 0.3s;
-        }
-        #livesDisplay {
-            position: absolute;
-            top: 35px;
-            left: 20px;
-            display: flex;
-            gap: 5px;
-            display: none;
-        }
-        .life {
-            width: 15px;
-            height: 15px;
-            background: green;
-            border-radius: 50%;
-            border: 1px solid #333;
-        }
-        #levelIndicator {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 24px;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            display: none;
-        }
-        #customizeMenu, #tutorialMenu, #gradeMenu {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 204, 0.95);
-            border: 3px solid #ffcc00;
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-            text-align: center;
-        }
-        #customizeMenu h2, #tutorialMenu h2, #gradeMenu h2 {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-        #customizeMenu select, #customizeMenu button, #tutorialMenu button, #gradeMenu select, #gradeMenu button {
-            margin: 10px;
-            padding: 8px;
-            font-size: 18px;
-            border-radius: 5px;
-        }
-        #customizeMenu select:focus, #customizeMenu button:focus, #tutorialMenu button:focus, #gradeMenu select:focus, #gradeMenu button:focus {
-            outline: 2px solid #333;
-        }
-        #storyMessage, #dialogue, #damageIndicator {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 204, 0.9);
-            padding: 20px;
-            border: 3px solid #ffcc00;
-            border-radius: 10px;
-            font-size: 24px;
-            text-align: center;
-            display: none;
-        }
-        #damageIndicator {
-            background: transparent;
-            border: none;
-            color: red;
-            font-size: 28px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            top: 30%;
-        }
-                nav {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-        .nav-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .nav-links a {
-            color: #ffcc00;
-            text-decoration: none;
-            font-size: 18px;
-        }
-        .nav-links a:hover {
-            color: #ffdd33;
-        }
-        .dropdown {
-            position: relative;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            min-width: 200px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            border-radius: 5px;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        .dropdown-content a {
-            color: #ffcc00;
-            padding: 12px 16px;
-            display: block;
-            text-align: left;
-        }
-        .dropdown-content a:hover {
-            background: rgba(255, 204, 0, 0.2);
-        }
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            color: #ffcc00;
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
+        .sheet h2 { margin-bottom: 10px; }
+        .sheet p { margin: 8px 0; line-height: 1.4; }
+        .sheet label { display: block; margin: 10px 0; font-weight: 700; }
+        .sheet select { padding: 8px; font-size: 16px; border-radius: 8px; }
+
+        @media (max-width: 720px) {
+            #roster { display: none; }
+            .bar-card { min-width: 140px; padding: 6px 8px; }
+            #panel { bottom: 8px; padding: 8px; }
+            .btn { padding: 7px 9px; font-size: 13px; }
         }
     </style>
 </head>
 <body>
-        <nav>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <div class="dropdown">
-                <a href="#">Apps</a>
-                <div class="dropdown-content">
-                    <a href="fractal-ai-research.html">Fractal AI Research</a>
-                    <a href="fractal-meditation.html">Fractal Meditation</a>
-                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
-                    <a href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a>
-                    <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
-                    <a href="app-instructions.html">Instructions</a>
+    <div class="hud" id="hud" hidden>
+        <div class="top-bar">
+            <div class="bar-card">
+                <div class="label">Your Kai</div>
+                <div class="hp-track"><div class="hp-fill" id="playerHp"></div></div>
+                <div class="meta"><span id="playerHpTxt">100</span><span id="comboTxt">Combo x1</span></div>
+                <div class="lives" id="lives"></div>
+            </div>
+            <div class="level-chip">
+                <div id="levelTxt">Level 1</div>
+                <div class="timer-wrap">
+                    <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
                 </div>
             </div>
-            <div class="dropdown">
-                <a href="#">Kid's Zone</a>
-                <div class="dropdown-content">
-                    <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
-                    <a href="certificate.html">Certificate</a>
-                </div>
+            <div class="bar-card" style="text-align:right">
+                <div class="label" id="enemyName">Enemy</div>
+                <div class="hp-track"><div class="hp-fill" id="enemyHp"></div></div>
+                <div class="meta"><span></span><span id="enemyHpTxt">100</span></div>
             </div>
         </div>
-    </nav>
-    <div id="ui">
-        <div id="mathProblem"></div>
-        <input type="number" id="answerInput" placeholder="Your Ans">
-        <button id="submitButton" onclick="checkAnswer()">Submit</button>
-        <button id="hintButton" onclick="showHint()" disabled>Hint</button>
-        <button id="customizeButton" onclick="openCustomizeMenu()">Customize</button>
-        <button id="gradeButton" onclick="openGradeMenu()">Grade Level</button>
-        <button id="musicButton" onclick="toggleMusic()">Music: On</button>
-        <button id="fullscreenButton" onclick="toggleFullScreen()">Full Screen</button>
-        <div id="feedback"></div>
-        <div id="scoreDisplay">Score: 0</div>
-        <div id="countingBlocks"></div>
+
+        <div id="roster"></div>
+
+        <div id="panel">
+            <div id="mathProblem">Ready?</div>
+            <div id="blocks"></div>
+            <div class="row">
+                <input id="answerInput" type="number" inputmode="decimal" placeholder="Answer">
+                <button class="btn" id="submitBtn">Submit</button>
+                <button class="btn ghost" id="hintBtn">Hint</button>
+                <button class="btn ghost" id="gradeBtn">Grade</button>
+                <button class="btn ghost" id="customBtn">Style</button>
+                <button class="btn ghost" id="pauseBtn">Pause</button>
+                <button class="btn ghost" id="musicBtn">Music</button>
+                <button class="btn ghost" id="fsBtn">Full</button>
+            </div>
+            <div id="feedback"></div>
+            <div id="scoreLine">Score 0 · Best 0</div>
+        </div>
     </div>
-    <div id="monsterRoster">
-        <h3>Your Monsters</h3>
-        <div onclick="selectMonster(0)">Flame Kai (Fire, Lv. 1)</div>
-        <div onclick="selectMonster(1)">Aqua Kai (Water, Lv. 1)</div>
-        <div onclick="selectMonster(2)">Earth Kai (Earth, Lv. 1)</div>
-        <div onclick="selectMonster(3)">Wind Kai (Wind, Lv. 1)</div>
-        <div onclick="selectMonster(4)">Magic Kai (Magic, Lv. 1)</div>
+
+    <div class="toast" id="story"></div>
+    <div class="toast" id="talk"></div>
+    <div class="toast" id="dmg"></div>
+
+    <div class="modal show" id="startModal">
+        <div class="sheet">
+            <h2>Kai Wisdom Fighters</h2>
+            <p>Solve math to power your Kai. Land enough hits to drop the boss, then climb 10 elemental arenas.</p>
+            <p>Hints are free. A 20-second timer keeps the duel moving. Streaks boost damage.</p>
+            <label>Grade
+                <select id="startGrade">
+                    <option value="1">1st — + −</option>
+                    <option value="2" selected>2nd — + −</option>
+                    <option value="3">3rd — + − ×</option>
+                    <option value="4">4th — + − ×</option>
+                    <option value="5">5th — + − × ÷</option>
+                    <option value="6">6th — + − × ÷</option>
+                </select>
+            </label>
+            <div class="row" style="margin-top:12px">
+                <button class="btn" id="startBtn">Start Playing</button>
+                <button class="btn ghost" id="continueBtn">Continue Save</button>
+            </div>
+        </div>
     </div>
-    <div id="healthBar">
-        <div id="healthFill"></div>
+
+    <div class="modal" id="pauseModal">
+        <div class="sheet">
+            <h2>Paused</h2>
+            <p>Progress is saved on this device.</p>
+            <div class="row" style="margin-top:12px">
+                <button class="btn" id="resumeBtn">Resume</button>
+                <button class="btn ghost" id="restartBtn">New Game</button>
+            </div>
+        </div>
     </div>
-    <div id="playerHealthBar">
-        <div id="playerHealthFill"></div>
+
+    <div class="modal" id="gradeModal">
+        <div class="sheet">
+            <h2>Grade Level</h2>
+            <label>Grade
+                <select id="gradeSelect">
+                    <option value="1">1st</option><option value="2">2nd</option>
+                    <option value="3">3rd</option><option value="4">4th</option>
+                    <option value="5">5th</option><option value="6">6th</option>
+                </select>
+            </label>
+            <div class="row"><button class="btn" id="applyGrade">Apply</button></div>
+        </div>
     </div>
-    <div id="livesDisplay">
-        <div class="life"></div>
-        <div class="life"></div>
-        <div class="life"></div>
+
+    <div class="modal" id="customModal">
+        <div class="sheet">
+            <h2>Customize Kai</h2>
+            <label>Color
+                <select id="colorSelect">
+                    <option value="0xff4500">Ember Red</option>
+                    <option value="0x00b7eb">River Blue</option>
+                    <option value="0xff6f00">Amber Earth</option>
+                    <option value="0x87ceeb">Sky Wind</option>
+                    <option value="0x9400d3">Arcane Purple</option>
+                    <option value="0xffd700">Champion Gold</option>
+                </select>
+            </label>
+            <label>Accessory
+                <select id="accSelect">
+                    <option value="none">None</option>
+                    <option value="horns">Horns</option>
+                    <option value="wings">Wings</option>
+                </select>
+            </label>
+            <div class="row"><button class="btn" id="applyCustom">Apply</button></div>
+        </div>
     </div>
-    <div id="levelIndicator"></div>
-    <div id="customizeMenu">
-        <h2>Customize Monster</h2>
-        <label>Color: <select id="colorSelect">
-            <option value="0xff4500">Red</option>
-            <option value="0x00b7eb">Blue</option>
-            <option value="0xff6f00">Neon Brown</option>
-            <option value="0x87ceeb">Sky Blue</option>
-            <option value="0x9400d3">Purple</option>
-        </select></label>
-        <label>Accessory: <select id="accessorySelect">
-            <option value="none">None</option>
-            <option value="horns">Horns</option>
-            <option value="wings">Wings</option>
-        </select></label>
-        <button onclick="applyCustomization()">Apply</button>
-        <button onclick="closeCustomizeMenu()">Close</button>
-    </div>
-    <div id="gradeMenu">
-        <h2>Select Grade Level</h2>
-        <label>Grade: <select id="gradeSelect">
-            <option value="1">1st Grade</option>
-            <option value="2" selected>2nd Grade</option>
-            <option value="3">3rd Grade</option>
-            <option value="4">4th Grade</option>
-            <option value="5">5th Grade</option>
-            <option value="6">6th Grade</option>
-        </select></label>
-        <button onclick="applyGradeLevel()">Apply</button>
-        <button onclick="closeGradeMenu()">Close</button>
-    </div>
-    <div id="tutorialMenu">
-        <h2>Welcome to Kai Wisdom Fighters!</h2>
-        <p>Solve math problems to make your monster attack the enemy.</p>
-        <p>Use the blocks to count if you need help!</p>
-        <p>Defeat enemies to level up and unlock new monsters!</p>
-        <button onclick="closeTutorial()">Start Playing</button>
-    </div>
-    <div id="storyMessage"></div>
-    <div id="dialogue"></div>
-    <div id="damageIndicator"></div>
+
     <script type="module">
+        /**
+         * Kai Wisdom Fighters v2 — production single-file game.
+         * Three.js arena + grade-scaled arithmetic combat.
+         */
         import * as THREE from 'https://esm.sh/three@0.154.0';
 
-        // Scene setup
-        let scene, camera, renderer;
-        try {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 20);
-            camera.lookAt(0, 0, 0);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x000000, 0);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.body.appendChild(renderer.domElement);
-        } catch (e) {
-            console.error('Error setting up Three.js scene:', e);
-        }
+        const SAVE_KEY = 'kwf_v2';
+        const MAX_LEVEL = 10;
+        const ANSWER_SECS = 20;
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-        scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        directionalLight.position.set(0, 20, 10);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 1024;
-        directionalLight.shadow.mapSize.height = 1024;
-        directionalLight.shadow.camera.near = 0.1;
-        directionalLight.shadow.camera.far = 50;
-        directionalLight.shadow.camera.left = -20;
-        directionalLight.shadow.camera.right = 20;
-        directionalLight.shadow.camera.top = 20;
-        directionalLight.shadow.camera.bottom = -20;
-        scene.add(directionalLight);
-        const pointLight = new THREE.PointLight(0xffff99, 1.5, 50);
-        pointLight.position.set(0, 10, 5);
-        pointLight.castShadow = true;
-        scene.add(pointLight);
+        const TYPES = ['Fire', 'Water', 'Earth', 'Wind', 'Magic'];
+        const TYPE_COLOR = { Fire: 0xff4500, Water: 0x00b7eb, Earth: 0xff6f00, Wind: 0x87ceeb, Magic: 0x9400d3 };
+        const ORB_COLOR = { Fire: 0xffa500, Water: 0x00b7eb, Earth: 0xff6f00, Wind: 0x87ceeb, Magic: 0x9400d3 };
 
-        // Scenery presets
-        const sceneryPresets = [
-            { ambient: 0x555555, terrain: 0x336633, stars: 0xffffff, fog: 0x88ccee, scenery: 'jungle' },
-            { ambient: 0x333366, terrain: 0xa0ddfb, stars: 0xeeeeff, fog: 0xffffff, scenery: 'ice' },
-            { ambient: 0x663333, terrain: 0x8b0000, stars: 0xffeecc, fog: 0xff4500, scenery: 'lava' },
-            { ambient: 0x444444, terrain: 0x4682b4, stars: 0xffffff, fog: 0xa0a0a0, scenery: 'mountain' },
-            { ambient: 0x104060, terrain: 0x20b2aa, stars: 0xaaffee, fog: 0x104060, scenery: 'ocean' },
-            { ambient: 0x222222, terrain: 0x333333, stars: 0xaaaaaa, fog: 0x444444, scenery: 'graveyard' },
-            { ambient: 0x4b0082, terrain: 0x9400d3, stars: 0xddaaff, fog: 0x4b0082, scenery: 'library' },
-            { ambient: 0x333333, terrain: 0x708090, stars: 0xcccccc, fog: 0x555555, scenery: 'city' },
-            { ambient: 0x111111, terrain: 0x2f4f4f, stars: 0xffffff, fog: 0x000000, scenery: 'space' },
-            { ambient: 0x555555, terrain: 0x556b2f, stars: 0xffffcc, fog: 0x666666, scenery: 'arena' },
+        const ENEMIES = [
+            { name: 'Stone Golem', color: 0x6b8f3a, acc: 'horns', taunt: ['I’ll crush you!', 'Your math is weak!'] },
+            { name: 'Frost Queen', color: 0x66e0ff, acc: 'none', taunt: ['Freeze!', 'Solve this, child!'] },
+            { name: 'Lava Fiend', color: 0xff3333, acc: 'none', taunt: ['Burn!', 'You’ll melt!'] },
+            { name: 'Tempest Harpy', color: 0xffee55, acc: 'wings', taunt: ['Ride the storm!', 'Too slow!'] },
+            { name: 'Ocean King', color: 0x1e90ff, acc: 'none', taunt: ['Drown!', 'Sink!'] },
+            { name: 'Shadow Phantom', color: 0xaa44ff, acc: 'none', taunt: ['Fear the dark!', 'You cannot see me!'] },
+            { name: 'Arcane Sorcerer', color: 0x9400d3, acc: 'none', taunt: ['Magic is power!', 'Solve or perish!'] },
+            { name: 'Cyber Titan', color: 0x33ff88, acc: 'none', taunt: ['System overload!', 'Compute this!'] },
+            { name: 'Celestial Dragon', color: 0xffe066, acc: 'wings', taunt: ['Stars against you!', 'Cosmic defeat!'] },
+            { name: 'Eternal Hydra', color: 0xff66aa, acc: 'horns', taunt: ['All elements unite!', 'You cannot win!'] }
         ];
 
-        // Starfield background
-        const starGroup = new THREE.Group();
-        const starGeometry = new THREE.BufferGeometry();
-        const starPositions = new Float32Array(3000);
-        for (let i = 0; i < 1000; i++) {
-            starPositions[i * 3] = (Math.random() - 0.5) * 200;
-            starPositions[i * 3 + 1] = (Math.random() - 0.5) * 200;
-            starPositions[i * 3 + 2] = (Math.random() - 0.5) * 200;
-        }
-        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.2 });
-        const stars = new THREE.Points(starGeometry, starMaterial);
-        starGroup.add(stars);
-        scene.add(starGroup);
+        const SCENERY = [
+            { ambient: 0x557755, terrain: 0x336633, stars: 0xffffff, fog: 0x88ccee, kind: 'jungle' },
+            { ambient: 0x334466, terrain: 0xa0ddfb, stars: 0xeeeeff, fog: 0xffffff, kind: 'ice' },
+            { ambient: 0x663333, terrain: 0x8b1a1a, stars: 0xffeecc, fog: 0xff4500, kind: 'lava' },
+            { ambient: 0x445566, terrain: 0x4682b4, stars: 0xffffff, fog: 0xa0a0a0, kind: 'mountain' },
+            { ambient: 0x104060, terrain: 0x20b2aa, stars: 0xaaffee, fog: 0x104060, kind: 'ocean' },
+            { ambient: 0x222222, terrain: 0x333333, stars: 0xaaaaaa, fog: 0x444444, kind: 'graveyard' },
+            { ambient: 0x4b0082, terrain: 0x5b2d8b, stars: 0xddaaff, fog: 0x4b0082, kind: 'library' },
+            { ambient: 0x333333, terrain: 0x708090, stars: 0xcccccc, fog: 0x555555, kind: 'city' },
+            { ambient: 0x111111, terrain: 0x2f4f4f, stars: 0xffffff, fog: 0x000000, kind: 'space' },
+            { ambient: 0x555533, terrain: 0x556b2f, stars: 0xffffcc, fog: 0x666666, kind: 'arena' }
+        ];
 
-        // Procedural terrain
-        let environmentGroup = new THREE.Group();
-        scene.add(environmentGroup);
-        const terrainGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
-        const terrainMaterial = new THREE.MeshStandardMaterial({ color: 0x336633 });
-        const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+        const state = {
+            grade: 2,
+            level: 1,
+            score: 0,
+            best: 0,
+            lives: 3,
+            playerHp: 100,
+            enemyHp: 100,
+            needed: 9,
+            hits: 0,
+            combo: 0,
+            current: 0,
+            enemy: 0,
+            paused: true,
+            music: true,
+            problem: null,
+            answer: null,
+            op: '+',
+            n1: 0,
+            n2: 0,
+            deadline: 0,
+            attackT: 0,
+            hitT: 0,
+            shakeT: 0,
+            kai: TYPES.map((t, i) => ({
+                name: ['Flame Kai', 'Aqua Kai', 'Earth Kai', 'Wind Kai', 'Magic Kai'][i],
+                type: t,
+                color: TYPE_COLOR[t],
+                acc: 'none',
+                level: 1,
+                xp: 0,
+                maxXp: 50
+            }))
+        };
+
+        /* ---------- audio ---------- */
+        const audio = { ctx: null, drone: null };
+        function ctx() {
+            if (!audio.ctx) audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            return audio.ctx;
+        }
+        function beep(type, freq, dur = 0.18, vol = 0.16) {
+            if (!state.music) return;
+            const c = ctx();
+            const o = c.createOscillator();
+            const g = c.createGain();
+            o.type = type;
+            o.frequency.value = freq;
+            g.gain.value = vol;
+            o.connect(g); g.connect(c.destination);
+            o.start();
+            g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+            o.stop(c.currentTime + dur);
+        }
+        function startDrone() {
+            stopDrone();
+            if (!state.music) return;
+            const c = ctx();
+            const o = c.createOscillator();
+            const g = c.createGain();
+            o.type = 'sine';
+            o.frequency.value = 92;
+            g.gain.value = 0.03;
+            o.connect(g); g.connect(c.destination);
+            o.start();
+            audio.drone = o;
+        }
+        function stopDrone() {
+            try { audio.drone && audio.drone.stop(); } catch (_) {}
+            audio.drone = null;
+        }
+
+        /* ---------- three.js world ---------- */
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 200);
+        camera.position.set(0, 5.2, 16);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.prepend(renderer.domElement);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.95);
+        scene.add(ambient);
+        const sun = new THREE.DirectionalLight(0xffffff, 1.15);
+        sun.position.set(6, 18, 10);
+        sun.castShadow = true;
+        sun.shadow.mapSize.set(1024, 1024);
+        scene.add(sun);
+        const lamp = new THREE.PointLight(0xffffaa, 1.1, 60);
+        lamp.position.set(0, 10, 4);
+        scene.add(lamp);
+
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = new Float32Array(2400);
+        for (let i = 0; i < 800; i++) {
+            starPos[i * 3] = (Math.random() - 0.5) * 180;
+            starPos[i * 3 + 1] = (Math.random() - 0.5) * 180;
+            starPos[i * 3 + 2] = (Math.random() - 0.5) * 180;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.22 });
+        scene.add(new THREE.Points(starGeo, starMat));
+
+        const terrainGeo = new THREE.PlaneGeometry(90, 90, 28, 28);
+        const tv = terrainGeo.attributes.position.array;
+        for (let i = 0; i < tv.length; i += 3) tv[i + 2] = Math.sin(tv[i] * 0.12) * Math.cos(tv[i + 1] * 0.1) * 1.6;
+        terrainGeo.attributes.position.needsUpdate = true;
+        terrainGeo.computeVertexNormals();
+        const terrainMat = new THREE.MeshStandardMaterial({ color: 0x336633 });
+        const terrain = new THREE.Mesh(terrainGeo, terrainMat);
         terrain.rotation.x = -Math.PI / 2;
-        terrain.position.y = -5;
+        terrain.position.y = -4.2;
         terrain.receiveShadow = true;
         scene.add(terrain);
-        const vertices = terrainGeometry.attributes.position.array;
-        for (let i = 0; i < vertices.length; i += 3) {
-            vertices[i + 2] = Math.sin(vertices[i] * 0.1) * Math.cos(vertices[i + 1] * 0.1) * 2;
-        }
-        terrainGeometry.attributes.position.needsUpdate = true;
 
-        // Procedural scenery
+        const env = new THREE.Group();
+        scene.add(env);
+
+        function clearGroup(g) {
+            while (g.children.length) {
+                const c = g.children[0];
+                g.remove(c);
+                c.geometry && c.geometry.dispose();
+                c.material && c.material.dispose();
+            }
+        }
+
+        function scatter(kind, count, factory) {
+            for (let i = 0; i < count; i++) {
+                const m = factory();
+                m.position.set((Math.random() - 0.5) * 70, -3.6, (Math.random() - 0.5) * 70);
+                if (Math.abs(m.position.x) < 8 && Math.abs(m.position.z) < 8) m.position.x += 16;
+                m.castShadow = true;
+                env.add(m);
+            }
+        }
+
         function updateEnvironment(level) {
-            environmentGroup.children.forEach(child => {
-                environmentGroup.remove(child);
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
+            clearGroup(env);
+            const p = SCENERY[level - 1] || SCENERY[0];
+            ambient.color.setHex(p.ambient);
+            terrainMat.color.setHex(p.terrain);
+            starMat.color.setHex(p.stars);
+            scene.fog = new THREE.FogExp2(p.fog, 0.012);
+            const k = p.kind;
+            if (k === 'jungle') scatter(k, 16, () => {
+                const g = new THREE.Group();
+                const s = 0.7 + Math.random() * 0.5;
+                const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.35 * s, 0.45 * s, 3 * s, 7), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
+                const leaf = new THREE.Mesh(new THREE.ConeGeometry(1.8 * s, 3.4 * s, 7), new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0x228B22 : 0x2E8B57 }));
+                leaf.position.y = 2.8 * s;
+                g.add(trunk, leaf);
+                return g;
             });
-            const preset = sceneryPresets[level - 1];
-            if (preset.scenery === 'jungle') {
-                for (let i = 0; i < 20; i++) {
-                    const scale = Math.random() * 0.5 + 0.75;
-                    const trunkGeometry = new THREE.CylinderGeometry(0.5 * scale, 0.5 * scale, 3 * scale, 8);
-                    const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
-                    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-                    trunk.castShadow = true;
-                    const foliageGeometry = new THREE.ConeGeometry(2 * scale, 4 * scale, 8);
-                    const foliageMaterial = new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0x228B22 : 0x2E8B57 });
-                    const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-                    foliage.position.y = 3.5 * scale;
-                    foliage.castShadow = true;
-                    const tree = new THREE.Group();
-                    tree.add(trunk, foliage);
-                    tree.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    environmentGroup.add(tree);
-                }
-            } else if (preset.scenery === 'ice') {
-                for (let i = 0; i < 15; i++) {
-                    const scale = Math.random() * 0.5 + 0.5;
-                    const spikeGeometry = new THREE.ConeGeometry(1 * scale, 4 * scale, 6);
-                    const spikeMaterial = new THREE.MeshStandardMaterial({ color: 0xa0ddfb });
-                    const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
-                    spike.position.set((Math.random() - 0.5) * 80, -4 + 2 * scale, (Math.random() - 0.5) * 80);
-                    spike.castShadow = true;
-                    environmentGroup.add(spike);
-                }
-            } else if (preset.scenery === 'lava') {
-                for (let i = 0; i < 10; i++) {
-                    const rockGeometry = new THREE.SphereGeometry(2, 8, 8);
-                    const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x3c2f2f });
-                    const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-                    rock.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    rock.castShadow = true;
-                    environmentGroup.add(rock);
-                }
-            } else if (preset.scenery === 'mountain') {
-                for (let i = 0; i < 12; i++) {
-                    const rockGeometry = new THREE.SphereGeometry(3, 6, 6);
-                    const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x4682b4 });
-                    const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-                    rock.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    rock.castShadow = true;
-                    environmentGroup.add(rock);
-                }
-            } else if (preset.scenery === 'ocean') {
-                for (let i = 0; i < 15; i++) {
-                    const coralGeometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 8);
-                    const coralMaterial = new THREE.MeshStandardMaterial({ color: 0xff4040 });
-                    const coral = new THREE.Mesh(coralGeometry, coralMaterial);
-                    coral.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    coral.castShadow = true;
-                    environmentGroup.add(coral);
-                }
-            } else if (preset.scenery === 'graveyard') {
-                for (let i = 0; i < 10; i++) {
-                    const tombGeometry = new THREE.BoxGeometry(1, 2, 0.5);
-                    const tombMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
-                    const tomb = new THREE.Mesh(tombGeometry, tombMaterial);
-                    tomb.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    tomb.castShadow = true;
-                    environmentGroup.add(tomb);
-                }
-            } else if (preset.scenery === 'library') {
-                for (let i = 0; i < 12; i++) {
-                    const bookGeometry = new THREE.BoxGeometry(2, 3, 0.5);
-                    const bookMaterial = new THREE.MeshStandardMaterial({ color: 0x8b008b });
-                    const book = new THREE.Mesh(bookGeometry, bookMaterial);
-                    book.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    book.castShadow = true;
-                    environmentGroup.add(book);
-                }
-            } else if (preset.scenery === 'city') {
-                for (let i = 0; i < 15; i++) {
-                    const buildingGeometry = new THREE.BoxGeometry(2, 5, 2);
-                    const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x708090 });
-                    const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-                    building.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    building.castShadow = true;
-                    environmentGroup.add(building);
-                }
-            } else if (preset.scenery === 'space') {
-                for (let i = 0; i < 10; i++) {
-                    const asteroidGeometry = new THREE.SphereGeometry(2, 6, 6);
-                    const asteroidMaterial = new THREE.MeshStandardMaterial({ color: 0x2f4f4f });
-                    const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
-                    asteroid.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    asteroid.castShadow = true;
-                    environmentGroup.add(asteroid);
-                }
-            } else if (preset.scenery === 'arena') {
-                for (let i = 0; i < 8; i++) {
-                    const pillarGeometry = new THREE.CylinderGeometry(1, 1, 4, 8);
-                    const pillarMaterial = new THREE.MeshStandardMaterial({ color: 0x556b2f });
-                    const pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-                    pillar.position.set((Math.random() - 0.5) * 80, -4, (Math.random() - 0.5) * 80);
-                    pillar.castShadow = true;
-                    environmentGroup.add(pillar);
-                }
-            }
+            else if (k === 'ice') scatter(k, 12, () => new THREE.Mesh(new THREE.ConeGeometry(0.8 + Math.random(), 3 + Math.random() * 2, 6), new THREE.MeshStandardMaterial({ color: 0xa0ddfb })));
+            else if (k === 'lava') scatter(k, 10, () => new THREE.Mesh(new THREE.SphereGeometry(1.4, 7, 7), new THREE.MeshStandardMaterial({ color: 0x3c2f2f })));
+            else if (k === 'mountain') scatter(k, 10, () => new THREE.Mesh(new THREE.SphereGeometry(2.2, 6, 6), new THREE.MeshStandardMaterial({ color: 0x5a7a9a })));
+            else if (k === 'ocean') scatter(k, 14, () => new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.4, 7), new THREE.MeshStandardMaterial({ color: 0xff4040 })));
+            else if (k === 'graveyard') scatter(k, 10, () => new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.8, 0.35), new THREE.MeshStandardMaterial({ color: 0x555555 })));
+            else if (k === 'library') scatter(k, 10, () => new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.6, 0.4), new THREE.MeshStandardMaterial({ color: 0x8b008b })));
+            else if (k === 'city') scatter(k, 12, () => new THREE.Mesh(new THREE.BoxGeometry(1.8, 3 + Math.random() * 3, 1.8), new THREE.MeshStandardMaterial({ color: 0x708090 })));
+            else if (k === 'space') scatter(k, 10, () => new THREE.Mesh(new THREE.SphereGeometry(1.4, 6, 6), new THREE.MeshStandardMaterial({ color: 0x2f4f4f })));
+            else scatter(k, 8, () => new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 3.6, 8), new THREE.MeshStandardMaterial({ color: 0x556b2f })));
         }
 
-        // Player monster (Flame Kai, Aqua Kai, etc.)
-        const playerGroup = new THREE.Group();
-        const playerBodyGeometry = new THREE.BoxGeometry(2, 3, 2);
-        const playerMaterial = new THREE.MeshStandardMaterial({ color: 0xff4500 });
-        const playerBody = new THREE.Mesh(playerBodyGeometry, playerMaterial);
-        playerBody.position.set(0, 1.5, 0);
-        playerBody.castShadow = true;
-        playerGroup.add(playerBody);
+        function makeFighter(opts) {
+            const g = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: opts.color });
+            const body = new THREE.Mesh(new THREE.BoxGeometry(opts.w, opts.h, opts.d), mat);
+            body.position.y = opts.h / 2;
+            body.castShadow = true;
+            const head = new THREE.Mesh(new THREE.SphereGeometry(opts.head, 14, 14), mat);
+            head.position.y = opts.h + opts.head * 0.35;
+            head.castShadow = true;
+            const armG = new THREE.BoxGeometry(opts.limb * 0.7, opts.limb * 2, opts.limb * 0.7);
+            const legG = new THREE.BoxGeometry(opts.limb * 0.75, opts.limb * 2, opts.limb * 0.75);
+            const lArm = new THREE.Mesh(armG, mat); lArm.position.set(-opts.w * 0.75, opts.h * 0.55, 0);
+            const rArm = new THREE.Mesh(armG, mat); rArm.position.set(opts.w * 0.75, opts.h * 0.55, 0);
+            const lLeg = new THREE.Mesh(legG, mat); lLeg.position.set(-opts.w * 0.28, -opts.limb * 0.2, 0);
+            const rLeg = new THREE.Mesh(legG, mat); rLeg.position.set(opts.w * 0.28, -opts.limb * 0.2, 0);
+            [lArm, rArm, lLeg, rLeg].forEach(m => { m.castShadow = true; });
+            const face = new THREE.Group();
+            const acc = new THREE.Group();
+            g.add(body, head, lArm, rArm, lLeg, rLeg, face, acc);
+            g.userData = { mat, face, acc, lArm, rArm, head };
+            return g;
+        }
 
-        // Player head
-        const playerHeadGeometry = new THREE.SphereGeometry(1, 16, 16);
-        const playerHead = new THREE.Mesh(playerHeadGeometry, playerMaterial);
-        playerHead.position.set(0, 3.5, 0);
-        playerHead.castShadow = true;
-        playerGroup.add(playerHead);
+        const player = makeFighter({ color: 0xff4500, w: 2, h: 2.6, d: 2, head: 0.95, limb: 0.55 });
+        player.position.set(-5, -2, 0);
+        scene.add(player);
+        const enemy = makeFighter({ color: 0x6b8f3a, w: 2.4, h: 3, d: 2.4, head: 1.1, limb: 0.62 });
+        enemy.position.set(5, -2, 0);
+        scene.add(enemy);
 
-        // Player facial features
-        const facialFeaturesGroup = new THREE.Group();
-        let leftEye, rightEye, nose, mouth;
-        function updateFacialFeatures(type) {
-            facialFeaturesGroup.children.forEach(child => {
-                facialFeaturesGroup.remove(child);
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
-            });
-            const eyeGeom = new THREE.SphereGeometry(0.15, 8, 8);
-            const noseGeom = new THREE.ConeGeometry(0.15, 0.3, 8);
-            const mouthGeom = new THREE.BoxGeometry(0.4, 0.05, 0.1);
-            const colors = {
-                'Fire': { eye: 0xff0000, nose: 0xffa500 },
-                'Water': { eye: 0x00b7eb, nose: 0x66ffff },
-                'Earth': { eye: 0xff6f00, nose: 0xffa500 },
-                'Wind': { eye: 0xffffff, nose: 0x87ceeb },
-                'Magic': { eye: 0x9400d3, nose: 0x9400d3, noseEmissive: 0x330066 }
-            };
-            leftEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: colors[type].eye }));
-            rightEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: colors[type].eye }));
-            nose = new THREE.Mesh(noseGeom, new THREE.MeshStandardMaterial({ 
-                color: colors[type].nose,
-                emissive: colors[type].noseEmissive || 0x000000
-            }));
-            mouth = new THREE.Mesh(mouthGeom, new THREE.MeshBasicMaterial({ color: 0x552200 }));
-            leftEye.position.set(-0.3, 3.7, 0.9);
-            rightEye.position.set(0.3, 3.7, 0.9);
-            nose.position.set(0, 3.5, 1);
+        const fx = new THREE.Group();
+        scene.add(fx);
+        const orbs = new THREE.Group();
+        scene.add(orbs);
+
+        let leftPts, rightPts, leftSpd = [], rightSpd = [];
+
+        function setFace(group, palette, menacing = false) {
+            clearGroup(group.userData.face);
+            const eyeM = new THREE.MeshBasicMaterial({ color: palette.eye });
+            const le = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), eyeM);
+            const re = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), eyeM);
+            const nose = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.28, 7), new THREE.MeshStandardMaterial({ color: palette.nose }));
+            const mouth = new THREE.Mesh(new THREE.BoxGeometry(menacing ? 0.5 : 0.36, 0.06, 0.08), new THREE.MeshBasicMaterial({ color: menacing ? 0xffffff : 0x552200 }));
+            const hy = group.userData.head.position.y;
+            le.position.set(-0.28, hy + 0.12, 0.85);
+            re.position.set(0.28, hy + 0.12, 0.85);
+            nose.position.set(0, hy - 0.02, 0.95);
             nose.rotation.x = Math.PI / 2;
-            mouth.position.set(0, 3.2, 0.9);
-            facialFeaturesGroup.add(leftEye, rightEye, nose, mouth);
+            mouth.position.set(0, hy - 0.32, 0.88);
+            if (menacing) mouth.rotation.z = Math.PI / 10;
+            group.userData.face.add(le, re, nose, mouth);
+            group.userData.eyes = [le, re];
+            group.userData.mouth = mouth;
         }
-        playerGroup.add(facialFeaturesGroup);
 
-        // Player arms and legs
-        const armGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.5);
-        const leftArm = new THREE.Mesh(armGeometry, playerMaterial);
-        leftArm.position.set(-1.5, 1.5, 0);
-        leftArm.castShadow = true;
-        playerGroup.add(leftArm);
-        const rightArm = new THREE.Mesh(armGeometry, playerMaterial);
-        rightArm.position.set(1.5, 1.5, 0);
-        rightArm.castShadow = true;
-        playerGroup.add(rightArm);
-        const legGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.5);
-        const leftLeg = new THREE.Mesh(legGeometry, playerMaterial);
-        leftLeg.position.set(-0.75, -0.75, 0);
-        leftLeg.castShadow = true;
-        playerGroup.add(leftLeg);
-        const rightLeg = new THREE.Mesh(legGeometry, playerMaterial);
-        rightLeg.position.set(0.75, -0.75, 0);
-        rightLeg.castShadow = true;
-        playerGroup.add(rightLeg);
-        playerGroup.position.set(-5, -2, 0);
-        scene.add(playerGroup);
-
-        // Elemental effects
-        const playerEffectGroup = new THREE.Group();
-        scene.add(playerEffectGroup);
-        let leftParticleSystem, rightParticleSystem, leftSpeeds = [], rightSpeeds = [];
-        function createParticleEffect(type, armPosition) {
-            const particleCount = 25;
-            const positions = new Float32Array(particleCount * 3);
-            const speeds = [];
-            const colors = {
-                'Fire': 0xffa500,
-                'Water': 0x00b7eb,
-                'Earth': 0xff6f00,
-                'Wind': 0x87ceeb,
-                'Magic': 0x9400d3
-            };
-            for (let i = 0; i < particleCount; i++) {
-                positions[i * 3] = armPosition.x + (Math.random() - 0.5) * 0.3;
-                positions[i * 3 + 1] = armPosition.y + (Math.random() - 0.5) * 0.3;
-                positions[i * 3 + 2] = armPosition.z + (Math.random() - 0.5) * 0.3;
-                speeds[i] = type === 'Fire' ? 0.02 + Math.random() * 0.02 :
-                            type === 'Water' ? 0.01 + Math.random() * 0.01 :
-                            type === 'Earth' ? 0.01 + Math.random() * 0.01 :
-                            type === 'Wind' ? 0.03 + Math.random() * 0.02 :
-                            0.01 + Math.random() * 0.01;
+        function setAcc(group, kind, magicCape = false) {
+            clearGroup(group.userData.acc);
+            if (kind === 'horns') {
+                const m = new THREE.MeshStandardMaterial({ color: 0x111111 });
+                const h1 = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.9, 7), m);
+                const h2 = h1.clone();
+                h1.position.set(-0.4, group.userData.head.position.y + 0.85, 0);
+                h2.position.set(0.4, group.userData.head.position.y + 0.85, 0);
+                group.userData.acc.add(h1, h2);
+            } else if (kind === 'wings') {
+                const m = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+                const w1 = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1), m);
+                const w2 = w1.clone();
+                w1.position.set(-1.4, 1.1, -0.2); w1.rotation.z = Math.PI / 5;
+                w2.position.set(1.4, 1.1, -0.2); w2.rotation.z = -Math.PI / 5;
+                group.userData.acc.add(w1, w2);
             }
-            const particleGeometry = new THREE.BufferGeometry();
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const particleMaterial = new THREE.PointsMaterial({
-                color: colors[type],
-                size: type === 'Magic' ? 0.2 : 0.3,
+            if (magicCape) {
+                const cape = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 3), new THREE.MeshBasicMaterial({ color: 0x9400d3, side: THREE.DoubleSide, transparent: true, opacity: 0.75 }));
+                cape.position.set(0, 1.1, -1.2);
+                group.userData.acc.add(cape);
+            }
+        }
+
+        function makeArmParticles(type, xOff) {
+            const n = 22;
+            const pos = new Float32Array(n * 3);
+            const spd = [];
+            for (let i = 0; i < n; i++) {
+                pos[i * 3] = xOff + (Math.random() - 0.5) * 0.25;
+                pos[i * 3 + 1] = 1.3 + (Math.random() - 0.5) * 0.25;
+                pos[i * 3 + 2] = (Math.random() - 0.5) * 0.25;
+                spd[i] = 0.015 + Math.random() * 0.02;
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            const mat = new THREE.PointsMaterial({
+                color: ORB_COLOR[type],
+                size: type === 'Magic' ? 0.16 : 0.24,
                 transparent: true,
                 blending: type === 'Fire' ? THREE.AdditiveBlending : THREE.NormalBlending,
                 depthWrite: false
             });
-            const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
-            particleSystem.position.set(-5, -2, 0);
-            return { particleSystem, speeds };
+            const pts = new THREE.Points(geo, mat);
+            pts.position.copy(player.position);
+            return { pts, spd };
         }
 
-        function updatePlayerEffect() {
-            playerEffectGroup.children.forEach(child => {
-                playerEffectGroup.remove(child);
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
-            });
-            const type = playerMonsters[currentMonster].type;
-            const leftArmPos = { x: -1.5, y: 1.5, z: 0 };
-            const rightArmPos = { x: 1.5, y: 1.5, z: 0 };
-            const leftEffect = createParticleEffect(type, leftArmPos);
-            const rightEffect = createParticleEffect(type, rightArmPos);
-            leftParticleSystem = leftEffect.particleSystem;
-            rightParticleSystem = rightEffect.particleSystem;
-            leftSpeeds = leftEffect.speeds;
-            rightSpeeds = rightEffect.speeds;
-            playerEffectGroup.add(leftParticleSystem, rightParticleSystem);
+        function refreshPlayerVfx() {
+            clearGroup(fx);
+            const kai = state.kai[state.current];
+            const L = makeArmParticles(kai.type, -1.35);
+            const R = makeArmParticles(kai.type, 1.35);
+            leftPts = L.pts; rightPts = R.pts; leftSpd = L.spd; rightSpd = R.spd;
+            fx.add(leftPts, rightPts);
         }
 
-        // Player accessories
-        const accessoryGroup = new THREE.Group();
-        playerGroup.add(accessoryGroup);
-
-        // Enemy character
-        const enemyGroup = new THREE.Group();
-        const enemyBodyGeometry = new THREE.BoxGeometry(2.5, 3.5, 2.5);
-        const enemyMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-        const enemyBody = new THREE.Mesh(enemyBodyGeometry, enemyMaterial);
-        enemyBody.position.set(0, 1.75, 0);
-        enemyBody.castShadow = true;
-        enemyGroup.add(enemyBody);
-
-        // Enemy head
-        const enemyHeadGeometry = new THREE.SphereGeometry(1.2, 16, 16);
-        const enemyHead = new THREE.Mesh(enemyHeadGeometry, enemyMaterial);
-        enemyHead.position.set(0, 4, 0);
-        enemyHead.castShadow = true;
-        enemyGroup.add(enemyHead);
-
-        // Enemy facial features
-        const enemyFacialFeaturesGroup = new THREE.Group();
-        let enemyLeftEye, enemyRightEye, enemyNose, enemyMouth;
-        function updateEnemyFacialFeatures() {
-            enemyFacialFeaturesGroup.children.forEach(child => {
-                enemyFacialFeaturesGroup.remove(child);
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
-            });
-            const eyeGeom = new THREE.SphereGeometry(0.15, 8, 8);
-            const noseGeom = new THREE.ConeGeometry(0.2, 0.4, 8);
-            const mouthGeom = new THREE.BoxGeometry(0.6, 0.1, 0.1);
-            enemyLeftEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-            enemyRightEye = new THREE.Mesh(eyeGeom, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-            enemyNose = new THREE.Mesh(noseGeom, new THREE.MeshStandardMaterial({ color: 0x000000 }));
-            enemyMouth = new THREE.Mesh(mouthGeom, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-            enemyLeftEye.position.set(-0.4, 4.2, 1.1);
-            enemyRightEye.position.set(0.4, 4.2, 1.1);
-            enemyNose.position.set(0, 3.8, 1.2);
-            enemyNose.rotation.x = Math.PI / 2;
-            enemyMouth.position.set(0, 3.5, 1.1);
-            enemyMouth.rotation.z = Math.PI / 8;
-            enemyFacialFeaturesGroup.add(enemyLeftEye, enemyRightEye, enemyNose, enemyMouth);
-        }
-        enemyGroup.add(enemyFacialFeaturesGroup);
-
-        // Enemy arms and legs
-        const enemyArmGeometry = new THREE.BoxGeometry(0.6, 1.8, 0.6);
-        const enemyLeftArm = new THREE.Mesh(enemyArmGeometry, enemyMaterial);
-        enemyLeftArm.position.set(-1.8, 1.8, 0);
-        enemyLeftArm.castShadow = true;
-        enemyGroup.add(enemyLeftArm);
-        const enemyRightArm = new THREE.Mesh(enemyArmGeometry, enemyMaterial);
-        enemyRightArm.position.set(1.8, 1.8, 0);
-        enemyRightArm.castShadow = true;
-        enemyGroup.add(enemyRightArm);
-        const enemyLegGeometry = new THREE.BoxGeometry(0.6, 1.8, 0.6);
-        const enemyLeftLeg = new THREE.Mesh(enemyLegGeometry, enemyMaterial);
-        enemyLeftLeg.position.set(-0.9, -0.9, 0);
-        enemyLeftLeg.castShadow = true;
-        enemyGroup.add(enemyLeftLeg);
-        const enemyRightLeg = new THREE.Mesh(enemyLegGeometry, enemyMaterial);
-        enemyRightLeg.position.set(0.9, -0.9, 0);
-        enemyRightLeg.castShadow = true;
-        enemyGroup.add(enemyRightLeg);
-        enemyGroup.position.set(5, -2, 0);
-        scene.add(enemyGroup);
-
-        // Enemy accessories
-        const enemyAccessoryGroup = new THREE.Group();
-        enemyGroup.add(enemyAccessoryGroup);
-
-        // Attack orbs
-        const orbGroup = new THREE.Group();
-        scene.add(orbGroup);
-
-        // Audio setup
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let ambientOscillator = null;
-        let musicOn = true;
-        function playAmbientSound() {
-            if (!musicOn) return;
-            ambientOscillator = audioCtx.createOscillator();
-            ambientOscillator.type = 'sine';
-            ambientOscillator.frequency.value = 100;
-            const gain = audioCtx.createGain();
-            gain.gain.value = 0.05;
-            ambientOscillator.connect(gain);
-            gain.connect(audioCtx.destination);
-            ambientOscillator.start();
-        }
-        function stopAmbientSound() {
-            if (ambientOscillator) {
-                ambientOscillator.stop();
-                ambientOscillator = null;
-            }
-        }
-        window.toggleMusic = function() {
-            musicOn = !musicOn;
-            if (musicOn) {
-                playAmbientSound();
-                document.getElementById('musicButton').textContent = 'Music: On';
-            } else {
-                stopAmbientSound();
-                document.getElementById('musicButton').textContent = 'Music: Off';
-            }
-        };
-        function playAttackSound(type) {
-            const osc = audioCtx.createOscillator();
-            osc.type = type === 'Fire' ? 'sine' : type === 'Water' ? 'triangle' : type === 'Wind' ? 'square' : type === 'Magic' ? 'sine' : 'sawtooth';
-            osc.frequency.value = type === 'Magic' ? 500 : 300;
-            const gain = audioCtx.createGain();
-            gain.gain.value = 0.2;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            setTimeout(() => osc.stop(), 200);
-        }
-        function playRewardSound() {
-            const osc = audioCtx.createOscillator();
-            osc.type = 'triangle';
-            osc.frequency.value = 800;
-            const gain = audioCtx.createGain();
-            gain.gain.value = 0.2;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            setTimeout(() => osc.stop(), 200);
-        }
-        function playExplosionSound() {
-            const osc = audioCtx.createOscillator();
-            osc.type = 'sawtooth';
-            osc.frequency.value = 200;
-            const gain = audioCtx.createGain();
-            gain.gain.value = 0.3;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            setTimeout(() => osc.stop(), 300);
-        }
-        function playHitSound() {
-            const osc = audioCtx.createOscillator();
-            osc.type = 'sawtooth';
-            osc.frequency.value = 150;
-            const gain = audioCtx.createGain();
-            gain.gain.value = 0.2;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            setTimeout(() => osc.stop(), 200);
+        function applyKaiLook() {
+            const kai = state.kai[state.current];
+            player.userData.mat.color.setHex(kai.color);
+            const eyes = { Fire: 0xff2200, Water: 0x00b7eb, Earth: 0xff6f00, Wind: 0xffffff, Magic: 0xcc66ff };
+            setFace(player, { eye: eyes[kai.type], nose: kai.color });
+            setAcc(player, kai.acc, kai.type === 'Magic');
+            refreshPlayerVfx();
         }
 
-        // Game variables
-        let gradeLevel = 2;
-        let problemsToSolve = 9;
-        let enemyHealth = 100;
-        let playerHealth = 100;
-        let lives = 3;
-        let playerMonsters = [
-            { name: 'Flame Kai', type: 'Fire', color: 0xff4500, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
-            { name: 'Aqua Kai', type: 'Water', color: 0x00b7eb, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
-            { name: 'Earth Kai', type: 'Earth', color: 0xff6f00, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
-            { name: 'Wind Kai', type: 'Wind', color: 0x87ceeb, accessory: 'none', level: 1, xp: 0, maxXp: 50 },
-            { name: 'Magic Kai', type: 'Magic', color: 0x9400d3, accessory: 'none', level: 1, xp: 0, maxXp: 50 }
-        ];
-        let enemies = [
-            { name: 'Stone Golem', color: 0x00ff00, accessory: 'horns', taunts: ["I’ll crush you!", "Your math is weak!"] },
-            { name: 'Frost Queen', color: 0x00ffff, accessory: 'none', taunts: ["Freeze in my grasp!", "Solve this, child!"] },
-            { name: 'Lava Fiend', color: 0xff3333, accessory: 'none', taunts: ["Burn to ashes!", "You’ll melt away!"] },
-            { name: 'Tempest Harpy', color: 0xffff00, accessory: 'wings', taunts: ["Ride the storm!", "You’re too slow!"] },
-            { name: 'Ocean King', color: 0x00b7eb, accessory: 'none', taunts: ["Drown in my waves!", "Sink to the depths!"] },
-            { name: 'Shadow Phantom', color: 0xff00ff, accessory: 'none', taunts: ["Fear the dark!", "You’ll never see me!"] },
-            { name: 'Arcane Sorcerer', color: 0x9400d3, accessory: 'none', taunts: ["Magic is my power!", "Solve or perish!"] },
-            { name: 'Cybernetic Titan', color: 0x33ff33, accessory: 'none', taunts: ["System overload!", "Compute this!"] },
-            { name: 'Celestial Dragon', color: 0xffff66, accessory: 'none', taunts: ["Stars align against you!", "Cosmic defeat awaits!"] },
-            { name: 'Eternal Hydra', color: 0xff66ff, accessory: 'horns', taunts: ["All elements unite!", "You cannot win!"] }
-        ];
-        let currentMonster = 0;
-        let currentEnemy = 0;
-        let problem, correctAnswer, operation;
-        let attackTimer = 0;
-        let hitTimer = 0;
-        let level = 1;
-        let correctAnswersThisLevel = 0;
-        const maxLevel = 10;
-        let inTutorial = true;
-        let score = 0;
-        let answerTimeout = null;
-        let cameraShakeTimer = 0;
+        function applyEnemyLook() {
+            const e = ENEMIES[state.enemy];
+            enemy.userData.mat.color.setHex(e.color);
+            setFace(enemy, { eye: 0xff1111, nose: 0x111111 }, true);
+            setAcc(enemy, e.acc, false);
+            const s = 1 + (state.level - 1) * 0.07;
+            enemy.scale.setScalar(s);
+        }
 
-        // Enter key to submit answer
-        document.getElementById('answerInput').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                checkAnswer();
-            }
-        });
-
-        // Full-screen toggle
-        window.toggleFullScreen = function() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.error(`Error enabling full-screen: ${err.message}`);
-                });
-                document.getElementById('fullscreenButton').textContent = 'Exit Full Screen';
-            } else {
-                document.exitFullscreen();
-                document.getElementById('fullscreenButton').textContent = 'Full Screen';
-            }
-        };
-
-        // Esc key to exit full-screen
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                document.getElementById('fullscreenButton').textContent = 'Full Screen';
-            }
-        });
-
-        // Generate math problem
-        function generateProblem() {
-            if (answerTimeout) clearTimeout(answerTimeout);
-
-            const opsByGrade = {
-                1: ['+', '-'],
-                2: ['+', '-'],
-                3: ['+', '-', '*'],
-                4: ['+', '-', '*'],
-                5: ['+', '-', '*', '/'],
-                6: ['+', '-', '*', '/']
+        /* ---------- ui helpers ---------- */
+        const $ = (id) => document.getElementById(id);
+        function toast(id, text, ms = 1800) {
+            const el = $(id);
+            el.textContent = text;
+            el.style.display = 'block';
+            clearTimeout(el._t);
+            el._t = setTimeout(() => { el.style.display = 'none'; }, ms);
+        }
+        function renderLives() {
+            $('lives').innerHTML = Array.from({ length: 3 }, (_, i) => `<div class="life${i < state.lives ? '' : ' off'}"></div>`).join('');
+        }
+        function renderRoster() {
+            $('roster').innerHTML = `<h3>Your Kais</h3>` + state.kai.map((k, i) => `
+                <div class="kai-row${i === state.current ? ' active' : ''}" data-i="${i}">
+                    <div>
+                        <div>${i + 1}. ${k.name} · ${k.type} · Lv ${k.level}</div>
+                        <div class="xp-mini"><i style="width:${Math.min(100, k.xp / k.maxXp * 100)}%"></i></div>
+                    </div>
+                </div>`).join('');
+            $('roster').onclick = (ev) => {
+                const row = ev.target.closest('.kai-row');
+                if (!row) return;
+                selectKai(+row.dataset.i);
             };
-            const operations = opsByGrade[gradeLevel];
-            operation = operations[Math.floor(Math.random() * operations.length)];
-
-            const baseMax = {1: 10, 2: 20, 3: 50, 4: 100, 5: 200, 6: 500}[gradeLevel];
-            const maxNum = baseMax + level * 5;
-
-            let n1 = 1 + Math.floor(Math.random() * maxNum);
-            let n2 = 1 + Math.floor(Math.random() * maxNum);
-
-            if (operation === '/') {
-                n2 = 1 + Math.floor(Math.random() * Math.min(maxNum, 10));
-                n1 = n2 * (1 + Math.floor(Math.random() * Math.min(maxNum, 10)));
-            }
-
-            switch (operation) {
-                case '+': correctAnswer = n1 + n2; break;
-                case '-': correctAnswer = n1 - n2; break;
-                case '*': correctAnswer = n1 * n2; break;
-                case '/': correctAnswer = n1 / n2; break;
-            }
-
-            problem = `${n1} ${operation} ${n2} = ?`;
-            document.getElementById('mathProblem').textContent = problem;
-            document.getElementById('answerInput').value = '';
-            document.getElementById('feedback').textContent = '';
-            document.getElementById('hintButton').disabled = false;
-            const blocksDiv = document.getElementById('countingBlocks');
-            blocksDiv.innerHTML = '';
-            if (operation === '+' || operation === '-') {
-                for (let i = 0; i < n1; i++) {
-                    const block = document.createElement('div');
-                    block.className = 'block';
-                    block.style.background = 'red';
-                    blocksDiv.appendChild(block);
-                }
-                if (operation === '+') {
-                    for (let i = 0; i < n2; i++) {
-                        const block = document.createElement('div');
-                        block.className = 'block';
-                        block.style.background = 'blue';
-                        blocksDiv.appendChild(block);
-                    }
-                }
-            }
-            showDialogue(`${enemies[currentEnemy].name}: ${enemies[currentEnemy].taunts[Math.floor(Math.random() * enemies[currentEnemy].taunts.length)]}`);
-
-            answerTimeout = setTimeout(() => {
-                if (playerHealth > 0 && lives > 0) {
-                    const bossDamage = 11.11 * (1 + 0.06 * (level - 1));
-                    playerHealth = Math.max(0, playerHealth - bossDamage);
-                    document.getElementById('playerHealthFill').style.width = `${playerHealth}%`;
-                    document.getElementById('playerHealthFill').style.background = playerHealth > 30 ? 'green' : 'red';
-                    spawnBossAttack();
-                    showDialogue(`${enemies[currentEnemy].name}: Too slow! Take this!`);
-                    if (playerHealth <= 0) {
-                        loseLife();
-                    } else {
-                        generateProblem();
-                    }
-                }
-            }, 15000);
+        }
+        function paintHp() {
+            $('playerHp').style.width = state.playerHp + '%';
+            $('playerHp').classList.toggle('low', state.playerHp <= 30);
+            $('playerHpTxt').textContent = Math.round(state.playerHp);
+            $('enemyHp').style.width = state.enemyHp + '%';
+            $('enemyHp').classList.toggle('low', state.enemyHp <= 30);
+            $('enemyHpTxt').textContent = Math.round(state.enemyHp);
+            $('enemyName').textContent = ENEMIES[state.enemy].name;
+            $('comboTxt').textContent = `Combo x${Math.max(1, state.combo)}`;
+            $('levelTxt').textContent = `Level ${state.level}`;
+            $('scoreLine').textContent = `Score ${state.score} · Best ${state.best} · ${state.hits}/${state.needed} hits`;
         }
 
-        // Lose a life
+        /* ---------- persistence ---------- */
+        function save() {
+            state.best = Math.max(state.best, state.score);
+            try { localStorage.setItem(SAVE_KEY, JSON.stringify({
+                grade: state.grade, level: state.level, score: state.score, best: state.best,
+                lives: state.lives, current: state.current, kai: state.kai, music: state.music
+            })); } catch (_) {}
+        }
+        function load() {
+            try {
+                const raw = localStorage.getItem(SAVE_KEY);
+                if (!raw) return false;
+                const d = JSON.parse(raw);
+                Object.assign(state, { grade: d.grade ?? 2, level: d.level ?? 1, score: d.score ?? 0, best: d.best ?? 0, lives: d.lives ?? 3, current: d.current ?? 0, music: d.music !== false });
+                if (Array.isArray(d.kai) && d.kai.length === 5) state.kai = d.kai;
+                return true;
+            } catch (_) { return false; }
+        }
+
+        /* ---------- math ---------- */
+        function problemsNeeded(level) { return 8 + (level - 1) * 2; }
+
+        function generateProblem() {
+            if (state.paused) return;
+            const ops = { 1: ['+', '-'], 2: ['+', '-'], 3: ['+', '-', '*'], 4: ['+', '-', '*'], 5: ['+', '-', '*', '/'], 6: ['+', '-', '*', '/'] }[state.grade];
+            state.op = ops[Math.floor(Math.random() * ops.length)];
+            const cap = { 1: 10, 2: 20, 3: 12, 4: 20, 5: 24, 6: 36 }[state.grade] + state.level * 2;
+            let a = 1 + Math.floor(Math.random() * cap);
+            let b = 1 + Math.floor(Math.random() * cap);
+            if (state.op === '-') {
+                if (a < b) [a, b] = [b, a];
+            } else if (state.op === '*') {
+                a = 2 + Math.floor(Math.random() * Math.min(12, 4 + state.grade + state.level));
+                b = 2 + Math.floor(Math.random() * Math.min(12, 4 + state.grade));
+            } else if (state.op === '/') {
+                b = 2 + Math.floor(Math.random() * 9);
+                const q = 2 + Math.floor(Math.random() * 10);
+                a = b * q;
+            }
+            state.n1 = a; state.n2 = b;
+            state.answer = state.op === '+' ? a + b : state.op === '-' ? a - b : state.op === '*' ? a * b : a / b;
+            const symbol = { '+': '+', '-': '−', '*': '×', '/': '÷' }[state.op];
+            state.problem = `${a} ${symbol} ${b}`;
+            $('mathProblem').textContent = state.problem + ' = ?';
+            $('answerInput').value = '';
+            $('feedback').textContent = '';
+            $('hintBtn').disabled = false;
+            const box = $('blocks');
+            box.innerHTML = '';
+            if (state.op === '+' || state.op === '-') {
+                const maxShow = 24;
+                for (let i = 0; i < Math.min(a, maxShow); i++) {
+                    const d = document.createElement('div'); d.className = 'blk'; d.style.background = '#ef4444'; box.appendChild(d);
+                }
+                if (state.op === '+') {
+                    for (let i = 0; i < Math.min(b, maxShow); i++) {
+                        const d = document.createElement('div'); d.className = 'blk'; d.style.background = '#3b82f6'; box.appendChild(d);
+                    }
+                }
+            }
+            const e = ENEMIES[state.enemy];
+            toast('talk', `${e.name}: ${e.taunt[Math.floor(Math.random() * e.taunt.length)]}`, 1600);
+            state.deadline = performance.now() + ANSWER_SECS * 1000;
+            $('answerInput').focus();
+        }
+
+        function bossDmg() { return 9 + state.level * 1.4; }
+        function playerDmg() {
+            const base = 9 + state.kai[state.current].level * 2.2;
+            const combo = 1 + Math.min(state.combo, 8) * 0.12;
+            return Math.round(base * combo);
+        }
+
+        function hurtPlayer() {
+            state.playerHp = Math.max(0, state.playerHp - bossDmg());
+            state.combo = 0;
+            paintHp();
+            spawnVolley(true);
+            if (state.playerHp <= 0) loseLife();
+        }
+
         function loseLife() {
-            lives--;
-            const livesDisplay = document.getElementById('livesDisplay');
-            if (livesDisplay.children.length > 0) {
-                livesDisplay.removeChild(livesDisplay.lastChild);
-            }
-            if (lives <= 0) {
-                document.getElementById('feedback').textContent = 'Game Over! No lives left!';
-                setTimeout(() => location.reload(), 5000);
-            } else {
-                playerHealth = 100;
-                document.getElementById('playerHealthFill').style.width = '100%';
-                document.getElementById('playerHealthFill').style.background = 'green';
-                document.getElementById('feedback').textContent = `Lost a life! ${lives} lives remaining.`;
-                setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
-                generateProblem();
-            }
-        }
-
-        // Boss attack animation
-        function spawnBossAttack() {
-            const orbColor = enemies[currentEnemy].color;
-            const startPos = new THREE.Vector3(5, -1, 0);
-            const endPos = new THREE.Vector3(-5, -1, 0);
-            const numOrbs = 3;
-            let orbDelay = 0;
-
-            for (let i = 0; i < numOrbs; i++) {
-                setTimeout(() => {
-                    const orbGeometry = new THREE.SphereGeometry(0.6, 16, 16);
-                    const orbMaterial = new THREE.MeshStandardMaterial({ color: orbColor, emissive: orbColor, emissiveIntensity: 0.5 });
-                    const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-                    orb.position.copy(startPos);
-                    orbGroup.add(orb);
-                    playAttackSound('Fire');
-
-                    const trailPoints = [];
-                    let t = 0;
-                    const orbInterval = setInterval(() => {
-                        t += 0.04;
-                        if (t >= 1) {
-                            clearInterval(orbInterval);
-                            orbGroup.remove(orb);
-                            orb.geometry.dispose();
-                            orb.material.dispose();
-                            trailPoints.forEach(trail => {
-                                orbGroup.remove(trail);
-                                trail.geometry.dispose();
-                                trail.material.dispose();
-                            });
-                            if (i === numOrbs - 1) {
-                                hitTimer = 20;
-                                cameraShakeTimer = 10;
-                                spawnHitParticles(endPos);
-                                playHitSound();
-                            }
-                            return;
-                        }
-                        const prevPos = orb.position.clone();
-                        orb.position.lerpVectors(startPos, endPos, t);
-                        const trailGeometry = new THREE.SphereGeometry(0.2, 8, 8);
-                        const trailMaterial = new THREE.MeshBasicMaterial({ color: orbColor, transparent: true, opacity: 0.5 });
-                        const trail = new THREE.Mesh(trailGeometry, trailMaterial);
-                        trail.position.copy(prevPos);
-                        orbGroup.add(trail);
-                        trailPoints.push(trail);
-                        setTimeout(() => {
-                            orbGroup.remove(trail);
-                            trail.geometry.dispose();
-                            trail.material.dispose();
-                        }, 300);
-                    }, 20);
-                }, orbDelay);
-                orbDelay += 100;
-            }
-        }
-
-        // Kai attack orbs
-        function spawnAttackOrbs() {
-            const type = playerMonsters[currentMonster].type;
-            const orbColor = type === 'Fire' ? 0xffa500 : type === 'Water' ? 0x00b7eb : type === 'Earth' ? 0xff6f00 : type === 'Wind' ? 0x87ceeb : 0x9400d3;
-            const startPos = new THREE.Vector3(-5, -1, 0);
-            const endPos = new THREE.Vector3(5, -1, 0);
-            const numOrbs = 5;
-            let orbDelay = 0;
-            let orbsCompleted = 0;
-
-            for (let i = 0; i < numOrbs; i++) {
-                setTimeout(() => {
-                    const orbGeometry = new THREE.SphereGeometry(0.6, 16, 16);
-                    const orbMaterial = new THREE.MeshStandardMaterial({ color: orbColor, emissive: orbColor, emissiveIntensity: 0.5 });
-                    const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-                    orb.position.copy(startPos);
-                    orbGroup.add(orb);
-                    playAttackSound(type);
-
-                    const trailPoints = [];
-                    let t = 0;
-                    const orbInterval = setInterval(() => {
-                        t += 0.04;
-                        if (t >= 1) {
-                            clearInterval(orbInterval);
-                            orbGroup.remove(orb);
-                            orb.geometry.dispose();
-                            orb.material.dispose();
-                            trailPoints.forEach(trail => {
-                                orbGroup.remove(trail);
-                                trail.geometry.dispose();
-                                trail.material.dispose();
-                            });
-                            orbsCompleted++;
-                            if (orbsCompleted === numOrbs) {
-                                hitTimer = 20;
-                                cameraShakeTimer = 10;
-                                const damage = 10 + playerMonsters[currentMonster].level * 2;
-                                const willDefeat = correctAnswersThisLevel >= problemsToSolve;
-                                enemyHealth = Math.max(0, enemyHealth - damage);
-                                spawnHitParticles(endPos, willDefeat);
-                                showDialogue(`${playerMonsters[currentMonster].name}: Take that, ${enemies[currentEnemy].name}!`);
-                                showDamageIndicator(damage);
-                                document.getElementById('healthFill').style.width = `${enemyHealth}%`;
-                                document.getElementById('healthFill').style.background = enemyHealth > 30 ? 'green' : 'red';
-                                if (willDefeat) {
-                                    explodeEnemy();
-                                    enemyHealth = 100;
-                                    level++;
-                                    correctAnswersThisLevel = 0;
-                                    if (level > maxLevel) {
-                                        document.getElementById('feedback').textContent = 'You Win! Game Over!';
-                                        setTimeout(() => location.reload(), 5000);
-                                        return;
-                                    }
-                                    currentEnemy = (currentEnemy + 1) % enemies.length;
-                                    updateEnemy();
-                                    showLevelMessage();
-                                }
-                            }
-                            return;
-                        }
-                        const prevPos = orb.position.clone();
-                        orb.position.lerpVectors(startPos, endPos, t);
-                        const trailGeometry = new THREE.SphereGeometry(0.2, 8, 8);
-                        const trailMaterial = new THREE.MeshBasicMaterial({ color: orbColor, transparent: true, opacity: 0.5 });
-                        const trail = new THREE.Mesh(trailGeometry, trailMaterial);
-                        trail.position.copy(prevPos);
-                        orbGroup.add(trail);
-                        trailPoints.push(trail);
-                        setTimeout(() => {
-                            orbGroup.remove(trail);
-                            trail.geometry.dispose();
-                            trail.material.dispose();
-                        }, 300);
-                    }, 20);
-                }, orbDelay);
-                orbDelay += 100;
-            }
-        }
-
-        // Particle effects for hit
-        function spawnHitParticles(position, isFinalBlow = false) {
-            const particleGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(isFinalBlow ? 600 : 300);
-            const directions = [];
-            const particleCount = isFinalBlow ? 200 : 100;
-            for (let i = 0; i < particleCount; i++) {
-                directions.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize());
-                positions[i * 3] = position.x;
-                positions[i * 3 + 1] = position.y;
-                positions[i * 3 + 2] = position.z;
-            }
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const particleMaterial = new THREE.PointsMaterial({ color: 0xffff00, size: isFinalBlow ? 0.3 : 0.2 });
-            const particles = new THREE.Points(particleGeometry, particleMaterial);
-            particles.directions = directions;
-            scene.add(particles);
-            let particleTime = 0;
-            const particleInterval = setInterval(() => {
-                particleTime += 0.02;
-                for (let i = 0; i < positions.length; i += 3) {
-                    positions[i] += directions[i / 3].x * (isFinalBlow ? 0.15 : 0.1);
-                    positions[i + 1] += directions[i / 3].y * (isFinalBlow ? 0.15 : 0.1);
-                    positions[i + 2] += directions[i / 3].z * (isFinalBlow ? 0.15 : 0.1);
-                }
-                particleGeometry.attributes.position.needsUpdate = true;
-                if (particleTime > 1) {
-                    clearInterval(particleInterval);
-                    scene.remove(particles);
-                    particles.geometry.dispose();
-                    particleMaterial.dispose();
-                }
-            }, 20);
-        }
-
-        // Level-up sparkle effect
-        function spawnLevelUpSparkles() {
-            const sparkleGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(300);
-            const directions = [];
-            for (let i = 0; i < 100; i++) {
-                directions.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize());
-                positions[i * 3] = playerGroup.position.x;
-                positions[i * 3 + 1] = playerGroup.position.y + 1;
-                positions[i * 3 + 2] = playerGroup.position.z;
-            }
-            sparkleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const sparkleMaterial = new THREE.PointsMaterial({ color: 0xffff00, size: 0.2 });
-            const sparkles = new THREE.Points(sparkleGeometry, sparkleMaterial);
-            sparkles.directions = directions;
-            scene.add(sparkles);
-            let sparkleTime = 0;
-            const sparkleInterval = setInterval(() => {
-                sparkleTime += 0.02;
-                for (let i = 0; i < positions.length; i += 3) {
-                    positions[i] += directions[i / 3].x * 0.1;
-                    positions[i + 1] += directions[i / 3].y * 0.1;
-                    positions[i + 2] += directions[i / 3].z * 0.1;
-                }
-                sparkleGeometry.attributes.position.needsUpdate = true;
-                if (sparkleTime > 1) {
-                    clearInterval(sparkleInterval);
-                    scene.remove(sparkles);
-                    sparkles.geometry.dispose();
-                    sparkleMaterial.dispose();
-                }
-            }, 20);
-        }
-
-        // Enemy explosion effect
-        function explodeEnemy() {
-            const pieces = [];
-            for (let i = 0; i < 20; i++) {
-                const pieceGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-                const pieceMaterial = new THREE.MeshBasicMaterial({ color: enemies[currentEnemy].color });
-                const piece = new THREE.Mesh(pieceGeometry, pieceMaterial);
-                piece.position.copy(enemyGroup.position);
-                piece.direction = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-                piece.velocity = piece.direction.clone().multiplyScalar(0.2);
-                piece.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-                pieces.push(piece);
-                scene.add(piece);
-            }
-            playExplosionSound();
-
-            let t = 0;
-            const g = new THREE.Vector3(0, -0.01, 0);
-            const iv = setInterval(() => {
-                t += 0.02;
-                pieces.forEach(piece => {
-                    piece.velocity.add(g);
-                    piece.position.add(piece.velocity);
-                    piece.rotation.x += 0.1;
-                    piece.rotation.y += 0.1;
-                });
-                if (t > 2) {
-                    clearInterval(iv);
-                    pieces.forEach(p => {
-                        scene.remove(p);
-                        p.geometry.dispose();
-                        p.material.dispose();
-                    });
-                }
-            }, 20);
-        }
-
-        // Show damage indicator
-        function showDamageIndicator(damage) {
-            const damageDiv = document.getElementById('damageIndicator');
-            damageDiv.innerText = `-${damage}`;
-            damageDiv.style.display = 'block';
-            setTimeout(() => damageDiv.style.display = 'none', 1000);
-        }
-
-        // Monster selection
-        window.selectMonster = function(index) {
-            currentMonster = index;
-            playerMaterial.color.setHex(playerMonsters[currentMonster].color);
-            updatePlayerEffect();
-            updateFacialFeatures(playerMonsters[currentMonster].type);
-            updateAccessory();
-            showDialogue(`${playerMonsters[currentMonster].name}: I’m ready to fight!`);
-            document.getElementById('feedback').textContent = `Selected ${playerMonsters[currentMonster].name}!`;
-            setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
-            document.getElementById('customizeMenu').style.display = 'block';
-            document.getElementById('colorSelect').value = '0x' + playerMonsters[currentMonster].color.toString(16).padStart(6, '0');
-            document.getElementById('accessorySelect').value = playerMonsters[currentMonster].accessory;
-        };
-
-        // Customization
-        window.openCustomizeMenu = function() {
-            document.getElementById('customizeMenu').style.display = 'block';
-            document.getElementById('colorSelect').value = '0x' + playerMonsters[currentMonster].color.toString(16).padStart(6, '0');
-            document.getElementById('accessorySelect').value = playerMonsters[currentMonster].accessory;
-        };
-
-        window.closeCustomizeMenu = function() {
-            document.getElementById('customizeMenu').style.display = 'none';
-        };
-
-        window.applyCustomization = function() {
-            playerMonsters[currentMonster].color = parseInt(document.getElementById('colorSelect').value);
-            playerMonsters[currentMonster].accessory = document.getElementById('accessorySelect').value;
-            playerMaterial.color.setHex(playerMonsters[currentMonster].color);
-            updateFacialFeatures(playerMonsters[currentMonster].type);
-            updateAccessory();
-            closeCustomizeMenu();
-            document.getElementById('monsterRoster').innerHTML = `
-                <h3>Your Monsters</h3>
-                ${playerMonsters.map((m, i) => `<div onclick="selectMonster(${i})">${m.name} (${m.type}, Lv. ${m.level})</div>`).join('')}
-            `;
-            showDialogue(`${playerMonsters[currentMonster].name}: I look awesome now!`);
-        };
-
-        // Grade level selection
-        window.openGradeMenu = function() {
-            document.getElementById('gradeMenu').style.display = 'block';
-            document.getElementById('gradeSelect').value = gradeLevel;
-        };
-
-        window.closeGradeMenu = function() {
-            document.getElementById('gradeMenu').style.display = 'none';
-        };
-
-        window.applyGradeLevel = function() {
-            gradeLevel = +document.getElementById('gradeSelect').value;
-            closeGradeMenu();
-            document.getElementById('feedback').textContent = `Grade ${gradeLevel} selected!`;
-            setTimeout(() => document.getElementById('feedback').textContent = '', 1500);
-            if (!inTutorial) generateProblem();
-        };
-
-        function updateAccessory() {
-            accessoryGroup.children.forEach(child => {
-                accessoryGroup.remove(child);
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
-            });
-            const accessory = playerMonsters[currentMonster].accessory;
-            const type = playerMonsters[currentMonster].type;
-            if (accessory === 'horns') {
-                const hornGeometry = new THREE.ConeGeometry(0.5, 1, 8);
-                const hornMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
-                const horn1 = new THREE.Mesh(hornGeometry, hornMaterial);
-                horn1.position.set(-0.5, 5, 0);
-                const horn2 = new THREE.Mesh(hornGeometry, hornMaterial);
-                horn2.position.set(0.5, 5, 0);
-                accessoryGroup.add(horn1, horn2);
-            } else if (accessory === 'wings') {
-                const wingGeometry = new THREE.PlaneGeometry(2, 1);
-                const wingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
-                const wing1 = new THREE.Mesh(wingGeometry, wingMaterial);
-                wing1.position.set(-1.5, 1, 0);
-                wing1.rotation.z = Math.PI / 4;
-                const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
-                wing2.position.set(1.5, 1, 0);
-                wing2.rotation.z = -Math.PI / 4;
-                accessoryGroup.add(wing1, wing2);
-            }
-            if (type === 'Magic') {
-                const cape = new THREE.Mesh(
-                    new THREE.PlaneGeometry(2.5, 3.5),
-                    new THREE.MeshBasicMaterial({
-                        color: 0x9400d3,
-                        side: THREE.DoubleSide,
-                        transparent: true,
-                        opacity: 0.8
-                    })
-                );
-                cape.position.set(0, 1.5, -1.6);
-                cape.rotation.y = Math.PI;
-                accessoryGroup.add(cape);
-            }
-        }
-
-        function updateEnemy() {
-            enemyMaterial.color.setHex(enemies[currentEnemy].color);
-            updateEnemyFacialFeatures();
-            enemyAccessoryGroup.children.forEach(child => {
-                enemyAccessoryGroup.remove(child);
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
-            });
-            const accessory = enemies[currentEnemy].accessory;
-            if (accessory === 'horns') {
-                const hornGeometry = new THREE.ConeGeometry(0.5, 1, 8);
-                const hornMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
-                const horn1 = new THREE.Mesh(hornGeometry, hornMaterial);
-                horn1.position.set(-0.6, 5.5, 0);
-                const horn2 = new THREE.Mesh(hornGeometry, hornMaterial);
-                horn2.position.set(0.6, 5.5, 0);
-                enemyAccessoryGroup.add(horn1, horn2);
-            } else if (accessory === 'wings') {
-                const wingGeometry = new THREE.PlaneGeometry(2, 1);
-                const wingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
-                const wing1 = new THREE.Mesh(wingGeometry, wingMaterial);
-                wing1.position.set(-1.8, 1, 0);
-                wing1.rotation.z = Math.PI / 4;
-                const wing2 = new THREE.Mesh(wingGeometry, wingMaterial);
-                wing2.position.set(1.8, 1, 0);
-                wing2.rotation.z = -Math.PI / 4;
-                enemyAccessoryGroup.add(wing1, wing2);
-            }
-            const scale = 1 + (level - 1) * 0.1;
-            enemyGroup.scale.set(scale, scale, scale);
-        }
-
-        // Dialogue
-        function showDialogue(message) {
-            const dialogueDiv = document.getElementById('dialogue');
-            dialogueDiv.innerText = message;
-            dialogueDiv.style.display = 'block';
-            setTimeout(() => dialogueDiv.style.display = 'none', 2000);
-        }
-
-        // Level progression message
-        function showLevelMessage() {
-            problemsToSolve = 9 + (level - 1) * 3;
-            correctAnswersThisLevel = 0;
-
-            if ([3, 6, 9].includes(level)) {
-                playerHealth = 100;
-                document.getElementById('playerHealthFill').style.width = '100%';
-                document.getElementById('playerHealthFill').style.background = 'green';
-                document.getElementById('feedback').textContent = 'Health restored!';
-                setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
-            }
-
-            document.getElementById('storyMessage').innerText =
-                `Level ${level}: ${enemies[currentEnemy].name} appears! Solve ${problemsToSolve} problems to defeat them!`;
-            document.getElementById('storyMessage').style.display = 'block';
-
-            const preset = sceneryPresets[level - 1];
-            ambientLight.color.setHex(preset.ambient);
-            terrainMaterial.color.setHex(preset.terrain);
-            starMaterial.color.setHex(preset.stars);
-            scene.fog = new THREE.FogExp2(preset.fog, 0.002);
-            updateEnvironment(level);
-
-            setTimeout(() => {
-                document.getElementById('storyMessage').style.display = 'none';
-                if (!inTutorial) generateProblem();
-            }, 4000);
-            document.getElementById('levelIndicator').innerText = `Level ${level}`;
-        }
-
-        // Tutorial
-        window.closeTutorial = function() {
-            document.getElementById('tutorialMenu').style.display = 'none';
-            inTutorial = false;
-            document.getElementById('ui').style.display = 'block';
-            document.getElementById('monsterRoster').style.display = 'block';
-            document.getElementById('healthBar').style.display = 'block';
-            document.getElementById('playerHealthBar').style.display = 'block';
-            document.getElementById('livesDisplay').style.display = 'flex';
-            document.getElementById('levelIndicator').style.display = 'block';
-            playAmbientSound();
-            updatePlayerEffect();
-            updateFacialFeatures(playerMonsters[currentMonster].type);
-            updateEnemy();
-            generateProblem();
-            document.getElementById('answerInput').focus();
-        };
-
-        // Hint system
-        window.showHint = function() {
-            if (!problem) {
-                document.getElementById('feedback').textContent = 'No problem yet! Start playing first.';
-                setTimeout(() => document.getElementById('feedback').textContent = '', 3000);
+            state.lives -= 1;
+            renderLives();
+            if (state.lives <= 0) {
+                $('feedback').textContent = 'Game over — training a new champion…';
+                save();
+                setTimeout(() => location.reload(), 2800);
                 return;
             }
-            const hint = operation === '+' ? `Count all the red and blue blocks together.` :
-                        operation === '-' ? `Count the red blocks, then take away the blue ones.` :
-                        operation === '*' ? `Try counting ${problem.split(' ')[0]} groups of ${problem.split(' ')[2]}.` :
-                        `How many times does ${problem.split(' ')[2]} go into ${problem.split(' ')[0]}?`;
-            document.getElementById('feedback').textContent = hint;
-            setTimeout(() => document.getElementById('feedback').textContent = '', 3000);
-        };
+            state.playerHp = 100;
+            paintHp();
+            $('feedback').textContent = `${state.lives} lives left. Keep counting!`;
+            generateProblem();
+        }
 
-        // Check answer
-        window.checkAnswer = function() {
-            if (answerTimeout) clearTimeout(answerTimeout);
-
-            const userAnswer = parseFloat(document.getElementById('answerInput').value);
-            const uiDiv = document.getElementById('ui');
-            if (userAnswer === correctAnswer) {
-                uiDiv.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
-                setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204, 0.8)', 300);
-                document.getElementById('feedback').textContent = 'Correct!';
-                score += 10;
-                document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
-                correctAnswersThisLevel++;
-                playerMonsters[currentMonster].xp += 10;
-                playRewardSound();
-
-                spawnAttackOrbs();
-                attackTimer = 20;
-
-                if (correctAnswersThisLevel >= problemsToSolve) {
-                    document.getElementById('feedback').textContent = `Boss defeated! Moving to Level ${level + 1}!`;
-                    setTimeout(generateProblem, 3000);
-                } else {
-                    document.getElementById('feedback').textContent = `Correct! ${problemsToSolve - correctAnswersThisLevel} more to defeat the boss!`;
-                    setTimeout(generateProblem, 2000
-                                        );
-                }
-
-                if (playerMonsters[currentMonster].xp >= playerMonsters[currentMonster].maxXp) {
-                    playerMonsters[currentMonster].level++;
-                    playerMonsters[currentMonster].xp = 0;
-                    playerMonsters[currentMonster].maxXp += 20;
-                    document.getElementById('feedback').textContent = `${playerMonsters[currentMonster].name} leveled up to Lv. ${playerMonsters[currentMonster].level}!`;
-                    showDialogue(`${playerMonsters[currentMonster].name}: I’m stronger now!`);
-                    spawnLevelUpSparkles();
-                    document.getElementById('monsterRoster').innerHTML = `
-                        <h3>Your Monsters</h3>
-                        ${playerMonsters.map((m, i) => `<div onclick="selectMonster(${i})">${m.name} (${m.type}, Lv. ${m.level})</div>`).join('')}
-                    `;
-                    setTimeout(() => document.getElementById('feedback').textContent = '', 2000);
-                }
-            } else {
-                uiDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
-                setTimeout(() => uiDiv.style.backgroundColor = 'rgba(255, 255, 204, 0.8)', 300);
-                document.getElementById('feedback').textContent = 'Wrong! Try again.';
-                showDialogue(`${enemies[currentEnemy].name}: Ha! You’ll never defeat me!`);
-                const bossDamage = 11.11 * (1 + 0.06 * (level - 1));
-                playerHealth = Math.max(0, playerHealth - bossDamage);
-                document.getElementById('playerHealthFill').style.width = `${playerHealth}%`;
-                document.getElementById('playerHealthFill').style.background = playerHealth > 30 ? 'green' : 'red';
-                spawnBossAttack();
-                if (playerHealth <= 0) {
-                    loseLife();
-                } else {
-                    setTimeout(generateProblem, 2000);
-                }
+        function gainXp(n) {
+            const k = state.kai[state.current];
+            k.xp += n;
+            if (k.xp >= k.maxXp) {
+                k.level += 1;
+                k.xp = 0;
+                k.maxXp += 20;
+                toast('story', `${k.name} reached Lv. ${k.level}!`, 2000);
+                sparkle(player.position);
+                beep('triangle', 880, 0.25, 0.2);
             }
-        };
+            renderRoster();
+        }
 
-        // Animation loop
-        let time = 0;
-        let lastTime = performance.now();
-        function animate() {
-            try {
-                requestAnimationFrame(animate);
-                const now = performance.now();
-                const delta = Math.min((now - lastTime) / 1000, 0.1);
-                lastTime = now;
-                time += delta;
+        function nextLevel() {
+            explodeEnemy();
+            state.level += 1;
+            state.hits = 0;
+            state.enemyHp = 100;
+            if (state.level > MAX_LEVEL) {
+                state.score += 250;
+                state.best = Math.max(state.best, state.score);
+                save();
+                $('feedback').textContent = `Champion! Final score ${state.score}`;
+                toast('story', `You cleared every arena. Score ${state.score}. Best ${state.best}.`, 5000);
+                setTimeout(() => location.reload(), 5200);
+                return;
+            }
+            if ([3, 6, 9].includes(state.level)) state.playerHp = 100;
+            state.needed = problemsNeeded(state.level);
+            state.enemy = (state.level - 1) % ENEMIES.length;
+            applyEnemyLook();
+            updateEnvironment(state.level);
+            paintHp();
+            save();
+            toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name}! Land ${state.needed} hits.`, 2800);
+            setTimeout(generateProblem, 900);
+        }
 
-                // Animate player
-                playerGroup.position.y = -2 + Math.sin(time * 2) * 0.2;
-
-                // Animate player facial features
-                if (leftEye && rightEye) {
-                    const blink = Math.sin(time * 2) > 0.8 ? 0.7 : 1;
-                    leftEye.scale.set(1, blink, 1);
-                    rightEye.scale.set(1, blink, 1);
-                }
-                if (mouth) {
-                    mouth.rotation.x = Math.sin(time * 3) * 0.1;
-                }
-
-                // Animate enemy
-                enemyGroup.position.y = -2 + Math.cos(time * 2) * 0.2;
-
-                // Animate enemy facial features
-                if (enemyLeftEye && enemyRightEye) {
-                    const blink = Math.sin(time * 2) > 0.9 ? 0.6 : 1; // Narrower blink for menacing look
-                    enemyLeftEye.scale.set(1, blink, 1);
-                    enemyRightEye.scale.set(1, blink, 1);
-                }
-                if (enemyMouth) {
-                    enemyMouth.rotation.z = Math.PI / 8 + Math.sin(time * 2) * 0.05; // Menacing grin
-                }
-
-                // Animate elemental effects for left arm
-                if (leftParticleSystem) {
-                    const pos = leftParticleSystem.geometry.attributes.position;
-                    const type = playerMonsters[currentMonster].type;
-                    for (let i = 0; i < 25; i++) {
-                        if (type === 'Fire') {
-                            pos.array[i * 3 + 1] += leftSpeeds[i]; // Rise upward
-                            if (pos.array[i * 3 + 1] > 3.5) {
-                                pos.array[i * 3] = -1.5 + (Math.random() - 0.5) * 0.3; // Left arm
-                                pos.array[i * 3 + 1] = 1.5; // Reset to arm height
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                leftSpeeds[i] = 0.02 + Math.random() * 0.02;
-                            }
-                        } else if (type === 'Water') {
-                            pos.array[i * 3 + 1] += leftSpeeds[i]; // Flow upward
-                            if (pos.array[i * 3 + 1] > 3.5) {
-                                pos.array[i * 3] = -1.5 + (Math.random() - 0.5) * 0.3;
-                                pos.array[i * 3 + 1] = 1.5;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                leftSpeeds[i] = 0.01 + Math.random() * 0.01;
-                            }
-                        } else if (type === 'Earth') {
-                            pos.array[i * 3 + 1] += leftSpeeds[i]; // Rise upward
-                            if (pos.array[i * 3 + 1] > 3.5) {
-                                pos.array[i * 3] = -1.5 + (Math.random() - 0.5) * 0.3;
-                                pos.array[i * 3 + 1] = 1.5;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                leftSpeeds[i] = 0.01 + Math.random() * 0.01;
-                            }
-                        } else if (type === 'Wind') {
-                            pos.array[i * 3] += leftSpeeds[i]; // Move horizontally
-                            if (Math.abs(pos.array[i * 3] + 5) > 2) { // Relative to playerGroup
-                                pos.array[i * 3] = -1.5;
-                                pos.array[i * 3 + 1] = 1.5 + (Math.random() - 0.5) * 0.3;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                leftSpeeds[i] = 0.03 + Math.random() * 0.02;
-                            }
-                        } else if (type === 'Magic') {
-                            pos.array[i * 3] += leftSpeeds[i] * Math.sin(time + i);
-                            pos.array[i * 3 + 1] += leftSpeeds[i] * Math.cos(time + i);
-                            if (Math.hypot(pos.array[i * 3] + 1.5, pos.array[i * 3 + 1] - 1.5) > 1.5) {
-                                pos.array[i * 3] = -1.5;
-                                pos.array[i * 3 + 1] = 1.5;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                leftSpeeds[i] = 0.01 + Math.random() * 0.01;
-                            }
-                        }
-                    }
-                    pos.needsUpdate = true;
-                }
-
-                // Animate elemental effects for right arm
-                if (rightParticleSystem) {
-                    const pos = rightParticleSystem.geometry.attributes.position;
-                    const type = playerMonsters[currentMonster].type;
-                    for (let i = 0; i < 25; i++) {
-                        if (type === 'Fire') {
-                            pos.array[i * 3 + 1] += rightSpeeds[i]; // Rise upward
-                            if (pos.array[i * 3 + 1] > 3.5) {
-                                pos.array[i * 3] = 1.5 + (Math.random() - 0.5) * 0.3; // Right arm
-                                pos.array[i * 3 + 1] = 1.5; // Reset to arm height
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                rightSpeeds[i] = 0.02 + Math.random() * 0.02;
-                            }
-                        } else if (type === 'Water') {
-                            pos.array[i * 3 + 1] += rightSpeeds[i]; // Flow upward
-                            if (pos.array[i * 3 + 1] > 3.5) {
-                                pos.array[i * 3] = 1.5 + (Math.random() - 0.5) * 0.3;
-                                pos.array[i * 3 + 1] = 1.5;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                rightSpeeds[i] = 0.01 + Math.random() * 0.01;
-                            }
-                        } else if (type === 'Earth') {
-                            pos.array[i * 3 + 1] += rightSpeeds[i]; // Rise upward
-                            if (pos.array[i * 3 + 1] > 3.5) {
-                                pos.array[i * 3] = 1.5 + (Math.random() - 0.5) * 0.3;
-                                pos.array[i * 3 + 1] = 1.5;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                rightSpeeds[i] = 0.01 + Math.random() * 0.01;
-                            }
-                        } else if (type === 'Wind') {
-                            pos.array[i * 3] += rightSpeeds[i]; // Move horizontally
-                            if (Math.abs(pos.array[i * 3] - 5) > 2) { // Relative to playerGroup
-                                pos.array[i * 3] = 1.5;
-                                pos.array[i * 3 + 1] = 1.5 + (Math.random() - 0.5) * 0.3;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                rightSpeeds[i] = 0.03 + Math.random() * 0.02;
-                            }
-                        } else if (type === 'Magic') {
-                            pos.array[i * 3] += rightSpeeds[i] * Math.sin(time + i);
-                            pos.array[i * 3 + 1] += rightSpeeds[i] * Math.cos(time + i);
-                            if (Math.hypot(pos.array[i * 3] - 1.5, pos.array[i * 3 + 1] - 1.5) > 1.5) {
-                                pos.array[i * 3] = 1.5;
-                                pos.array[i * 3 + 1] = 1.5;
-                                pos.array[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-                                rightSpeeds[i] = 0.01 + Math.random() * 0.01;
-                            }
-                        }
-                    }
-                    pos.needsUpdate = true;
-                }
-
-                // Attack animation
-                if (attackTimer > 0) {
-                    playerGroup.position.x = -5 + Math.sin(attackTimer) * 0.2;
-                    attackTimer--;
-                    if (attackTimer <= 0) playerGroup.position.x = -5;
-                }
-
-                // Hit animation
-                if (hitTimer > 0) {
-                    enemyGroup.position.x = 5 + Math.sin(hitTimer * 2) * 0.2;
-                    hitTimer--;
-                    if (hitTimer <= 0) enemyGroup.position.x = 5;
-                }
-
-                // Camera shake
-                if (cameraShakeTimer > 0) {
-                    camera.position.set(
-                        0 + (Math.random() - 0.5) * 0.5,
-                        5 + (Math.random() - 0.5) * 0.5,
-                        20 + (Math.random() - 0.5) * 0.5
-                    );
-                    cameraShakeTimer--;
-                    if (cameraShakeTimer <= 0) {
-                        camera.position.set(0, 5, 20);
-                    }
-                }
-                camera.lookAt(0, 0, 0);
-
-                renderer.render(scene, camera);
-            } catch (e) {
-                console.error('Animation error:', e);
+        function checkAnswer() {
+            if (state.paused || state.answer == null) return;
+            const raw = $('answerInput').value;
+            if (raw === '') return;
+            const val = parseFloat(raw);
+            if (val === state.answer) {
+                state.combo += 1;
+                const dmg = playerDmg();
+                state.score += 10 + state.combo * 2 + state.level;
+                state.hits += 1;
+                state.enemyHp = Math.max(0, state.enemyHp - Math.min(18, dmg));
+                gainXp(10);
+                beep('triangle', 720, 0.16, 0.18);
+                $('feedback').textContent = state.hits >= state.needed
+                    ? `Boss down!`
+                    : `Hit! ${state.needed - state.hits} more. Combo x${state.combo}`;
+                toast('dmg', `−${dmg}`, 700);
+                spawnVolley(false);
+                paintHp();
+                save();
+                if (state.hits >= state.needed) nextLevel();
+                else generateProblem();
+            } else {
+                $('feedback').textContent = 'Not quite — try the next one.';
+                beep('sawtooth', 140, 0.2, 0.18);
+                hurtPlayer();
+                if (state.lives > 0 && state.playerHp > 0) generateProblem();
             }
         }
 
-        // Window resize handler
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+        function showHint() {
+            if (!state.problem) return;
+            const hints = {
+                '+': `Add ${state.n1} and ${state.n2}. Red + blue blocks.`,
+                '-': `Start with ${state.n1}, take away ${state.n2}.`,
+                '*': `${state.n1} groups of ${state.n2}.`,
+                '/': `How many times does ${state.n2} fit into ${state.n1}?`
+            };
+            $('feedback').textContent = hints[state.op];
+            beep('sine', 420, 0.12, 0.1);
+        }
+
+        function selectKai(i) {
+            state.current = i;
+            applyKaiLook();
+            renderRoster();
+            toast('talk', `${state.kai[i].name}: Ready!`, 1200);
+            save();
+        }
+
+        /* ---------- combat vfx ---------- */
+        function spawnVolley(fromBoss) {
+            const color = fromBoss ? ENEMIES[state.enemy].color : ORB_COLOR[state.kai[state.current].type];
+            const start = new THREE.Vector3(fromBoss ? 5 : -5, -0.6, 0);
+            const end = new THREE.Vector3(fromBoss ? -5 : 5, -0.6, 0);
+            const n = fromBoss ? 3 : 5;
+            for (let i = 0; i < n; i++) {
+                setTimeout(() => {
+                    const mesh = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.42, 12, 12),
+                        new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.55 })
+                    );
+                    mesh.position.copy(start);
+                    orbs.add(mesh);
+                    beep(fromBoss ? 'sawtooth' : 'sine', fromBoss ? 220 : 360, 0.12, 0.12);
+                    let t = 0;
+                    const iv = setInterval(() => {
+                        t += 0.05;
+                        mesh.position.lerpVectors(start, end, Math.min(1, t));
+                        if (t >= 1) {
+                            clearInterval(iv);
+                            orbs.remove(mesh);
+                            mesh.geometry.dispose(); mesh.material.dispose();
+                            if (i === n - 1) {
+                                state.hitT = fromBoss ? 0 : 18;
+                                state.attackT = fromBoss ? 0 : 16;
+                                if (fromBoss) state.shakeT = 10;
+                                burst(end, fromBoss ? 70 : 110);
+                            }
+                        }
+                    }, 16);
+                }, i * 80);
+            }
+        }
+
+        function burst(pos, count) {
+            const geo = new THREE.BufferGeometry();
+            const arr = new Float32Array(count * 3);
+            const dir = [];
+            for (let i = 0; i < count; i++) {
+                dir.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize());
+                arr[i * 3] = pos.x; arr[i * 3 + 1] = pos.y; arr[i * 3 + 2] = pos.z;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+            const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffff66, size: 0.18 }));
+            scene.add(pts);
+            let t = 0;
+            const iv = setInterval(() => {
+                t += 0.03;
+                for (let i = 0; i < count; i++) {
+                    arr[i * 3] += dir[i].x * 0.12;
+                    arr[i * 3 + 1] += dir[i].y * 0.12;
+                    arr[i * 3 + 2] += dir[i].z * 0.12;
+                }
+                geo.attributes.position.needsUpdate = true;
+                if (t > 0.9) { clearInterval(iv); scene.remove(pts); geo.dispose(); pts.material.dispose(); }
+            }, 16);
+        }
+
+        function sparkle(pos) { burst(new THREE.Vector3(pos.x, pos.y + 1.2, pos.z), 80); }
+
+        function explodeEnemy() {
+            const bits = [];
+            for (let i = 0; i < 16; i++) {
+                const p = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshBasicMaterial({ color: ENEMIES[state.enemy].color }));
+                p.position.copy(enemy.position);
+                p.userData.v = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.6, Math.random() - 0.5).multiplyScalar(0.28);
+                scene.add(p); bits.push(p);
+            }
+            beep('sawtooth', 180, 0.28, 0.22);
+            let t = 0;
+            const iv = setInterval(() => {
+                t += 0.02;
+                bits.forEach(p => { p.userData.v.y -= 0.01; p.position.add(p.userData.v); p.rotation.x += 0.12; });
+                if (t > 1.6) {
+                    clearInterval(iv);
+                    bits.forEach(p => { scene.remove(p); p.geometry.dispose(); p.material.dispose(); });
+                }
+            }, 16);
+        }
+
+        /* ---------- loop ---------- */
+        let time = 0;
+        function tickParticles(pts, spd, xOff, type) {
+            if (!pts) return;
+            const arr = pts.geometry.attributes.position.array;
+            for (let i = 0; i < 22; i++) {
+                if (type === 'Wind') {
+                    arr[i * 3] += spd[i];
+                    if (Math.abs(arr[i * 3] - xOff) > 1.6) { arr[i * 3] = xOff; arr[i * 3 + 1] = 1.3; }
+                } else if (type === 'Magic') {
+                    arr[i * 3] += spd[i] * Math.sin(time + i);
+                    arr[i * 3 + 1] += spd[i] * Math.cos(time + i);
+                    if (Math.hypot(arr[i * 3] - xOff, arr[i * 3 + 1] - 1.3) > 1.4) { arr[i * 3] = xOff; arr[i * 3 + 1] = 1.3; }
+                } else {
+                    arr[i * 3 + 1] += spd[i];
+                    if (arr[i * 3 + 1] > 3.2) { arr[i * 3] = xOff + (Math.random() - 0.5) * 0.2; arr[i * 3 + 1] = 1.2; }
+                }
+            }
+            pts.geometry.attributes.position.needsUpdate = true;
+            pts.position.copy(player.position);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.016;
+            player.position.y = -2 + Math.sin(time * 2) * 0.16;
+            enemy.position.y = -2 + Math.cos(time * 2) * 0.16;
+            if (player.userData.eyes) {
+                const b = Math.sin(time * 2.2) > 0.84 ? 0.55 : 1;
+                player.userData.eyes.forEach(e => e.scale.set(1, b, 1));
+            }
+            if (enemy.userData.eyes) {
+                const b = Math.sin(time * 1.8) > 0.9 ? 0.45 : 1;
+                enemy.userData.eyes.forEach(e => e.scale.set(1, b, 1));
+            }
+            const type = state.kai[state.current].type;
+            tickParticles(leftPts, leftSpd, -1.35, type);
+            tickParticles(rightPts, rightSpd, 1.35, type);
+            if (state.attackT > 0) {
+                player.position.x = -5 + Math.sin(state.attackT) * 0.22;
+                state.attackT--;
+                if (state.attackT <= 0) player.position.x = -5;
+            }
+            if (state.hitT > 0) {
+                enemy.position.x = 5 + Math.sin(state.hitT * 2) * 0.22;
+                state.hitT--;
+                if (state.hitT <= 0) enemy.position.x = 5;
+            }
+            if (state.shakeT > 0) {
+                camera.position.set((Math.random() - 0.5) * 0.35, 5.2 + (Math.random() - 0.5) * 0.25, 16);
+                state.shakeT--;
+                if (state.shakeT <= 0) camera.position.set(0, 5.2, 16);
+            }
+            camera.lookAt(0, 0.6, 0);
+
+            if (!state.paused && state.deadline) {
+                const left = Math.max(0, state.deadline - performance.now());
+                $('timerFill').style.width = (left / (ANSWER_SECS * 1000) * 100) + '%';
+                if (left <= 0) {
+                    state.deadline = 0;
+                    $('feedback').textContent = 'Time! The boss strikes.';
+                    hurtPlayer();
+                    if (state.lives > 0 && state.playerHp > 0) generateProblem();
+                }
+            }
+            renderer.render(scene, camera);
+        }
+
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(innerWidth, innerHeight);
         });
 
-        // Start animation
-        animate();
+        /* ---------- wiring ---------- */
+        function begin(fromSave) {
+            if (fromSave) load();
+            else {
+                state.grade = +$('startGrade').value;
+                state.level = 1; state.score = 0; state.lives = 3; state.playerHp = 100;
+                state.hits = 0; state.combo = 0; state.enemy = 0;
+            }
+            state.needed = problemsNeeded(state.level);
+            state.enemy = (state.level - 1) % ENEMIES.length;
+            state.enemyHp = 100;
+            state.paused = false;
+            $('startModal').classList.remove('show');
+            $('hud').hidden = false;
+            $('musicBtn').textContent = state.music ? 'Music' : 'Muted';
+            applyKaiLook();
+            applyEnemyLook();
+            updateEnvironment(state.level);
+            renderLives();
+            renderRoster();
+            paintHp();
+            startDrone();
+            toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name}. Land ${state.needed} hits.`, 2400);
+            generateProblem();
+        }
 
-        // Initialize game
-        document.getElementById('tutorialMenu').style.display = 'block';
-        document.getElementById('answerInput').focus();
+        $('startBtn').onclick = () => begin(false);
+        $('continueBtn').onclick = () => begin(true);
+        $('submitBtn').onclick = checkAnswer;
+        $('hintBtn').onclick = showHint;
+        $('gradeBtn').onclick = () => { $('gradeSelect').value = state.grade; $('gradeModal').classList.add('show'); };
+        $('applyGrade').onclick = () => {
+            state.grade = +$('gradeSelect').value;
+            $('gradeModal').classList.remove('show');
+            generateProblem();
+            save();
+        };
+        $('customBtn').onclick = () => {
+            const k = state.kai[state.current];
+            $('colorSelect').value = '0x' + k.color.toString(16).padStart(6, '0');
+            $('accSelect').value = k.acc;
+            $('customModal').classList.add('show');
+        };
+        $('applyCustom').onclick = () => {
+            const k = state.kai[state.current];
+            k.color = parseInt($('colorSelect').value);
+            k.acc = $('accSelect').value;
+            applyKaiLook();
+            renderRoster();
+            $('customModal').classList.remove('show');
+            save();
+        };
+        $('pauseBtn').onclick = () => {
+            state.paused = true;
+            $('pauseModal').classList.add('show');
+            save();
+        };
+        $('resumeBtn').onclick = () => {
+            state.paused = false;
+            $('pauseModal').classList.remove('show');
+            state.deadline = performance.now() + ANSWER_SECS * 1000;
+            $('answerInput').focus();
+        };
+        $('restartBtn').onclick = () => { localStorage.removeItem(SAVE_KEY); location.reload(); };
+        $('musicBtn').onclick = () => {
+            state.music = !state.music;
+            $('musicBtn').textContent = state.music ? 'Music' : 'Muted';
+            state.music ? startDrone() : stopDrone();
+            save();
+        };
+        $('fsBtn').onclick = () => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+            else document.exitFullscreen();
+        };
+        $('answerInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); }
+        });
+        addEventListener('keydown', (e) => {
+            if (['1','2','3','4','5'].includes(e.key)) selectKai(+e.key - 1);
+            if (e.key === 'h' || e.key === 'H') showHint();
+            if (e.key === 'p' || e.key === 'P') $('pauseBtn').click();
+            if (e.key === 'm' || e.key === 'M') $('musicBtn').click();
+            if (e.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
+        });
+
+        $('continueBtn').style.display = localStorage.getItem(SAVE_KEY) ? '' : 'none';
+        applyKaiLook();
+        applyEnemyLook();
+        updateEnvironment(1);
+        animate();
     </script>
-        <footer>
-        <p>© 2025 Itoshiro Zuna LLC. All rights reserved.</p>
-    </footer>
 </body>
 </html>
