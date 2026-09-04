@@ -68,6 +68,22 @@
             background: rgba(0,0,0,0.82); color: #ffcc00; text-align: center;
             padding: 6px 8px; font-size: 12px; pointer-events: none;
         }
+        body.focus-play .site-nav,
+        body.focus-play .site-footer { opacity: 0; pointer-events: none; transition: opacity .35s; }
+        body.focus-play .site-nav:hover { opacity: 1; pointer-events: auto; }
+        #cinemaBtn {
+            position: fixed; top: 8px; right: 10px; z-index: 1002;
+            padding: 6px 10px; font-size: 12px; font-weight: 700;
+            background: #ffcc00; border: 0; border-radius: 8px; cursor: pointer;
+        }
+        .match-chip { font-size: 12px; margin-top: 4px; font-weight: 700; }
+        .match-chip.good { color: #157347; }
+        .match-chip.bad { color: #b42318; }
+        #work { font-size: 15px; margin-top: 4px; min-height: 18px; color: #5b3; }
+        .vol { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; font-size: 13px; }
+        .vol input { width: 120px; }
+        .stamp-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
+        .stamp { font-size: 11px; padding: 4px 8px; border-radius: 999px; background: #fff3b0; border: 1px solid #e0a800; }
         .top-bar {
             position: absolute; top: 48px; left: 12px; right: 12px;
             display: flex; justify-content: space-between; gap: 10px; align-items: flex-start;
@@ -191,6 +207,7 @@
             </div>
         </div>
     </nav>
+    <button type="button" id="cinemaBtn">Play focus</button>
     <div class="hud" id="hud" hidden>
         <div class="top-bar">
             <div class="bar-card">
@@ -209,6 +226,7 @@
                 <div class="label" id="enemyName">Enemy</div>
                 <div class="hp-track"><div class="hp-fill" id="enemyHp"></div></div>
                 <div class="meta"><span></span><span id="enemyHpTxt">100</span></div>
+                <div class="match-chip" id="matchChip"></div>
             </div>
         </div>
 
@@ -226,8 +244,10 @@
                 <button class="btn ghost" id="pauseBtn">Pause</button>
                 <button class="btn ghost" id="musicBtn">Music</button>
                 <button class="btn ghost" id="fsBtn">Full</button>
+                <button class="btn ghost" id="coopBtn">Solo</button>
             </div>
             <div id="feedback"></div>
+            <div id="work"></div>
             <div id="scoreLine">Score 0 · Best 0</div>
         </div>
     </div>
@@ -241,6 +261,10 @@
             <h2>Kai Wisdom Fighters</h2>
             <p>Solve math to power your Kai. Land enough hits to drop the boss, then climb 10 elemental arenas.</p>
             <p>Hints are free. A 20-second timer keeps the duel moving. Streaks boost damage.</p>
+            <p id="coachBlurb">First time: solve the problem, then your Kai attacks. Keys 1–5 switch Kais. Fire melts ice, water douses lava, earth grounds wind, wind cuts water, magic bites shadow.</p>
+            <label>Champion name
+                <input id="playerName" type="text" maxlength="18" placeholder="Your name" style="padding:8px;font-size:16px;border-radius:8px;width:70%">
+            </label>
             <label>Grade
                 <select id="startGrade">
                     <option value="1">1st — + −</option>
@@ -251,9 +275,24 @@
                     <option value="6">6th — + − × ÷</option>
                 </select>
             </label>
+            <div class="vol"><span>Music</span><input id="volMusic" type="range" min="0" max="100" value="70"><span>SFX</span><input id="volSfx" type="range" min="0" max="100" value="80"></div>
+            <label><input type="checkbox" id="coopCheck"> Pass-the-device: P1 answers, P2 picks the Kai (1–5)</label>
             <div class="row" style="margin-top:12px">
                 <button class="btn" id="startBtn">Start Playing</button>
                 <button class="btn ghost" id="continueBtn">Continue Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="resultsModal">
+        <div class="sheet">
+            <h2 id="resultsTitle">Results</h2>
+            <p id="resultsBody"></p>
+            <div class="stamp-row" id="stampRow"></div>
+            <div class="row" style="margin-top:12px">
+                <button class="btn" id="copyScoreBtn">Copy score</button>
+                <a class="btn" href="certificate.html" style="text-decoration:none">Certificate</a>
+                <button class="btn ghost" id="resultsAgain">Play again</button>
             </div>
         </div>
     </div>
@@ -262,6 +301,7 @@
         <div class="sheet">
             <h2>Paused</h2>
             <p>Progress is saved on this device.</p>
+            <div class="vol"><span>Music</span><input id="volMusicP" type="range" min="0" max="100" value="70"><span>SFX</span><input id="volSfxP" type="range" min="0" max="100" value="80"></div>
             <div class="row" style="margin-top:12px">
                 <button class="btn" id="resumeBtn">Resume</button>
                 <button class="btn ghost" id="restartBtn">New Game</button>
@@ -301,6 +341,15 @@
                     <option value="none">None</option>
                     <option value="horns">Horns</option>
                     <option value="wings">Wings</option>
+                    <option value="crown">Champion Crown</option>
+                    <option value="halo">Arena Halo</option>
+                </select>
+            </label>
+            <label>Aura
+                <select id="auraSelect">
+                    <option value="none">None</option>
+                    <option value="spark">Spark</option>
+                    <option value="ring">Ring</option>
                 </select>
             </label>
             <div class="row"><button class="btn" id="applyCustom">Apply</button></div>
@@ -315,6 +364,7 @@
         import * as THREE from 'https://esm.sh/three@0.154.0';
 
         const SAVE_KEY = 'kwf_v2';
+        const PROFILE_KEY = 'itoshiro-profile';
         const MAX_LEVEL = 10;
         const ANSWER_SECS = 20;
 
@@ -323,17 +373,18 @@
         const ORB_COLOR = { Fire: 0xffa500, Water: 0x00b7eb, Earth: 0xff6f00, Wind: 0x87ceeb, Magic: 0x9400d3 };
 
         const ENEMIES = [
-            { name: 'Stone Golem', color: 0x6b8f3a, acc: 'horns', taunt: ['I’ll crush you!', 'Your math is weak!'] },
-            { name: 'Frost Queen', color: 0x66e0ff, acc: 'none', taunt: ['Freeze!', 'Solve this, child!'] },
-            { name: 'Lava Fiend', color: 0xff3333, acc: 'none', taunt: ['Burn!', 'You’ll melt!'] },
-            { name: 'Tempest Harpy', color: 0xffee55, acc: 'wings', taunt: ['Ride the storm!', 'Too slow!'] },
-            { name: 'Ocean King', color: 0x1e90ff, acc: 'none', taunt: ['Drown!', 'Sink!'] },
-            { name: 'Shadow Phantom', color: 0xaa44ff, acc: 'none', taunt: ['Fear the dark!', 'You cannot see me!'] },
-            { name: 'Arcane Sorcerer', color: 0x9400d3, acc: 'none', taunt: ['Magic is power!', 'Solve or perish!'] },
-            { name: 'Cyber Titan', color: 0x33ff88, acc: 'none', taunt: ['System overload!', 'Compute this!'] },
-            { name: 'Celestial Dragon', color: 0xffe066, acc: 'wings', taunt: ['Stars against you!', 'Cosmic defeat!'] },
-            { name: 'Eternal Hydra', color: 0xff66aa, acc: 'horns', taunt: ['All elements unite!', 'You cannot win!'] }
+            { name: 'Stone Golem', type: 'Earth', color: 0x6b8f3a, acc: 'horns', taunt: ['I’ll crush you!', 'Your math is weak!'], story: 'The counting stones sank into the jungle floor.' },
+            { name: 'Frost Queen', type: 'Water', color: 0x66e0ff, acc: 'none', taunt: ['Freeze!', 'Solve this, child!'], story: 'Frost Queen froze the counting stones solid.' },
+            { name: 'Lava Fiend', type: 'Fire', color: 0xff3333, acc: 'none', taunt: ['Burn!', 'You’ll melt!'], story: 'The lava river ate the practice tablets.' },
+            { name: 'Tempest Harpy', type: 'Wind', color: 0xffee55, acc: 'wings', taunt: ['Ride the storm!', 'Too slow!'], story: 'A storm stole every scrap of scrap paper.' },
+            { name: 'Ocean King', type: 'Water', color: 0x1e90ff, acc: 'none', taunt: ['Drown!', 'Sink!'], story: 'The tide pulled the number stones under.' },
+            { name: 'Shadow Phantom', type: 'Magic', color: 0xaa44ff, acc: 'none', taunt: ['Fear the dark!', 'You cannot see me!'], story: 'The graveyard hid the sums in fog.' },
+            { name: 'Arcane Sorcerer', type: 'Magic', color: 0x9400d3, acc: 'none', taunt: ['Magic is power!', 'Solve or perish!'], story: 'The library locked its answer keys.' },
+            { name: 'Cyber Titan', type: 'Earth', color: 0x33ff88, acc: 'none', taunt: ['System overload!', 'Compute this!'], story: 'The city grid scrambled every equation.' },
+            { name: 'Celestial Dragon', type: 'Fire', color: 0xffe066, acc: 'wings', taunt: ['Stars against you!', 'Cosmic defeat!'], story: 'A star-drake coiled around the last arena gate.' },
+            { name: 'Eternal Hydra', type: 'Magic', color: 0xff66aa, acc: 'horns', taunt: ['All elements unite!', 'You cannot win!'], story: 'Every element woke at once. Finish this.' }
         ];
+        const BEATS = { Fire: 'Earth', Water: 'Fire', Earth: 'Wind', Wind: 'Water', Magic: 'Magic' };
 
         const SCENERY = [
             { ambient: 0x557755, terrain: 0x336633, stars: 0xffffff, fog: 0x88ccee, kind: 'jungle' },
@@ -363,6 +414,15 @@
             enemy: 0,
             paused: true,
             music: true,
+            musicVol: 0.7,
+            sfxVol: 0.8,
+            coop: false,
+            adapt: 0,
+            winStreak: 0,
+            missStreak: 0,
+            playerName: '',
+            stamps: [],
+            aura: 'none',
             problem: null,
             answer: null,
             op: '+',
@@ -390,13 +450,13 @@
             return audio.ctx;
         }
         function beep(type, freq, dur = 0.18, vol = 0.16) {
-            if (!state.music) return;
+            if (state.sfxVol <= 0.01) return;
             const c = ctx();
             const o = c.createOscillator();
             const g = c.createGain();
             o.type = type;
             o.frequency.value = freq;
-            g.gain.value = vol;
+            g.gain.value = vol * state.sfxVol;
             o.connect(g); g.connect(c.destination);
             o.start();
             g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
@@ -404,13 +464,13 @@
         }
         function startDrone() {
             stopDrone();
-            if (!state.music) return;
+            if (state.musicVol <= 0.01) return;
             const c = ctx();
             const o = c.createOscillator();
             const g = c.createGain();
             o.type = 'sine';
             o.frequency.value = 92;
-            g.gain.value = 0.03;
+            g.gain.value = 0.04 * state.musicVol;
             o.connect(g); g.connect(c.destination);
             o.start();
             audio.drone = o;
@@ -587,6 +647,15 @@
                 w1.position.set(-1.4, 1.1, -0.2); w1.rotation.z = Math.PI / 5;
                 w2.position.set(1.4, 1.1, -0.2); w2.rotation.z = -Math.PI / 5;
                 group.userData.acc.add(w1, w2);
+            } else if (kind === 'crown') {
+                const c = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.55, 5), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.6, roughness: 0.3 }));
+                c.position.set(0, group.userData.head.position.y + 0.95, 0);
+                group.userData.acc.add(c);
+            } else if (kind === 'halo') {
+                const h = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.06, 8, 20), new THREE.MeshBasicMaterial({ color: 0xffe066 }));
+                h.position.set(0, group.userData.head.position.y + 1.05, 0);
+                h.rotation.x = Math.PI / 2;
+                group.userData.acc.add(h);
             }
             if (magicCape) {
                 const cape = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 3), new THREE.MeshBasicMaterial({ color: 0x9400d3, side: THREE.DoubleSide, transparent: true, opacity: 0.75 }));
@@ -679,29 +748,61 @@
             $('enemyHp').style.width = state.enemyHp + '%';
             $('enemyHp').classList.toggle('low', state.enemyHp <= 30);
             $('enemyHpTxt').textContent = Math.round(state.enemyHp);
-            $('enemyName').textContent = ENEMIES[state.enemy].name;
+            $('enemyName').textContent = ENEMIES[state.enemy].name + ' · ' + ENEMIES[state.enemy].type;
             $('comboTxt').textContent = `Combo x${Math.max(1, state.combo)}`;
             $('levelTxt').textContent = `Level ${state.level}`;
             $('scoreLine').textContent = `Score ${state.score} · Best ${state.best} · ${state.hits}/${state.needed} hits`;
+            const m = matchup();
+            const chip = $('matchChip');
+            if (m > 1) { chip.textContent = 'SUPER EFFECTIVE'; chip.className = 'match-chip good'; }
+            else if (m < 1) { chip.textContent = 'RESISTED — switch Kai'; chip.className = 'match-chip bad'; }
+            else { chip.textContent = 'Neutral'; chip.className = 'match-chip'; }
         }
 
         /* ---------- persistence ---------- */
+        function loadProfile() {
+            try {
+                return Object.assign({
+                    name: '', musicVol: 0.7, sfxVol: 0.8, cinema: false, seenCoachKai: false,
+                    kaiBest: 0, racerBest: 0, racerMaxCombo: 1, stamps: [], weapon: 'homing',
+                    quality: null, skin: 0x00ffff, coop: false
+                }, JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'));
+            } catch (_) { return { name: '', musicVol: 0.7, sfxVol: 0.8, stamps: [], kaiBest: 0 }; }
+        }
+        function saveProfile(extra) {
+            const p = Object.assign(loadProfile(), extra || {});
+            p.kaiBest = Math.max(p.kaiBest || 0, state.best || 0, state.score || 0);
+            p.musicVol = state.musicVol; p.sfxVol = state.sfxVol; p.name = state.playerName || p.name;
+            p.stamps = state.stamps; p.coop = state.coop;
+            try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch (_) {}
+            return p;
+        }
         function save() {
             state.best = Math.max(state.best, state.score);
             try { localStorage.setItem(SAVE_KEY, JSON.stringify({
                 grade: state.grade, level: state.level, score: state.score, best: state.best,
-                lives: state.lives, current: state.current, kai: state.kai, music: state.music
+                lives: state.lives, current: state.current, kai: state.kai, music: state.music,
+                musicVol: state.musicVol, sfxVol: state.sfxVol, coop: state.coop, adapt: state.adapt,
+                stamps: state.stamps, playerName: state.playerName, aura: state.aura
             })); } catch (_) {}
+            saveProfile();
         }
         function load() {
             try {
                 const raw = localStorage.getItem(SAVE_KEY);
                 if (!raw) return false;
                 const d = JSON.parse(raw);
-                Object.assign(state, { grade: d.grade ?? 2, level: d.level ?? 1, score: d.score ?? 0, best: d.best ?? 0, lives: d.lives ?? 3, current: d.current ?? 0, music: d.music !== false });
+                Object.assign(state, { grade: d.grade ?? 2, level: d.level ?? 1, score: d.score ?? 0, best: d.best ?? 0, lives: d.lives ?? 3, current: d.current ?? 0, music: d.music !== false, musicVol: d.musicVol ?? 0.7, sfxVol: d.sfxVol ?? 0.8, coop: !!d.coop, adapt: d.adapt ?? 0, stamps: d.stamps || [], playerName: d.playerName || '', aura: d.aura || 'none' });
                 if (Array.isArray(d.kai) && d.kai.length === 5) state.kai = d.kai;
                 return true;
             } catch (_) { return false; }
+        }
+        function matchup() {
+            const atk = state.kai[state.current].type;
+            const def = ENEMIES[state.enemy].type;
+            if (BEATS[atk] === def) return 1.55;
+            if (BEATS[def] === atk) return 0.7;
+            return 1;
         }
 
         /* ---------- math ---------- */
@@ -711,7 +812,7 @@
             if (state.paused) return;
             const ops = { 1: ['+', '-'], 2: ['+', '-'], 3: ['+', '-', '*'], 4: ['+', '-', '*'], 5: ['+', '-', '*', '/'], 6: ['+', '-', '*', '/'] }[state.grade];
             state.op = ops[Math.floor(Math.random() * ops.length)];
-            const cap = { 1: 10, 2: 20, 3: 12, 4: 20, 5: 24, 6: 36 }[state.grade] + state.level * 2;
+            const cap = { 1: 10, 2: 20, 3: 12, 4: 20, 5: 24, 6: 36 }[state.grade] + state.level * 2 + state.adapt * 3;
             let a = 1 + Math.floor(Math.random() * cap);
             let b = 1 + Math.floor(Math.random() * cap);
             if (state.op === '-') {
@@ -755,7 +856,21 @@
         function playerDmg() {
             const base = 9 + state.kai[state.current].level * 2.2;
             const combo = 1 + Math.min(state.combo, 8) * 0.12;
-            return Math.round(base * combo);
+            return Math.round(base * combo * matchup());
+        }
+        function workedText() {
+            const symbol = { '+': '+', '-': '−', '*': '×', '/': '÷' }[state.op];
+            return `${state.n1} ${symbol} ${state.n2} = ${state.answer}`;
+        }
+        function showResults(title) {
+            state.paused = true;
+            state.best = Math.max(state.best, state.score);
+            save();
+            $('resultsTitle').textContent = title;
+            const who = state.playerName ? state.playerName + ' · ' : '';
+            $('resultsBody').textContent = `${who}Score ${state.score} · Best ${state.best} · Level ${Math.min(state.level, MAX_LEVEL)} · Combo x${Math.max(1, state.combo)}`;
+            $('stampRow').innerHTML = (state.stamps || []).map(s => `<span class="stamp">${s}</span>`).join('') || '<span class="stamp">No arena stamps yet</span>';
+            $('resultsModal').classList.add('show');
         }
 
         function hurtPlayer() {
@@ -770,9 +885,8 @@
             state.lives -= 1;
             renderLives();
             if (state.lives <= 0) {
-                $('feedback').textContent = 'Game over — training a new champion…';
-                save();
-                setTimeout(() => location.reload(), 2800);
+                $('feedback').textContent = 'Game over';
+                showResults('Training complete');
                 return;
             }
             state.playerHp = 100;
@@ -802,13 +916,12 @@
             state.enemyHp = 100;
             if (state.level > MAX_LEVEL) {
                 state.score += 250;
-                state.best = Math.max(state.best, state.score);
-                save();
-                $('feedback').textContent = `Champion! Final score ${state.score}`;
-                toast('story', `You cleared every arena. Score ${state.score}. Best ${state.best}.`, 5000);
-                setTimeout(() => location.reload(), 5200);
+                state.stamps = Array.from(new Set([...(state.stamps||[]), 'Champion Seal']));
+                showResults('Champion of the ten arenas');
                 return;
             }
+            const beaten = ENEMIES[(state.level - 2 + ENEMIES.length) % ENEMIES.length];
+            state.stamps = Array.from(new Set([...(state.stamps||[]), beaten.name.split(' ')[0]]));
             if ([3, 6, 9].includes(state.level)) state.playerHp = 100;
             state.needed = problemsNeeded(state.level);
             state.enemy = (state.level - 1) % ENEMIES.length;
@@ -816,7 +929,7 @@
             updateEnvironment(state.level);
             paintHp();
             save();
-            toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name}! Land ${state.needed} hits.`, 2800);
+            toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name} — ${ENEMIES[state.enemy].story}`, 3200);
             setTimeout(generateProblem, 900);
         }
 
@@ -827,23 +940,31 @@
             const val = parseFloat(raw);
             if (val === state.answer) {
                 state.combo += 1;
+                state.winStreak += 1; state.missStreak = 0;
+                if (state.winStreak >= 3) { state.adapt = Math.min(6, state.adapt + 1); state.winStreak = 0; }
                 const dmg = playerDmg();
-                state.score += 10 + state.combo * 2 + state.level;
+                const m = matchup();
+                state.score += 10 + state.combo * 2 + state.level + (m > 1 ? 8 : 0);
                 state.hits += 1;
-                state.enemyHp = Math.max(0, state.enemyHp - Math.min(18, dmg));
+                state.enemyHp = Math.max(0, state.enemyHp - Math.min(22, dmg));
                 gainXp(10);
                 beep('triangle', 720, 0.16, 0.18);
+                $('work').textContent = '';
                 $('feedback').textContent = state.hits >= state.needed
                     ? `Boss down!`
-                    : `Hit! ${state.needed - state.hits} more. Combo x${state.combo}`;
+                    : `${m > 1 ? 'Super effective! ' : m < 1 ? 'Resisted. ' : ''}Hit! ${state.needed - state.hits} more. Combo x${state.combo}`;
                 toast('dmg', `−${dmg}`, 700);
+                if (state.coop) toast('talk', 'P2: pick the next Kai with 1–5', 1600);
                 spawnVolley(false);
                 paintHp();
                 save();
                 if (state.hits >= state.needed) nextLevel();
                 else generateProblem();
             } else {
-                $('feedback').textContent = 'Not quite — try the next one.';
+                state.missStreak += 1; state.winStreak = 0;
+                if (state.missStreak >= 2) { state.adapt = Math.max(-3, state.adapt - 1); state.missStreak = 0; }
+                $('work').textContent = 'Walkthrough: ' + workedText();
+                $('feedback').textContent = 'Not quite — study the line above, then try the next one.';
                 beep('sawtooth', 140, 0.2, 0.18);
                 hurtPlayer();
                 if (state.lives > 0 && state.playerHp > 0) generateProblem();
@@ -1026,20 +1147,30 @@
         });
 
         /* ---------- wiring ---------- */
+        function syncVolUI() {
+            ['volMusic','volMusicP','volSfx','volSfxP'].forEach(id => {
+                const el = $(id); if (!el) return;
+                el.value = String(Math.round((id.includes('Sfx') ? state.sfxVol : state.musicVol) * 100));
+            });
+            $('musicBtn').textContent = state.musicVol > 0.01 ? 'Music' : 'Muted';
+        }
         function begin(fromSave) {
+            state.playerName = ($('playerName').value || loadProfile().name || '').trim();
+            state.coop = $('coopCheck').checked;
             if (fromSave) load();
             else {
                 state.grade = +$('startGrade').value;
                 state.level = 1; state.score = 0; state.lives = 3; state.playerHp = 100;
-                state.hits = 0; state.combo = 0; state.enemy = 0;
+                state.hits = 0; state.combo = 0; state.enemy = 0; state.adapt = 0;
             }
+            const p = saveProfile({ seenCoachKai: true, name: state.playerName, coop: state.coop });
             state.needed = problemsNeeded(state.level);
             state.enemy = (state.level - 1) % ENEMIES.length;
             state.enemyHp = 100;
             state.paused = false;
             $('startModal').classList.remove('show');
             $('hud').hidden = false;
-            $('musicBtn').textContent = state.music ? 'Music' : 'Muted';
+            $('coopBtn').textContent = state.coop ? 'Co-op' : 'Solo';
             applyKaiLook();
             applyEnemyLook();
             updateEnvironment(state.level);
@@ -1047,7 +1178,7 @@
             renderRoster();
             paintHp();
             startDrone();
-            toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name}. Land ${state.needed} hits.`, 2400);
+            toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name} — ${ENEMIES[state.enemy].story}`, 2800);
             generateProblem();
         }
 
@@ -1066,17 +1197,42 @@
             const k = state.kai[state.current];
             $('colorSelect').value = '0x' + k.color.toString(16).padStart(6, '0');
             $('accSelect').value = k.acc;
+            $('auraSelect').value = state.aura || 'none';
             $('customModal').classList.add('show');
         };
         $('applyCustom').onclick = () => {
             const k = state.kai[state.current];
             k.color = parseInt($('colorSelect').value);
             k.acc = $('accSelect').value;
+            state.aura = $('auraSelect').value;
             applyKaiLook();
             renderRoster();
             $('customModal').classList.remove('show');
             save();
         };
+        $('coopBtn').onclick = () => {
+            state.coop = !state.coop;
+            $('coopBtn').textContent = state.coop ? 'Co-op' : 'Solo';
+            save();
+        };
+        $('cinemaBtn').onclick = () => {
+            document.body.classList.toggle('focus-play');
+            $('cinemaBtn').textContent = document.body.classList.contains('focus-play') ? 'Show tabs' : 'Play focus';
+        };
+        $('copyScoreBtn').onclick = () => {
+            const t = $('resultsBody').textContent;
+            navigator.clipboard?.writeText(t).then(() => { $('copyScoreBtn').textContent = 'Copied'; });
+        };
+        $('resultsAgain').onclick = () => location.reload();
+        function bindVol(id, key) {
+            $(id).addEventListener('input', () => {
+                state[key] = +$(id).value / 100;
+                if (key === 'musicVol') { stopDrone(); startDrone(); }
+                syncVolUI(); saveProfile();
+            });
+        }
+        bindVol('volMusic', 'musicVol'); bindVol('volMusicP', 'musicVol');
+        bindVol('volSfx', 'sfxVol'); bindVol('volSfxP', 'sfxVol');
         $('pauseBtn').onclick = () => {
             state.paused = true;
             $('pauseModal').classList.add('show');
@@ -1090,9 +1246,9 @@
         };
         $('restartBtn').onclick = () => { localStorage.removeItem(SAVE_KEY); location.reload(); };
         $('musicBtn').onclick = () => {
-            state.music = !state.music;
-            $('musicBtn').textContent = state.music ? 'Music' : 'Muted';
-            state.music ? startDrone() : stopDrone();
+            state.musicVol = state.musicVol > 0.01 ? 0 : 0.7;
+            syncVolUI();
+            stopDrone(); startDrone();
             save();
         };
         $('fsBtn').onclick = () => {
@@ -1111,6 +1267,19 @@
         });
 
         $('continueBtn').style.display = localStorage.getItem(SAVE_KEY) ? '' : 'none';
+        (function bootProfile() {
+            const p = loadProfile();
+            state.musicVol = p.musicVol ?? 0.7;
+            state.sfxVol = p.sfxVol ?? 0.8;
+            state.playerName = p.name || '';
+            state.stamps = p.stamps || [];
+            state.best = Math.max(state.best, p.kaiBest || 0);
+            $('playerName').value = state.playerName;
+            $('coopCheck').checked = !!p.coop;
+            if (p.seenCoachKai) $('coachBlurb').style.display = 'none';
+            if (p.cinema) document.body.classList.add('focus-play');
+            syncVolUI();
+        })();
         applyKaiLook();
         applyEnemyLook();
         updateEnvironment(1);
