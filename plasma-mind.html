@@ -1,457 +1,352 @@
+<!--
+    PlasmaMind: Journey Through Consciousness
+    Copyright (c) 2026 Itoshiro Zuna LLC
+    All rights reserved. itoshirozuna.com
+
+    HOW TO RUN
+    Open in a modern browser with WebGL.
+    Drag to look. Scroll to zoom.
+    Space start/stop meditation · P pause · M mute
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PlasmaMind: Journey Through Consciousness</title>
-  <!--
-    Itoshiro Zuna LLC
-    Copyright (c) 2025 Itoshiro Zuna LLC
-    All rights reserved.
-    Unauthorized copying, modification, or distribution of this code is prohibited.
-  -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
-    canvas { display: block; }
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px 0;
-      z-index: 12;
-      display: flex;
-      align-items: center;
-      height: 48px;
-    }
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      margin: 0 16px;
-      font-size: 1.2rem;
-      text-shadow: 0 0 5px #000;
-    }
-    nav a:hover {
-      color: #FFD700;
-    }
-    nav .title {
-      margin: 0 auto;
-      color: #FFD700;
-      font-size: 1.4rem;
-      text-shadow: 0 0 5px #000;
-    }
-    #ui {
-      position: fixed;
-      top: 48px; /* Adjusted for header height */
-      right: 10px;
-      width: 200px;
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
-      border-radius: 6px;
-      color: #fff;
-      font-size: 0.9rem;
-      z-index: 10;
-    }
-    #ui button {
-      width: 100%;
-      margin: 6px 0;
-      padding: 6px;
-      background: transparent;
-      border: 2px solid #FFD700;
-      color: #FFD700;
-      cursor: pointer;
-    }
-    #ui button:hover {
-      background: rgba(255,215,0,0.2);
-    }
-    #ui p {
-      margin: 6px 0;
-    }
-    #guidance {
-      position: fixed;
-      bottom: 32px;
-      left: 0;
-      right: 0;
-      color: #fff;
-      font-size: 1.2rem;
-      text-align: center;
-      z-index: 11;
-      display: none;
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-    }
-    #error {
-      position: fixed;
-      top: 48px; /* Adjusted for header height */
-      left: 10px;
-      color: red;
-      z-index: 12;
-    }
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.85);
-      color: #fff;
-      text-align: center;
-      padding: 8px;
-      font-size: 0.8rem;
-      z-index: 10;
-    }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlasmaMind · Journey Through Consciousness</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Exo 2',sans-serif;color:#e8e4ff}
+canvas{display:block}
+#nav{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:40;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:96vw}
+.nav-btn,.nav-drop>a{padding:6px 12px;border:1px solid rgba(255,215,0,.4);background:rgba(0,0,8,.82);color:#ffe08a;text-decoration:none;font-size:11px;letter-spacing:1.4px;border-radius:4px;font-family:'Orbitron',sans-serif;display:inline-block}
+.nav-btn:hover,.nav-drop>a:hover{background:rgba(255,215,0,.12)}
+.nav-drop{position:relative}
+.nav-drop .menu{display:none;position:absolute;left:50%;transform:translateX(-50%);top:100%;min-width:230px;background:rgba(4,0,12,.96);border:1px solid rgba(255,215,0,.35);border-radius:6px;padding:4px 0;z-index:50}
+.nav-drop:hover .menu,.nav-drop:focus-within .menu{display:block}
+.nav-drop .menu a{display:block;color:#d6c7ff;text-decoration:none;font-size:10px;padding:8px 12px;font-family:'Orbitron',sans-serif;text-align:left}
+.nav-drop .menu a:hover{background:rgba(124,58,237,.25);color:#ffd700}
+body.focus-play #nav,body.focus-play footer{opacity:0;pointer-events:none;transition:opacity .3s}
+body.focus-play #nav:hover{opacity:1;pointer-events:auto}
+#brand{position:fixed;top:10px;left:12px;z-index:35;font-family:'Orbitron',sans-serif}
+#brand h1{font-size:13px;letter-spacing:3px;color:#ffd700}
+#brand small{display:block;font-size:8px;letter-spacing:2px;color:#9b8ec8}
+#ui{position:fixed;top:56px;right:12px;width:228px;background:rgba(6,0,16,.78);border:1px solid rgba(255,215,0,.25);padding:12px;border-radius:10px;z-index:30;backdrop-filter:blur(8px)}
+#ui h2{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:#ffd700;margin-bottom:8px}
+#state{color:#c4b5fd;font-family:'Share Tech Mono',monospace;font-size:11px}
+#ui button,#ui select{width:100%;margin:5px 0;padding:8px;background:transparent;border:1px solid #ffd700;color:#ffd700;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:1px;border-radius:6px}
+#ui button:hover,#ui select:hover{background:rgba(255,215,0,.15)}
+#ui button.active{background:rgba(255,215,0,.22)}
+#ui p,#ui label{margin:6px 0 2px;font-size:11px;color:#c9c0e8}
+#ui input[type=range]{width:100%}
+#breath-ring{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,215,0,.25);z-index:20;pointer-events:none;display:none}
+#breath-core{position:absolute;inset:28%;border-radius:50%;background:radial-gradient(circle,#ffd700aa,#7c3aed44);transform:scale(.4)}
+#guidance{position:fixed;bottom:36px;left:0;right:0;text-align:center;z-index:25;padding:8px 16px;font-size:16px;letter-spacing:.5px;text-shadow:0 0 16px #000;min-height:28px}
+#phase{display:block;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ffd700;letter-spacing:3px;margin-bottom:4px}
+footer{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);color:#ffffff80;text-align:center;padding:6px;font-size:10px;z-index:20;font-family:'Share Tech Mono',monospace;letter-spacing:1px}
+#error{position:fixed;top:56px;left:12px;color:#fca5a5;z-index:40;max-width:320px;font-size:12px}
+</style>
 </head>
 <body>
-  <nav>
-    <a href="index.html">Home</a>
-    <div class="title">PlasmaMind: Journey Through Consciousness</div>
-  </nav>
-  <div id="ui">
-    <p>State: <span id="state">Exploring</span></p>
-    <button id="startMeditation">Start Meditation</button>
-    <button id="toggleGuide">Toggle Guide</button>
-    <button id="vrMode">VR Mode</button>
-    <button id="toggleFullscreen">Enter Fullscreen</button>
+<div id="nav">
+  <a class="nav-btn" href="index.html">HOME</a>
+  <div class="nav-drop">
+    <a href="apps.html">APPS</a>
+    <div class="menu">
+      <a href="fractal-ai-research.html">Fractal AI Research</a>
+      <a href="fractal-meditation.html">Fractal Meditation</a>
+      <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+      <a href="plasma-mind.html">PlasmaMind</a>
+      <a href="fractal-racers.html">Fractal Racers</a>
+      <a href="fractile.html">FracTile</a>
+      <a href="nightmare-eclipse.html">Nightmare Eclipse</a>
+      <a href="ai-hero-quest.html">AI Hero Quest</a>
+      <a href="app-instructions.html">Instructions</a>
+    </div>
   </div>
-  <div id="guidance"></div>
-  <footer>
-    Itoshiro Zuna LLC © 2025. All rights reserved.
-  </footer>
+  <div class="nav-drop">
+    <a href="#">KID'S ZONE</a>
+    <div class="menu">
+      <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
+      <a href="maries-adventure.html">Marie's Adventure</a>
+      <a href="certificate.html">Certificate</a>
+    </div>
+  </div>
+  <a class="nav-btn" href="plasma-mind.html">PLASMA</a>
+</div>
+<div id="brand"><h1>PLASMA MIND</h1><small>CONSCIOUSNESS JOURNEY</small></div>
+<div id="ui">
+  <h2>SESSION</h2>
+  <p>State: <span id="state">Exploring</span></p>
+  <label>Journey</label>
+  <select id="mode">
+    <option value="explore">Free Explore</option>
+    <option value="breath">4-7-8 Breath</option>
+    <option value="box">Box Breath</option>
+    <option value="journey">Guided Journey</option>
+  </select>
+  <button id="startMeditation" type="button">START</button>
+  <button id="toggleGuide" type="button">SHOW GUIDE TEXT</button>
+  <button id="toggleFullscreen" type="button">FULLSCREEN</button>
+  <button id="toggleFocus" type="button">PLAY FOCUS</button>
+  <button id="toggleMute" type="button">AUDIO ON</button>
+  <p>Music</p><input id="volMusic" type="range" min="0" max="100" value="45">
+  <p>Tone</p><input id="volTone" type="range" min="0" max="100" value="25">
+</div>
+<div id="breath-ring"><div id="breath-core"></div></div>
+<div id="guidance"><span id="phase"></span><span id="line"></span></div>
+<footer>© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED · ITOSHIROZUNA.COM</footer>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-  <script>
-    // WebGL support check
-    const Detector = {
-      webgl: (function () {
-        try {
-          const canvas = document.createElement('canvas');
-          return !!(
-            window.WebGLRenderingContext &&
-            (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-          );
-        } catch (e) {
-          return false;
-        }
-      })()
+const PROFILE='itoshiro-profile';
+function loadP(){try{return Object.assign({musicVol:.45,toneVol:.25,plasmaMode:'explore'},JSON.parse(localStorage.getItem(PROFILE)||'{}'));}catch(e){return{musicVol:.45,toneVol:.25,plasmaMode:'explore'};}}
+function saveP(p){try{localStorage.setItem(PROFILE,JSON.stringify(Object.assign(loadP(),p)));}catch(e){}}
+
+const canvasTest=document.createElement('canvas');
+if(!(window.WebGLRenderingContext&&(canvasTest.getContext('webgl2')||canvasTest.getContext('webgl')))){
+  document.body.insertAdjacentHTML('beforeend','<div id="error">WebGL is required for PlasmaMind.</div>');
+  throw new Error('no webgl');
+}
+
+const JOURNEY=[
+  {t:0,text:'Arrive. Soften the eyes. Let the field find you.',hue:0,scale:1.15,power:7},
+  {t:18,text:'Notice one thought, then let it drift past the spiral.',hue:.08,scale:1.35,power:7.4},
+  {t:36,text:'Breathe into the gold. The pattern is not asking anything.',hue:.16,scale:1.55,power:7.8},
+  {t:54,text:'If the mind tightens, return to the center sphere.',hue:.28,scale:1.7,power:8},
+  {t:72,text:'You are already inside the field. Rest there.',hue:.4,scale:1.85,power:8.2},
+  {t:90,text:'Session complete. Stay as long as you like.',hue:.12,scale:1.2,power:7}
+];
+
+class AudioBed{
+  constructor(){
+    this.ac=null;this.master=null;this.music=null;this.tone=null;
+    this.muted=false;this.musicVol=loadP().musicVol;this.toneVol=loadP().toneVol;
+  }
+  ensure(){
+    if(this.ac)return;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    this.ac=new AC();
+    this.master=this.ac.createGain();this.master.gain.value=this.muted?0:1;this.master.connect(this.ac.destination);
+    this.music=this.ac.createGain();this.music.gain.value=this.musicVol;this.music.connect(this.master);
+    this.tone=this.ac.createGain();this.tone.gain.value=this.toneVol;this.tone.connect(this.master);
+    const make=(freq,type,dest,detune=0)=>{
+      const o=this.ac.createOscillator();o.type=type;o.frequency.value=freq;o.detune.value=detune;
+      const g=this.ac.createGain();g.gain.value=.08;o.connect(g);g.connect(dest);o.start();return o;
     };
-    if (!Detector.webgl) {
-      document.body.innerHTML += '<div id="error">Error: Your browser does not support WebGL. Please use a modern browser like Chrome or Firefox.</div>';
-      throw new Error('WebGL not supported');
-    }
+    make(110,'sine',this.music);make(165,'sine',this.music,7);make(220,'triangle',this.music,-4);
+  }
+  setMuted(m){this.muted=m;if(this.master)this.master.gain.value=m?0:1;}
+  setMusic(v){this.musicVol=v;if(this.music)this.music.gain.value=v;saveP({musicVol:v});}
+  setTone(v){this.toneVol=v;if(this.tone)this.tone.gain.value=v;saveP({toneVol:v});}
+  chime(freq=528){
+    if(!this.ac||this.muted)return;
+    const o=this.ac.createOscillator(),g=this.ac.createGain();
+    o.type='sine';o.frequency.value=freq;g.gain.value=.12*this.toneVol;
+    o.connect(g);g.connect(this.tone);
+    o.start();g.gain.exponentialRampToValueAtTime(.001,this.ac.currentTime+.8);o.stop(this.ac.currentTime+.85);
+  }
+}
 
-    // Check if THREE is loaded
-    if (typeof THREE === 'undefined') {
-      document.body.innerHTML += '<div id="error">Error: Three.js failed to load. Please check your internet connection or script paths.</div>';
-      throw new Error('Three.js not loaded');
-    }
-
-    // Check if OrbitControls is loaded
-    if (typeof THREE.OrbitControls === 'undefined') {
-      document.body.innerHTML += '<div id="error">Error: OrbitControls failed to load. Please check your internet connection or script paths.</div>';
-      throw new Error('OrbitControls not loaded');
-    }
-
-    class PlasmaMind {
-      constructor() {
-        try {
-          console.log('Initializing PlasmaMind...');
-          this.scene = new THREE.Scene();
-          this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-          this.renderer = new THREE.WebGLRenderer({ antialias: true });
-          this.renderer.setSize(window.innerWidth, window.innerHeight);
-          this.renderer.xr.enabled = true; // Enable WebXR
-          document.body.appendChild(this.renderer.domElement);
-          console.log('Renderer initialized and appended');
-
-          this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-          this.camera.position.set(0, 0, 100);
-          this.controls.update();
-          console.log('Camera and controls set up');
-
-          this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-          this.scene.add(this.ambientLight);
-          this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-          this.directionalLight.position.set(-1, -1, -1).normalize();
-          this.scene.add(this.directionalLight);
-          console.log('Lights added');
-
-          this.fractalScale = 2;
-          this.fractalPower = 8;
-          this.time = 0;
-          this.state = 'Exploring';
-          this.guideActive = false;
-
-          this.initSky();
-          this.initPlayer();
-          this.bindUI();
-          this.animate();
-          console.log('Initialization complete');
-        } catch (error) {
-          console.error('Error during initialization:', error);
-          document.body.innerHTML += `<div id="error">Error: ${error.message}</div>`;
+class PlasmaMind{
+  constructor(){
+    this.audio=new AudioBed();
+    this.time=0;this.state='Exploring';this.mode=loadP().plasmaMode||'explore';
+    this.guideText=true;this.meditating=false;this.paused=false;
+    this.breathT=0;this.sessionT=0;
+    this.target={scale:1.4,power:8,hue:0};
+    this.cur={scale:1.4,power:8,hue:0};
+    this.initThree();
+    this.initSky();
+    this.initCore();
+    this.initField();
+    this.bindUI();
+    this.animate();
+  }
+  initThree(){
+    this.scene=new THREE.Scene();
+    this.camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,2500);
+    this.renderer=new THREE.WebGLRenderer({antialias:true});
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    this.renderer.setSize(innerWidth,innerHeight);
+    this.renderer.setClearColor(0x020010);
+    document.body.appendChild(this.renderer.domElement);
+    this.controls=new OrbitControls(this.camera,this.renderer.domElement);
+    this.controls.enableDamping=true;this.controls.dampingFactor=.06;
+    this.controls.minDistance=18;this.controls.maxDistance=220;
+    this.camera.position.set(0,12,72);
+    this.scene.add(new THREE.AmbientLight(0x8866ff,.35));
+    const d=new THREE.DirectionalLight(0xffe08a,.8);d.position.set(4,8,6);this.scene.add(d);
+  }
+  initSky(){
+    this.skyMat=new THREE.ShaderMaterial({
+      side:THREE.BackSide,
+      uniforms:{
+        time:{value:0},scale:{value:1.4},power:{value:8},hueShift:{value:0},breath:{value:0}
+      },
+      vertexShader:`varying vec3 vP;varying vec3 vN;void main(){vP=position;vN=normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader:`
+        uniform float time,scale,power,hueShift,breath;
+        varying vec3 vP;varying vec3 vN;
+        vec3 hsv(float h,float s,float v){
+          vec3 rgb=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);
+          return v*mix(vec3(1.),rgb,s);
         }
-      }
-
-      initSky() {
-        try {
-          console.log('Initializing skybox...');
-          this.skyMat = new THREE.ShaderMaterial({
-            side: THREE.BackSide,
-            uniforms: {
-              time: { value: 0 },
-              scale: { value: this.fractalScale },
-              power: { value: this.fractalPower },
-              hueShift: { value: 0 }
-            },
-            vertexShader: `
-              varying vec3 vP, vN;
-              void main() {
-                vP = position;
-                vN = normal;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
-              }`,
-            fragmentShader: `
-              uniform float time, scale, power, hueShift;
-              varying vec3 vP, vN;
-              float mandelbulb(vec3 pos) {
-                vec3 z = pos; float dr = 1., r = 0.;
-                for (int i = 0; i < 10; i++) {
-                  r = length(z); if (r > 2.) break;
-                  float theta = acos(z.z / r) * power;
-                  float phi = atan(z.y, z.x) * power;
-                  float zr = pow(r, power);
-                  dr = pow(r, power - 1.) * power * dr + 1.;
-                  z = zr * vec3(
-                    sin(theta) * cos(phi),
-                    sin(theta) * sin(phi),
-                    cos(theta)
-                  ) + pos;
-                }
-                return 0.5 * log(r) * r / dr;
-              }
-              void main() {
-                vec3 p = vP / scale;
-                float d = mandelbulb(p);
-                float h = 0.8 + 0.2 * sin(d * 10. + time) + hueShift;
-                vec3 col = vec3(h, 0.6 + 0.2 * sin(time), 0.5);
-                vec3 L = normalize(vec3(-1., -1., -1.));
-                col *= 0.5 + 0.5 * max(dot(vN, L), 0.0);
-                gl_FragColor = vec4(col, 1.);
-              }`
-          });
-          let sky = new THREE.Mesh(new THREE.SphereGeometry(500, 64, 64), this.skyMat);
-          this.scene.add(sky);
-          console.log('Skybox added');
-        } catch (error) {
-          console.error('Error in initSky:', error);
-          document.body.innerHTML += `<div id="error">Error in skybox: ${error.message}</div>`;
-        }
-      }
-
-      initPlayer() {
-        try {
-          console.log('Initializing player...');
-          this.playerMat = new THREE.ShaderMaterial({
-            uniforms: {
-              time: { value: 0 },
-              rippleSpeed: { value: 1.0 },
-              rippleAmplitude: { value: 0.5 }
-            },
-            vertexShader: `
-              uniform float time, rippleSpeed, rippleAmplitude;
-              varying vec2 vUv;
-              void main() {
-                vUv = uv;
-                vec3 pos = position;
-                float ripple = sin(length(pos) * 10.0 - time * rippleSpeed) * rippleAmplitude;
-                pos += normal * ripple;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.);
-              }`,
-            fragmentShader: `
-              varying vec2 vUv;
-              void main() {
-                gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0); // Yellow color
-              }`
-          });
-          let geo = new THREE.SphereGeometry(5, 32, 32);
-          this.playerMesh = new THREE.Mesh(geo, this.playerMat);
-          this.scene.add(this.playerMesh);
-          this.player = new THREE.Vector3(0, 0, 0);
-          console.log('Player added');
-        } catch (error) {
-          console.error('Error in initPlayer:', error);
-          document.body.innerHTML += `<div id="error">Error in player: ${error.message}</div>`;
-        }
-      }
-
-      toggleFullscreen() {
-        try {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-              console.error(`Error attempting to enable fullscreen: ${err.message}`);
-              document.body.innerHTML += `<div id="error">Error enabling fullscreen: ${err.message}</div>`;
-            });
-          } else {
-            document.exitFullscreen().catch(err => {
-              console.error(`Error attempting to exit fullscreen: ${err.message}`);
-              document.body.innerHTML += `<div id="error">Error exiting fullscreen: ${err.message}</div>`;
-            });
+        float bulb(vec3 pos){
+          vec3 z=pos;float dr=1.,r=0.;
+          for(int i=0;i<9;i++){
+            r=length(z);if(r>2.)break;
+            float theta=acos(clamp(z.z/r,-1.,1.))*power;
+            float phi=atan(z.y,z.x)*power;
+            float zr=pow(r,power);
+            dr=pow(r,power-1.)*power*dr+1.;
+            z=zr*vec3(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta))+pos;
           }
-        } catch (error) {
-          console.error('Error in toggleFullscreen:', error);
-          document.body.innerHTML += `<div id="error">Error in fullscreen toggle: ${error.message}</div>`;
+          return .5*log(r)*r/dr;
         }
-      }
-
-      bindUI() {
-        try {
-          console.log('Binding UI...');
-          document.getElementById('startMeditation').addEventListener('click', () => {
-            this.state = 'Meditating';
-            this.guideActive = true;
-            this.startGuide();
-            document.getElementById('state').innerText = this.state;
-          });
-          document.getElementById('toggleGuide').addEventListener('click', () => {
-            this.guideActive = !this.guideActive;
-            if (this.guideActive) this.startGuide();
-            else this.stopGuide();
-            document.getElementById('state').innerText = this.guideActive ? 'Guided' : 'Exploring';
-          });
-          document.getElementById('vrMode').addEventListener('click', () => this.startVR());
-          document.getElementById('toggleFullscreen').addEventListener('click', () => {
-            this.toggleFullscreen();
-          });
-          // Update button text based on fullscreen state
-          document.addEventListener('fullscreenchange', () => {
-            const fullscreenButton = document.getElementById('toggleFullscreen');
-            fullscreenButton.innerText = document.fullscreenElement ? 'Exit Fullscreen' : 'Enter Fullscreen';
-          });
-          window.addEventListener('resize', () => {
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-          });
-          console.log('UI bound');
-        } catch (error) {
-          console.error('Error in bindUI:', error);
-          document.body.innerHTML += `<div id="error">Error in UI: ${error.message}</div>`;
-        }
-      }
-
-      async startVR() {
-        try {
-          if (!navigator.xr) {
-            alert('WebXR is not supported in this browser.');
-            return;
-          }
-          const session = await navigator.xr.requestSession('immersive-vr', {
-            optionalFeatures: ['local-floor', 'bounded-floor']
-          });
-          this.renderer.xr.setSession(session);
-          console.log('VR mode started');
-        } catch (error) {
-          console.error('Error starting VR:', error);
-          alert('Failed to start VR mode: ' + error.message);
-        }
-      }
-
-      startGuide() {
-        try {
-          console.log('Starting guide...');
-          const guidanceDiv = document.getElementById('guidance');
-          guidanceDiv.style.display = 'block';
-
-          this.fractalScale = 1.0;
-          this.fractalPower = 6.0;
-          this.skyMat.uniforms.scale.value = this.fractalScale;
-          this.skyMat.uniforms.power.value = this.fractalPower;
-          this.skyMat.uniforms.hueShift.value = 0.5;
-
-          const messages = [
-            "Breathe deeply and focus on the center.",
-            "Let your mind relax as the patterns unfold.",
-            "Feel the connection between your thoughts and the visuals.",
-            "Allow yourself to be immersed in the experience."
-          ];
-          let messageIndex = 0;
-
-          this.guidanceInterval = setInterval(() => {
-            if (!this.guideActive) return;
-            guidanceDiv.innerText = messages[messageIndex];
-            messageIndex = (messageIndex + 1) % messages.length;
-          }, 5000);
-
-          this.guideInterval = setInterval(() => {
-            if (!this.guideActive) return;
-            this.fractalScale += 0.1;
-            this.fractalPower += 0.1;
-            this.skyMat.uniforms.scale.value = this.fractalScale;
-            this.skyMat.uniforms.power.value = this.fractalPower;
-            this.skyMat.uniforms.hueShift.value += 0.01;
-            this.ambientLight.intensity = 0.5 + 0.2 * Math.sin(this.fractalScale);
-          }, 500);
-
-          // Play calming sound
-          this.playSound(220, 10);
-          console.log('Guide started');
-        } catch (error) {
-          console.error('Error in startGuide:', error);
-          document.body.innerHTML += `<div id="error">Error in guide: ${error.message}</div>`;
-        }
-      }
-
-      stopGuide() {
-        try {
-          console.log('Stopping guide...');
-          clearInterval(this.guidanceInterval);
-          clearInterval(this.guideInterval);
-          const guidanceDiv = document.getElementById('guidance');
-          guidanceDiv.style.display = 'none';
-          this.skyMat.uniforms.hueShift.value = 0;
-          this.ambientLight.intensity = 0.5;
-          console.log('Guide stopped');
-        } catch (error) {
-          console.error('Error in stopGuide:', error);
-          document.body.innerHTML += `<div id="error">Error stopping guide: ${error.message}</div>`;
-        }
-      }
-
-      playSound(frequency, duration) {
-        try {
-          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          const oscillator = audioContext.createOscillator();
-          oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-          oscillator.connect(audioContext.destination);
-          oscillator.start();
-          oscillator.stop(audioContext.currentTime + duration);
-        } catch (error) {
-          console.error('Error playing sound:', error);
-        }
-      }
-
-      animate() {
-        try {
-          requestAnimationFrame(() => this.animate());
-          this.time += 0.01;
-          this.skyMat.uniforms.time.value = this.time;
-          this.playerMat.uniforms.time.value = this.time;
-          this.playerMesh.position.copy(this.player);
-          this.renderer.render(this.scene, this.camera);
-        } catch (error) {
-          console.error('Error in animate:', error);
-          document.body.innerHTML += `<div id="error">Error in animation: ${error.message}</div>`;
-        }
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM loaded, starting PlasmaMind...');
-      new PlasmaMind();
+        void main(){
+          vec3 p=vP/(80.*scale);
+          float d=bulb(p);
+          float band=.5+.5*sin(d*14.+time*.6+breath);
+          float h=fract(.62+hueShift+.08*sin(time*.15)+d*.12);
+          vec3 col=hsv(h,.55+.2*band,.18+.55*band);
+          col+=vec3(.15,.08,.28)*pow(max(0.,1.-abs(d)*2.),3.);
+          float nd=max(dot(normalize(vN),normalize(vec3(-.4,.5,.7))),0.);
+          col*=.45+.55*nd;
+          gl_FragColor=vec4(col,1.);
+        }`
     });
-  </script>
+    this.scene.add(new THREE.Mesh(new THREE.SphereGeometry(800,64,64),this.skyMat));
+  }
+  initCore(){
+    this.coreMat=new THREE.ShaderMaterial({
+      transparent:true,
+      uniforms:{time:{value:0},breath:{value:0}},
+      vertexShader:`uniform float time,breath;varying vec3 vN;void main(){vN=normal;vec3 p=position+normal*sin(time*2.+position.y)*(.12+.28*breath);gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,
+      fragmentShader:`uniform float time,breath;varying vec3 vN;void main(){float fres=pow(1.-abs(vN.z),2.);vec3 c=mix(vec3(.95,.75,.2),vec3(.5,.2,.95),.5+.5*sin(time));gl_FragColor=vec4(c,0.35+0.45*breath+fres*.3);}`
+    });
+    this.core=new THREE.Mesh(new THREE.IcosahedronGeometry(6,3),this.coreMat);
+    this.scene.add(this.core);
+  }
+  initField(){
+    const n=900,pos=new Float32Array(n*3);
+    for(let i=0;i<n;i++){
+      const r=12+Math.random()*90,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
+      pos[i*3]=r*Math.sin(ph)*Math.cos(th);
+      pos[i*3+1]=r*Math.cos(ph);
+      pos[i*3+2]=r*Math.sin(ph)*Math.sin(th);
+    }
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    this.field=new THREE.Points(g,new THREE.PointsMaterial({color:0xc4b5fd,size:0.55,transparent:true,opacity:.7}));
+    this.scene.add(this.field);
+  }
+  bindUI(){
+    const $=id=>document.getElementById(id);
+    $('mode').value=this.mode;
+    $('mode').onchange=e=>{this.mode=e.target.value;saveP({plasmaMode:this.mode});};
+    $('startMeditation').onclick=()=>this.toggleSession();
+    $('toggleGuide').onclick=()=>{this.guideText=!this.guideText;$('toggleGuide').textContent=this.guideText?'HIDE GUIDE TEXT':'SHOW GUIDE TEXT';if(!this.guideText)$('line').textContent='';};
+    $('toggleFullscreen').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{});};
+    document.addEventListener('fullscreenchange',()=>{$('toggleFullscreen').textContent=document.fullscreenElement?'EXIT FULLSCREEN':'FULLSCREEN';});
+    $('toggleFocus').onclick=()=>{document.body.classList.toggle('focus-play');$('toggleFocus').textContent=document.body.classList.contains('focus-play')?'SHOW TABS':'PLAY FOCUS';};
+    $('toggleMute').onclick=()=>{this.audio.setMuted(!this.audio.muted);$('toggleMute').textContent=this.audio.muted?'AUDIO OFF':'AUDIO ON';};
+    $('volMusic').value=String(Math.round(this.audio.musicVol*100));
+    $('volTone').value=String(Math.round(this.audio.toneVol*100));
+    $('volMusic').oninput=e=>this.audio.setMusic(+e.target.value/100);
+    $('volTone').oninput=e=>this.audio.setTone(+e.target.value/100);
+    addEventListener('resize',()=>{this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setSize(innerWidth,innerHeight);});
+    addEventListener('keydown',e=>{
+      if(e.code==='Space'){e.preventDefault();this.toggleSession();}
+      if(e.code==='KeyP')this.paused=!this.paused;
+      if(e.code==='KeyM'){this.audio.setMuted(!this.audio.muted);$('toggleMute').textContent=this.audio.muted?'AUDIO OFF':'AUDIO ON';}
+    });
+    this.renderer.domElement.addEventListener('pointerdown',()=>this.audio.ensure());
+  }
+  toggleSession(){
+    this.audio.ensure();
+    this.meditating=!this.meditating;
+    this.sessionT=0;this.breathT=0;
+    const ring=document.getElementById('breath-ring');
+    ring.style.display=this.meditating&&this.mode!=='explore'?'block':'none';
+    document.getElementById('startMeditation').textContent=this.meditating?'END SESSION':'START';
+    document.getElementById('startMeditation').classList.toggle('active',this.meditating);
+    if(this.meditating){this.audio.chime(528);this.setState(this.mode==='explore'?'Exploring':'Meditating');}
+    else{this.setState('Exploring');document.getElementById('line').textContent='';document.getElementById('phase').textContent='';ring.style.display='none';}
+  }
+  setState(s){this.state=s;document.getElementById('state').textContent=s;}
+  breathCycle(){
+    if(this.mode==='breath'){
+      const c=[4,7,8],labels=['INHALE','HOLD','EXHALE'];
+      return this.pickPhase(c,labels);
+    }
+    if(this.mode==='box'){
+      const c=[4,4,4,4],labels=['INHALE','HOLD','EXHALE','HOLD'];
+      return this.pickPhase(c,labels);
+    }
+    return {amp:.5+.5*Math.sin(this.time*.4),label:'',fill:0};
+  }
+  pickPhase(counts,labels){
+    const total=counts.reduce((a,b)=>a+b,0);
+    let t=this.breathT%total,i=0;
+    while(i<counts.length&&t>counts[i]){t-=counts[i];i++;}
+    const fill=t/counts[i];
+    let amp=0.35;
+    if(labels[i]==='INHALE')amp=fill;
+    else if(labels[i]==='EXHALE')amp=1-fill;
+    else amp=labels[i]==='HOLD'&&i===1?1:.2;
+    return {amp,label:labels[i],fill};
+  }
+  tickJourney(){
+    let step=JOURNEY[0];
+    for(const s of JOURNEY)if(this.sessionT>=s.t)step=s;
+    this.target.scale=step.scale;this.target.power=step.power;this.target.hue=step.hue;
+    if(this.guideText){
+      document.getElementById('phase').textContent='JOURNEY';
+      document.getElementById('line').textContent=step.text;
+    }
+    if(this.sessionT>=90){this.meditating=false;this.setState('Resting');document.getElementById('startMeditation').textContent='START';document.getElementById('breath-ring').style.display='none';}
+  }
+  animate(){
+    requestAnimationFrame(()=>this.animate());
+    if(this.paused){this.controls.update();this.renderer.render(this.scene,this.camera);return;}
+    this.time+=0.016;
+    if(this.meditating){this.sessionT+=0.016;this.breathT+=0.016;}
+    let breath=0.35+.15*Math.sin(this.time*.5);
+    if(this.meditating&&(this.mode==='breath'||this.mode==='box')){
+      const b=this.breathCycle();breath=b.amp;
+      if(this.guideText){document.getElementById('phase').textContent=b.label;document.getElementById('line').textContent=this.mode==='breath'?'Four in · seven hold · eight out':'Equal sides. Stay with the square.';}
+      const core=document.getElementById('breath-core');
+      if(core)core.style.transform=`scale(${0.35+0.75*breath})`;
+    }else if(this.meditating&&this.mode==='journey')this.tickJourney();
+    else{
+      this.target.scale=1.4+0.08*Math.sin(this.time*.07);
+      this.target.power=7.6+0.3*Math.sin(this.time*.05);
+      this.target.hue=(Math.sin(this.time*.03)+1)*.15;
+    }
+    this.cur.scale+=(this.target.scale-this.cur.scale)*.02;
+    this.cur.power+=(this.target.power-this.cur.power)*.02;
+    this.cur.hue+=(this.target.hue-this.cur.hue)*.02;
+    this.skyMat.uniforms.time.value=this.time;
+    this.skyMat.uniforms.scale.value=this.cur.scale;
+    this.skyMat.uniforms.power.value=this.cur.power;
+    this.skyMat.uniforms.hueShift.value=this.cur.hue;
+    this.skyMat.uniforms.breath.value=breath;
+    this.coreMat.uniforms.time.value=this.time;
+    this.coreMat.uniforms.breath.value=breath;
+    this.core.rotation.y+=0.002+breath*0.004;
+    this.field.rotation.y+=0.0007;
+    this.field.material.opacity=0.45+breath*0.35;
+    this.controls.update();
+    this.renderer.render(this.scene,this.camera);
+  }
+}
+
+addEventListener('DOMContentLoaded',()=>new PlasmaMind());
+</script>
 </body>
 </html>
