@@ -225,6 +225,8 @@ body.focus-play #nav:hover{opacity:1;pointer-events:auto;}
       <button class="cmd-btn cmd-red" onclick="addCmd('attack')">ATTACK</button>
       <button class="cmd-btn cmd-cyan" onclick="addCmd('shield')">SHIELD</button>
       <button class="cmd-btn cmd-green cmd-span2" onclick="addCmd('collect')">COLLECT GEM</button>
+      <button class="cmd-btn cmd-purple" onclick="addCmd('wait')">WAIT</button>
+      <button class="cmd-btn cmd-purple" onclick="echoLast(2)">ECHO ×2</button>
       <button class="cmd-btn cmd-purple cmd-span2" onclick="openRepeat()">ADD LOOP</button>
     </div>
   </div>
@@ -286,24 +288,30 @@ body.focus-play #nav:hover{opacity:1;pointer-events:auto;}
 })();
 
 const LEVELS = [
-  {name:"AWAKENING",subtitle:"THE TRAINING GROUNDS",desc:"Guide your AI Hero to the glowing portal.",concepts:["Sequencing","Directions"],grid:5,start:{x:0,y:0,dir:1},goal:{x:4,y:4},walls:[],enemies:[],gems:[],traps:[],optimal:7,hint:"Forward 4 → Turn Right → Forward 4",theme:"blue"},
-  {name:"ENCHANTED MAZE",subtitle:"MYSTIC FOREST",desc:"Navigate the trees. Plan every turn.",concepts:["Planning","Turning"],grid:7,start:{x:0,y:3,dir:1},goal:{x:6,y:3},walls:[[1,2],[1,3],[1,4],[3,1],[3,2],[3,4],[3,5],[5,2],[5,3],[5,4]],enemies:[],gems:[],traps:[],optimal:11,hint:"Go around the trees — left and right turns.",theme:"green"},
-  {name:"GOBLIN AMBUSH",subtitle:"DARK WOODS",desc:"Face each scout and ATTACK before walking past.",concepts:["Combat Logic","Timing"],grid:7,start:{x:1,y:1,dir:1},goal:{x:5,y:5},walls:[[2,2],[2,3],[4,3],[4,4]],enemies:[{x:3,y:1,hp:1,maxhp:1,type:'goblin'},{x:4,y:2,hp:1,maxhp:1,type:'goblin'}],gems:[],traps:[],optimal:14,hint:"Face the goblin and ATTACK first.",theme:"red"},
-  {name:"CRYSTAL CAVERN",subtitle:"GEM HUNT",desc:"Collect every crystal and reach the portal.",concepts:["Efficiency","Pathfinding"],grid:8,start:{x:1,y:1,dir:1},goal:{x:6,y:6},walls:[[2,3],[3,3],[3,4],[5,2],[5,3],[5,5],[6,5]],enemies:[],gems:[{x:2,y:5},{x:5,y:1},{x:3,y:6}],traps:[],optimal:18,hint:"Plan a route that visits every gem.",theme:"purple"},
-  {name:"THE TRAP GAUNTLET",subtitle:"FORBIDDEN CORRIDOR",desc:"SHIELD before stepping onto fire.",concepts:["Shield Logic","Hazards"],grid:7,start:{x:0,y:1,dir:1},goal:{x:6,y:5},walls:[[1,0],[1,3],[3,0],[3,3],[5,0],[5,3]],enemies:[{x:2,y:1,hp:1,maxhp:1,type:'skeleton'},{x:4,y:5,hp:1,maxhp:1,type:'skeleton'}],gems:[{x:3,y:5}],traps:[{x:1,y:1,dir:'E'},{x:3,y:5,dir:'E'},{x:5,y:2,dir:'S'}],optimal:20,hint:"SHIELD, then step onto the trap tile.",theme:"orange"},
-  {name:"THE KNIGHT'S TRIAL",subtitle:"IRON FORTRESS",desc:"Each knight takes one hit. Don't get boxed in.",concepts:["Multi-enemy","Routing"],grid:9,start:{x:0,y:4,dir:1},goal:{x:8,y:4},walls:[[2,1],[2,2],[2,6],[2,7],[4,2],[4,3],[4,5],[4,6],[6,1],[6,2],[6,6],[6,7]],enemies:[{x:3,y:4,hp:1,maxhp:1,type:'knight'},{x:5,y:2,hp:1,maxhp:1,type:'knight'},{x:5,y:6,hp:1,maxhp:1,type:'knight'}],gems:[{x:2,y:4},{x:6,y:4}],traps:[],optimal:24,hint:"Face each knight and attack.",theme:"blue"},
-  {name:"SHADOW DRAGON LAIR",subtitle:"DRAGON'S DEN",desc:"The dragon has 3 HP. Strike it three times while facing it.",concepts:["Boss Battle","Strategy"],grid:8,start:{x:1,y:6,dir:1},goal:{x:6,y:1},walls:[[2,2],[2,3],[2,4],[2,5],[3,2],[4,5],[5,2],[5,3],[5,4],[5,5]],enemies:[{x:3,y:3,hp:3,maxhp:3,type:'dragon'}],gems:[{x:4,y:3}],traps:[],optimal:22,hint:"Get adjacent, face it, attack ×3.",theme:"red"},
-  {name:"THE LABYRINTH",subtitle:"ANCIENT RUINS",desc:"Two gems and a tough knight hide in the maze.",concepts:["Complex Pathfinding","Multi-objective"],grid:10,start:{x:0,y:0,dir:1},goal:{x:9,y:9},walls:[[1,0],[1,1],[1,3],[1,4],[1,5],[1,7],[1,8],[3,1],[3,2],[3,4],[3,6],[3,7],[3,9],[5,0],[5,2],[5,3],[5,5],[5,7],[5,8],[7,1],[7,3],[7,4],[7,6],[7,7],[7,9],[8,0],[8,1],[8,5],[8,6]],enemies:[{x:5,y:5,hp:2,maxhp:2,type:'knight'}],gems:[{x:2,y:8},{x:8,y:2}],traps:[],optimal:30,hint:"Map the maze. Grab both gems.",theme:"purple"},
-  {name:"TWIN DRAGONS",subtitle:"VOLCANIC SUMMIT",desc:"Two dragons, two hits each. Shield the corridor traps.",concepts:["Multi-boss","Efficiency"],grid:9,start:{x:4,y:8,dir:0},goal:{x:4,y:0},walls:[[1,2],[2,2],[3,2],[5,2],[6,2],[7,2],[1,6],[2,6],[3,6],[5,6],[6,6],[7,6],[3,4],[5,4]],enemies:[{x:2,y:4,hp:2,maxhp:2,type:'dragon'},{x:6,y:4,hp:2,maxhp:2,type:'dragon'}],gems:[{x:4,y:4}],traps:[{x:3,y:4,dir:'E'},{x:5,y:4,dir:'W'}],optimal:28,hint:"Attack each dragon twice. Shield near traps.",theme:"orange"},
-  {name:"THE FINAL NEXUS",subtitle:"LAST STAND",desc:"Guardian has 5 HP. Collect the four gems first.",concepts:["Final Boss","Mastery"],grid:10,start:{x:0,y:9,dir:1},goal:{x:9,y:0},walls:[[1,1],[1,2],[1,7],[1,8],[2,1],[2,8],[3,3],[3,4],[3,5],[3,6],[4,3],[4,6],[5,3],[5,6],[6,3],[6,4],[6,5],[6,6],[7,1],[7,8],[8,1],[8,2],[8,7],[8,8]],enemies:[{x:5,y:5,hp:5,maxhp:5,type:'nexus'}],gems:[{x:2,y:5},{x:8,y:5},{x:5,y:2},{x:5,y:8}],traps:[{x:3,y:5,dir:'E'},{x:7,y:5,dir:'W'},{x:5,y:3,dir:'S'},{x:5,y:7,dir:'N'}],optimal:40,hint:"Collect all 4 gems, then attack the Guardian.",theme:"purple"}
+  {name:"AWAKENING",subtitle:"THE TRAINING GROUNDS",desc:"5×5 corner to corner. Four steps, one turn, four steps.",concepts:["Sequencing"],grid:5,start:{x:0,y:0,dir:1},goal:{x:4,y:4},walls:[],enemies:[],gems:[],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:9,hint:"Forward ×4, Turn Right, Forward ×4. Nine commands.",theme:"blue"},
+  {name:"ENCHANTED MAZE",subtitle:"MYSTIC FOREST",desc:"The straight line is blocked. Detour.",concepts:["Planning"],grid:7,start:{x:0,y:3,dir:1},goal:{x:6,y:3},walls:[[1,2],[1,3],[1,4],[3,1],[3,2],[3,4],[3,5],[5,2],[5,3],[5,4]],enemies:[],gems:[],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:15,hint:"Go around the tree wall on row 3.",theme:"green"},
+  {name:"GOBLIN AMBUSH",subtitle:"DARK WOODS",desc:"Attack each scout while facing them.",concepts:["Combat"],grid:7,start:{x:1,y:1,dir:1},goal:{x:5,y:5},walls:[[2,2],[2,3],[4,3],[4,4]],enemies:[{x:3,y:1,hp:1,maxhp:1,type:'goblin'},{x:4,y:2,hp:1,maxhp:1,type:'goblin'}],gems:[],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:16,hint:"Face, ATTACK, then walk.",theme:"red"},
+  {name:"CRYSTAL CAVERN",subtitle:"GEM HUNT",desc:"Grab every gem, then the portal.",concepts:["Pathfinding"],grid:8,start:{x:1,y:1,dir:1},goal:{x:6,y:6},walls:[[2,3],[3,3],[3,4],[5,2],[5,3],[5,5],[6,5]],enemies:[],gems:[{x:2,y:5},{x:5,y:1},{x:3,y:6}],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:22,hint:"Visit (5,1), (2,5), (3,6), then (6,6).",theme:"purple"},
+  {name:"THE TRAP GAUNTLET",subtitle:"FORBIDDEN CORRIDOR",desc:"SHIELD before a fire tile.",concepts:["Shield"],grid:7,start:{x:0,y:1,dir:1},goal:{x:6,y:5},walls:[[1,0],[1,3],[3,0],[3,3],[5,0],[5,3]],enemies:[{x:2,y:1,hp:1,maxhp:1,type:'skeleton'},{x:4,y:5,hp:1,maxhp:1,type:'skeleton'}],gems:[{x:3,y:5}],traps:[{x:1,y:1,dir:'E'},{x:3,y:5,dir:'E'},{x:5,y:2,dir:'S'}],ice:[],keys:[],doors:[],portals:[],optimal:22,hint:"SHIELD, then step onto fire.",theme:"orange"},
+  {name:"THE KNIGHT'S TRIAL",subtitle:"IRON FORTRESS",desc:"Three knights. One hit each.",concepts:["Routing"],grid:9,start:{x:0,y:4,dir:1},goal:{x:8,y:4},walls:[[2,1],[2,2],[2,6],[2,7],[4,2],[4,3],[4,5],[4,6],[6,1],[6,2],[6,6],[6,7]],enemies:[{x:3,y:4,hp:1,maxhp:1,type:'knight'},{x:5,y:2,hp:1,maxhp:1,type:'knight'},{x:5,y:6,hp:1,maxhp:1,type:'knight'}],gems:[{x:2,y:4},{x:6,y:4}],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:26,hint:"Clear the center knight first.",theme:"blue"},
+  {name:"SHADOW DRAGON LAIR",subtitle:"DRAGON'S DEN",desc:"Dragon has 3 HP. Hit it three times facing it.",concepts:["Boss"],grid:8,start:{x:1,y:6,dir:1},goal:{x:6,y:1},walls:[[2,2],[2,3],[2,4],[2,5],[3,2],[4,5],[5,2],[5,3],[5,4],[5,5]],enemies:[{x:3,y:3,hp:3,maxhp:3,type:'dragon'}],gems:[{x:4,y:3}],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:24,hint:"Stand next to it, face it, ATTACK ×3.",theme:"red"},
+  {name:"THE LABYRINTH",subtitle:"ANCIENT RUINS",desc:"Two gems and a 2-HP knight.",concepts:["Maze"],grid:10,start:{x:0,y:0,dir:1},goal:{x:9,y:9},walls:[[1,0],[1,1],[1,3],[1,4],[1,5],[1,7],[1,8],[3,1],[3,2],[3,4],[3,6],[3,7],[3,9],[5,0],[5,2],[5,3],[5,5],[5,7],[5,8],[7,1],[7,3],[7,4],[7,6],[7,7],[7,9],[8,0],[8,1],[8,5],[8,6]],enemies:[{x:5,y:5,hp:2,maxhp:2,type:'knight'}],gems:[{x:2,y:8},{x:8,y:2}],traps:[],ice:[],keys:[],doors:[],portals:[],optimal:34,hint:"Gems first, knight second, portal last.",theme:"purple"},
+  {name:"TWIN DRAGONS",subtitle:"VOLCANIC SUMMIT",desc:"Two 2-HP dragons and corridor fire.",concepts:["Multi-boss"],grid:9,start:{x:4,y:8,dir:0},goal:{x:4,y:0},walls:[[1,2],[2,2],[3,2],[5,2],[6,2],[7,2],[1,6],[2,6],[3,6],[5,6],[6,6],[7,6],[3,4],[5,4]],enemies:[{x:2,y:4,hp:2,maxhp:2,type:'dragon'},{x:6,y:4,hp:2,maxhp:2,type:'dragon'}],gems:[{x:4,y:4}],traps:[{x:3,y:4,dir:'E'},{x:5,y:4,dir:'W'}],ice:[],keys:[],doors:[],portals:[],optimal:30,hint:"Shield the fire tiles between dragons.",theme:"orange"},
+  {name:"THE FINAL NEXUS",subtitle:"LAST STAND",desc:"4 gems, then the 5-HP guardian.",concepts:["Finale"],grid:10,start:{x:0,y:9,dir:1},goal:{x:9,y:0},walls:[[1,1],[1,2],[1,7],[1,8],[2,1],[2,8],[3,3],[3,4],[3,5],[3,6],[4,3],[4,6],[5,3],[5,6],[6,3],[6,4],[6,5],[6,6],[7,1],[7,8],[8,1],[8,2],[8,7],[8,8]],enemies:[{x:5,y:5,hp:5,maxhp:5,type:'nexus'}],gems:[{x:2,y:5},{x:8,y:5},{x:5,y:2},{x:5,y:8}],traps:[{x:3,y:5,dir:'E'},{x:7,y:5,dir:'W'},{x:5,y:3,dir:'S'},{x:5,y:7,dir:'N'}],ice:[],keys:[],doors:[],portals:[],optimal:44,hint:"Sweep the four gems, then chip the boss.",theme:"purple"},
+  {name:"ICE RINK",subtitle:"FROST HALL",desc:"Ice slides you until you hit a wall. One FORWARD can cover the whole rink.",concepts:["Ice Physics"],grid:7,start:{x:0,y:3,dir:1},goal:{x:6,y:3},walls:[[3,0],[3,1],[3,5],[3,6]],enemies:[],gems:[{x:3,y:3}],traps:[],ice:[[1,3],[2,3],[3,3],[4,3],[5,3]],keys:[],doors:[],portals:[],optimal:6,hint:"Step onto ice facing east and ride it.",theme:"blue"},
+  {name:"LOCKED KEEP",subtitle:"KEY AND DOOR",desc:"Grab the key, then the door opens.",concepts:["Keys"],grid:7,start:{x:0,y:1,dir:1},goal:{x:6,y:5},walls:[[3,0],[3,1],[3,2],[3,4],[3,5],[3,6]],enemies:[{x:5,y:1,hp:1,maxhp:1,type:'skeleton'}],gems:[],traps:[],ice:[],keys:[{x:1,y:5}],doors:[{x:3,y:3}],portals:[],optimal:18,hint:"South for the key, then through the center door.",theme:"orange"},
+  {name:"WARP GATE",subtitle:"TWO ROOMS",desc:"Stand on the warp to jump rooms.",concepts:["Portals"],grid:8,start:{x:0,y:0,dir:1},goal:{x:7,y:7},walls:[[3,0],[3,1],[3,2],[3,3],[4,4],[4,5],[4,6],[4,7]],enemies:[{x:6,y:1,hp:1,maxhp:1,type:'goblin'}],gems:[{x:1,y:6}],traps:[],ice:[],keys:[],doors:[],portals:[{x:2,y:2,tx:5,ty:5}],optimal:16,hint:"Clear the gem, warp, fight, portal.",theme:"purple"},
+  {name:"SLIDE AND STRIKE",subtitle:"GLACIER RAID",desc:"Ice into the knight's face, then attack.",concepts:["Ice+Combat"],grid:8,start:{x:0,y:4,dir:1},goal:{x:7,y:4},walls:[[4,0],[4,1],[4,2],[4,6],[4,7]],enemies:[{x:5,y:4,hp:2,maxhp:2,type:'knight'}],gems:[{x:7,y:1}],traps:[{x:6,y:4,dir:'W'}],ice:[[1,4],[2,4],[3,4]],keys:[],doors:[],portals:[],optimal:14,hint:"Ride ice east, shield, hit twice, grab gem.",theme:"red"},
+  {name:"THREE KEYS",subtitle:"VAULT RUN",desc:"Three keys, one vault door, one dragon.",concepts:["Collection"],grid:9,start:{x:0,y:4,dir:1},goal:{x:8,y:4},walls:[[4,0],[4,1],[4,2],[4,6],[4,7],[4,8],[6,3],[6,5]],enemies:[{x:7,y:4,hp:3,maxhp:3,type:'dragon'}],gems:[{x:8,y:0}],traps:[],ice:[],keys:[{x:1,y:1},{x:1,y:7},{x:3,y:4}],doors:[{x:6,y:4}],portals:[],optimal:28,hint:"All three keys before the vault door.",theme:"orange"},
+  {name:"NEXUS AFTERSHOCK",subtitle:"TRUE FINAL",desc:"Warp, ice, keys, and a 4-HP nexus.",concepts:["Everything"],grid:10,start:{x:0,y:0,dir:1},goal:{x:9,y:9},walls:[[2,2],[2,3],[2,4],[5,5],[5,6],[5,7],[7,1],[7,2]],enemies:[{x:8,y:8,hp:4,maxhp:4,type:'nexus'}],gems:[{x:4,y:1},{x:1,y:8}],traps:[{x:8,y:7,dir:'N'}],ice:[[3,0],[4,0],[5,0]],keys:[{x:9,y:0}],doors:[{x:6,y:8}],portals:[{x:0,y:9,tx:9,ty:2}],optimal:36,hint:"Ice the top row for the key, warp downstairs, open the door, finish the nexus.",theme:"purple"}
 ];
 
 const SAVE_KEY='aihq_v2';
 const PROFILE_KEY='itoshiro-profile';
 let canvas,ctx,hero={x:0,y:0,dir:1},program=[],isRunning=false,stepIndex=0,intervalId=null;
 let currentLevel=0,speed=350,totalScore=0,levelStars=new Array(LEVELS.length).fill(0);
-let shielded=false,animTick=0,paused=false,sfxVol=0.8,muted=false;
-function getLevelState(i){const l=LEVELS[i];return{enemies:l.enemies.map(e=>({...e})),gems:l.gems.map(g=>({...g,collected:false})),traps:(l.traps||[]).map(t=>({...t}))};}
+let shielded=false,animTick=0,paused=false,sfxVol=0.8,muted=false,keysHeld=0;
+function getLevelState(i){const l=LEVELS[i];return{enemies:l.enemies.map(e=>({...e})),gems:l.gems.map(g=>({...g,collected:false})),traps:(l.traps||[]).map(t=>({...t})),keys:(l.keys||[]).map(k=>({...k,taken:false})),doors:(l.doors||[]).map(d=>({...d})),portals:(l.portals||[]).map(p=>({...p}))};}
 let levelStates=LEVELS.map((_,i)=>getLevelState(i));
 
 function loadProfile(){try{return Object.assign({name:'',sfxVol:.8,heroStars:[],heroScore:0,heroLevel:0},JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}'));}catch(e){return{};}}
@@ -316,7 +324,7 @@ function saveAll(){
 function restoreSave(){
   try{
     const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
-    if(Array.isArray(d.stars)&&d.stars.length===LEVELS.length)levelStars=d.stars;
+    if(Array.isArray(d.stars)){const next=new Array(LEVELS.length).fill(0);d.stars.forEach((s,i)=>{if(i<next.length)next[i]=s||0;});levelStars=next;}
     if(typeof d.score==='number')totalScore=d.score;
     if(typeof d.level==='number')currentLevel=d.level;
     if(typeof d.sfxVol==='number')sfxVol=d.sfxVol;
@@ -424,7 +432,23 @@ function draw(){
   const lvl=LEVELS[currentLevel],state=levelStates[currentLevel],cell=getCellSize();
   ctx.clearRect(0,0,canvas.width,canvas.height);
   drawCheckerFloor();
+  (lvl.ice||[]).forEach(([ix,iy])=>{
+    ctx.fillStyle='rgba(125,211,252,.28)';
+    ctx.fillRect(ix*cell+2,iy*cell+2,cell-4,cell-4);
+  });
   lvl.walls.forEach(w=>drawWall(w[0],w[1],cell));
+  (state.doors||[]).forEach(d=>{
+    ctx.fillStyle='#78350f';ctx.fillRect(d.x*cell+cell*.2,d.y*cell+cell*.15,cell*.6,cell*.7);
+    ctx.fillStyle='#fbbf24';ctx.fillRect(d.x*cell+cell*.55,d.y*cell+cell*.4,cell*.12,cell*.12);
+  });
+  (state.portals||[]).forEach(p=>{
+    ctx.strokeStyle='#c084fc';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(p.x*cell+cell/2,p.y*cell+cell/2,cell*.28,0,Math.PI*2);ctx.stroke();
+  });
+  (state.keys||[]).forEach(k=>{
+    if(k.taken)return;
+    ctx.fillStyle='#facc15';ctx.beginPath();ctx.arc(k.x*cell+cell/2,k.y*cell+cell/2,cell*.16,0,Math.PI*2);ctx.fill();
+  });
   (state.traps||[]).forEach(t=>drawTrap(t,cell));
   state.gems.forEach(g=>drawGem(g,cell));
   drawGoal(cell);
@@ -446,7 +470,13 @@ function updateLevelUI(){
   updateCmdCount();buildDots();
 }
 function updateCmdCount(){document.getElementById('cmd-count-left').textContent=program.length;}
-const CMD_INFO={forward:{icon:'↑',label:'FORWARD'},back:{icon:'↓',label:'BACK'},left:{icon:'↺',label:'TURN LEFT'},right:{icon:'↻',label:'TURN RIGHT'},attack:{icon:'⚔',label:'ATTACK'},shield:{icon:'🛡',label:'SHIELD'},collect:{icon:'💎',label:'COLLECT'}};
+const CMD_INFO={forward:{icon:'↑',label:'FORWARD'},back:{icon:'↓',label:'BACK'},left:{icon:'↺',label:'TURN LEFT'},right:{icon:'↻',label:'TURN RIGHT'},attack:{icon:'⚔',label:'ATTACK'},shield:{icon:'🛡',label:'SHIELD'},collect:{icon:'💎',label:'COLLECT'},wait:{icon:'•',label:'WAIT'}};
+function echoLast(n){
+  if(isRunning||paused||program.length<1)return;
+  const chunk=program.slice(-n);
+  program=program.concat(chunk);
+  renderProgram();toast('Echoed last '+chunk.length+' command(s)','toast-info');
+}
 function renderProgram(){
   const c=document.getElementById('program-list');
   if(!program.length){c.innerHTML='<div style="text-align:center;color:#475569;font-size:8px;padding:16px 0;font-family:Exo 2,sans-serif;">Add commands to program your hero!</div>';updateCmdCount();return;}
@@ -482,19 +512,37 @@ function executeStep(){
   const DIR={0:[0,-1],1:[1,0],2:[0,1],3:[-1,0]};
   let success=true,msg='';
   if(cmd==='forward'||cmd==='back'){
-    const mult=cmd==='back'?-1:1,[dx,dy]=DIR[hero.dir];
-    const nx=hero.x+dx*mult,ny=hero.y+dy*mult;
-    if(nx<0||nx>=lvl.grid||ny<0||ny>=lvl.grid){success=false;msg='Fell off the edge!';}
-    else if(lvl.walls.some(w=>w[0]===nx&&w[1]===ny)){success=false;msg='Hit a wall!';}
-    else{
-      const trap=state.traps.find(t=>t.x===nx&&t.y===ny);
-      if(trap&&!shielded){success=false;msg='Burned by a fire trap! Use SHIELD!';}
-      else{
-        hero.x=nx;hero.y=ny;shielded=false;
-        state.gems.forEach(g=>{if(!g.collected&&g.x===hero.x&&g.y===hero.y){g.collected=true;spawnParticles(hero.x,hero.y,'#22d3ee');beep(880,.1,'sine');}});
+    const tryStep=(fromX,fromY,dx,dy)=>{
+      const nx=fromX+dx,ny=fromY+dy;
+      if(nx<0||nx>=lvl.grid||ny<0||ny>=lvl.grid)return {ok:false,msg:'Fell off the edge!',x:fromX,y:fromY};
+      if(lvl.walls.some(w=>w[0]===nx&&w[1]===ny))return {ok:false,msg:'Hit a wall!',x:fromX,y:fromY};
+      const door=state.doors.find(d=>d.x===nx&&d.y===ny);
+      if(door){
+        const needed=(lvl.keys||[]).length||1;
+        if(keysHeld<needed)return {ok:false,msg:'Locked! Need '+(needed-keysHeld)+' more key(s).',x:fromX,y:fromY};
       }
+      const trap=state.traps.find(t=>t.x===nx&&t.y===ny);
+      if(trap&&!shielded)return {ok:false,msg:'Burned by a fire trap! Use SHIELD!',x:fromX,y:fromY};
+      return {ok:true,x:nx,y:ny};
+    };
+    const mult=cmd==='back'?-1:1,[dx,dy]=DIR[hero.dir];
+    let res=tryStep(hero.x,hero.y,dx*mult,dy*mult);
+    if(!res.ok){success=false;msg=res.msg;}
+    else{
+      hero.x=res.x;hero.y=res.y;shielded=false;
+      const onIce=()=>(lvl.ice||[]).some(([ix,iy])=>ix===hero.x&&iy===hero.y);
+      while(onIce()){
+        const slide=tryStep(hero.x,hero.y,dx*mult,dy*mult);
+        if(!slide.ok)break;
+        hero.x=slide.x;hero.y=slide.y;
+      }
+      state.keys.forEach(k=>{if(!k.taken&&k.x===hero.x&&k.y===hero.y){k.taken=true;keysHeld++;toast('Key +1 ('+keysHeld+')','toast-info');beep(980,.1,'sine');}});
+      const warp=state.portals.find(p=>p.x===hero.x&&p.y===hero.y);
+      if(warp){hero.x=warp.tx;hero.y=warp.ty;toast('Warped!','toast-info');}
+      state.gems.forEach(g=>{if(!g.collected&&g.x===hero.x&&g.y===hero.y){g.collected=true;spawnParticles(hero.x,hero.y,'#22d3ee');beep(880,.1,'sine');}});
     }
-  }else if(cmd==='left')hero.dir=(hero.dir+3)%4;
+  }else if(cmd==='wait'){ /* spend a beat */ }
+  else if(cmd==='left')hero.dir=(hero.dir+3)%4;
   else if(cmd==='right')hero.dir=(hero.dir+1)%4;
   else if(cmd==='attack'){
     const [dx,dy]=DIR[hero.dir];let hit=false;
@@ -524,8 +572,8 @@ function startRun(){if(!program.length){toast('Add some commands first!','toast-
 function stopRun(){isRunning=false;clearInterval(intervalId);intervalId=null;setRunBtn(false);document.querySelectorAll('.prog-item').forEach(el=>el.classList.remove('executing'));}
 function setRunBtn(running){const b=document.getElementById('btn-run');b.textContent=running?'STOP':'RUN AI CODE';b.classList.toggle('running',running);}
 function stepProgram(){if(isRunning||paused||!program.length)return;if(stepIndex>=program.length)stepIndex=0;executeStep();}
-function resetHero(){stopRun();const lvl=LEVELS[currentLevel];hero={...lvl.start};levelStates[currentLevel]=getLevelState(currentLevel);stepIndex=0;shielded=false;}
-function loadLevel(i){currentLevel=i;hero={...LEVELS[i].start};program=[];shielded=false;stepIndex=0;levelStates[i]=getLevelState(i);stopRun();renderProgram();updateLevelUI();saveAll();}
+function resetHero(){stopRun();const lvl=LEVELS[currentLevel];hero={...lvl.start};levelStates[currentLevel]=getLevelState(currentLevel);stepIndex=0;shielded=false;keysHeld=0;}
+function loadLevel(i){currentLevel=i;hero={...LEVELS[i].start};program=[];shielded=false;stepIndex=0;keysHeld=0;levelStates[i]=getLevelState(i);stopRun();renderProgram();updateLevelUI();saveAll();}
 function updateSpeed(){speed=parseInt(document.getElementById('speed-slider').value,10);document.getElementById('speed-val').textContent=(speed/100).toFixed(1)+'x';if(isRunning){clearInterval(intervalId);intervalId=setInterval(executeStep,speed);}}
 
 function showWin(){
