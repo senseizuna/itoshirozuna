@@ -1,205 +1,145 @@
 <!--
     FracTile · APEX ARENA
     Copyright (c) 2026 Itoshiro Zuna LLC
-    All rights reserved.
+    All rights reserved. itoshirozuna.com
 
-    This software and associated game assets are the proprietary property of
-    Itoshiro Zuna LLC. Unauthorized reproduction, distribution, or modification
-    of this software, in whole or in part, is strictly prohibited without the
-    express written permission of Itoshiro Zuna LLC.
-
-    Unauthorized use or distribution is prohibited.
+    HOW TO RUN
+    Open in a modern browser. Enter World, then WASD to pan.
+    LClick mine · RClick place · Scroll zoom · 1–5 blocks · F fill · G new world · P pause
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>FracTile · APEX ARENA</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --c:#00f5ff;--m:#ff00aa;--g:#ffd700;--p:#aa44ff;--w:#ffffff;
+  --c:#00f5ff;--m:#ff00aa;--g:#ffd700;--p:#aa44ff;
   --bg:#000408;--panel:rgba(0,12,20,0.88);
-  --gc:0 0 8px #00f5ff,0 0 20px #00f5ff60;
-  --gm:0 0 8px #ff00aa,0 0 20px #ff00aa60;
 }
-html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;
-  font-family:'Orbitron',monospace;color:var(--c);cursor:none}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:'Orbitron',monospace;color:var(--c)}
+body.playing #game{cursor:none}
 #wrap{position:relative;width:100%;height:100%}
 #game{display:block;width:100%;height:100%;image-rendering:pixelated}
-
-/* ── NAV ── */
-#nav{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:10px;pointer-events:auto}
-.nav-btn{padding:6px 12px;border:1px solid rgba(0,255,255,.35);background:rgba(0,8,20,.62);color:#00ffff;text-decoration:none;font-size:12px;border-radius:4px;letter-spacing:2px;box-shadow:0 0 10px rgba(0,245,255,.15);font-family:'Orbitron',monospace}
-.nav-btn:hover{background:rgba(0,245,255,.12);border-color:rgba(0,255,255,.6)}
-
-/* ── FOOTER ── */
+#nav{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:80;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:96vw;pointer-events:auto}
+.nav-btn,.nav-drop>a{padding:6px 12px;border:1px solid rgba(0,255,255,.35);background:rgba(0,8,20,.85);color:#00ffff;text-decoration:none;font-size:11px;border-radius:4px;letter-spacing:1.4px;font-family:'Orbitron',monospace;display:inline-block}
+.nav-btn:hover,.nav-drop>a:hover{background:rgba(0,245,255,.12)}
+.nav-drop{position:relative}
+.nav-drop .menu{display:none;position:absolute;left:50%;transform:translateX(-50%);top:100%;min-width:230px;background:rgba(0,8,16,.96);border:1px solid rgba(0,245,255,.35);border-radius:6px;padding:4px 0;z-index:90}
+.nav-drop:hover .menu,.nav-drop:focus-within .menu{display:block}
+.nav-drop .menu a{display:block;color:#9ee;text-decoration:none;font-size:10px;padding:8px 12px;text-align:left;font-family:'Orbitron',monospace}
+.nav-drop .menu a:hover{background:rgba(0,245,255,.12)}
+body.focus-play #nav,body.focus-play #footer{opacity:0;pointer-events:none;transition:opacity .3s}
+body.focus-play #nav:hover{opacity:1;pointer-events:auto}
 #footer{position:fixed;bottom:6px;left:50%;transform:translateX(-50%);font-size:9px;opacity:.34;pointer-events:none;z-index:25;letter-spacing:2px;color:#ffffff70;font-family:'Share Tech Mono',monospace}
-
-/* ── LEGAL BOX (inside overlay) ── */
-.legal-box{margin-top:26px;max-width:760px;padding:14px 18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,8,16,.58);font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.8;letter-spacing:1px;color:rgba(255,255,255,.42);text-align:center}
-
-/* ── HUD ── */
+.legal-box{margin-top:22px;max-width:640px;padding:12px 16px;border:1px solid rgba(255,255,255,.1);background:rgba(0,8,16,.58);font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.8;color:rgba(255,255,255,.42);text-align:center}
 #hud{position:absolute;inset:0;pointer-events:none;z-index:10}
-
-/* Top bar — pushed down to clear nav */
-#topbar{position:absolute;top:0;left:0;right:0;height:48px;
-  background:linear-gradient(180deg,rgba(0,4,8,.95) 0%,transparent 100%);
-  display:flex;align-items:center;justify-content:space-between;padding:0 20px}
-.brand-title{font-size:16px;font-weight:900;letter-spacing:5px;
-  background:linear-gradient(90deg,var(--c),var(--m));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.apex-tag{font-size:8px;letter-spacing:4px;color:rgba(255,255,255,.3);margin-top:2px}
-.top-stats{display:flex;gap:24px;align-items:center}
-.stat{text-align:right}
-.stat-label{font-family:'Share Tech Mono',monospace;font-size:8px;
-  letter-spacing:2px;color:rgba(255,255,255,.3);display:block}
+#topbar{position:absolute;top:44px;left:0;right:0;height:48px;background:linear-gradient(180deg,rgba(0,4,8,.92),transparent);display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:10px}
+.brand-title{font-size:16px;font-weight:900;letter-spacing:5px;background:linear-gradient(90deg,var(--c),var(--m));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.apex-tag{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.3)}
+.top-stats{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,.3);display:block}
 .stat-val{font-size:13px;font-weight:700;color:var(--g)}
-.biome-badge{font-family:'Share Tech Mono',monospace;font-size:9px;
-  letter-spacing:3px;padding:3px 10px;border:1px solid rgba(0,245,255,.3);color:var(--c)}
-#fps-disp{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.35);letter-spacing:2px}
-
-/* Side info */
-#sideinfo{position:absolute;left:16px;top:60px;width:180px}
-.info-panel{background:var(--panel);border:1px solid rgba(0,245,255,.2);
-  padding:10px 14px;margin-bottom:8px}
-.info-title{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.3);
-  text-transform:uppercase;border-bottom:1px solid rgba(0,245,255,.1);
-  padding-bottom:5px;margin-bottom:8px}
-.info-row{font-family:'Share Tech Mono',monospace;font-size:10px;
-  color:rgba(255,255,255,.6);display:flex;justify-content:space-between;margin-bottom:3px}
+.biome-badge{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 8px;border:1px solid rgba(0,245,255,.3)}
+#fps-disp{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.35)}
+#sideinfo{position:absolute;left:16px;top:100px;width:180px}
+.info-panel{background:var(--panel);border:1px solid rgba(0,245,255,.2);padding:10px 12px;margin-bottom:8px}
+.info-title{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.3);border-bottom:1px solid rgba(0,245,255,.1);padding-bottom:5px;margin-bottom:8px}
+.info-row{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.6);display:flex;justify-content:space-between;margin-bottom:3px}
 .info-row span{color:var(--c)}
-
-/* Inventory */
-#inventory{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
-  display:flex;gap:6px;pointer-events:all}
-.inv-slot{width:52px;height:52px;background:rgba(0,10,18,.85);
-  border:1px solid rgba(0,245,255,.25);display:flex;flex-direction:column;
-  align-items:center;justify-content:center;cursor:pointer;
-  transition:all .15s;position:relative;font-size:9px}
-.inv-slot:hover,.inv-slot.active{border-color:var(--c);
-  box-shadow:0 0 12px rgba(0,245,255,.5),inset 0 0 12px rgba(0,245,255,.08)}
-.inv-slot.active{background:rgba(0,245,255,.06)}
+#inventory{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:6px;pointer-events:all}
+.inv-slot{width:52px;height:52px;background:rgba(0,10,18,.85);border:1px solid rgba(0,245,255,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:9px}
+.inv-slot.active{border-color:var(--c);background:rgba(0,245,255,.08)}
 .inv-slot canvas{width:32px;height:32px;image-rendering:pixelated}
-.inv-key{position:absolute;top:2px;left:4px;font-family:'Share Tech Mono',monospace;
-  font-size:7px;color:rgba(255,255,255,.25)}
-.inv-label{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,.4);
-  margin-top:2px;text-align:center;line-height:1.2}
-
-/* Minimap */
-#minimap-wrap{position:absolute;right:16px;top:60px;
-  border:1px solid rgba(0,245,255,.25);background:rgba(0,8,16,.9)}
+.inv-key{position:absolute;top:2px;left:4px;font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(255,255,255,.3)}
+.inv-label{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,.45);margin-top:1px}
+#minimap-wrap{position:absolute;right:16px;top:100px;border:1px solid rgba(0,245,255,.25);background:rgba(0,8,16,.9)}
 #minimap{display:block}
-.minimap-label{font-family:'Share Tech Mono',monospace;font-size:7px;
-  letter-spacing:2px;text-align:center;padding:3px;
-  color:rgba(0,245,255,.4);border-top:1px solid rgba(0,245,255,.15)}
-
-/* Controls hint */
-#controls{position:absolute;right:16px;bottom:80px;width:160px;
-  background:var(--panel);border:1px solid rgba(0,245,255,.15);padding:10px 12px}
-.ctrl-line{font-family:'Share Tech Mono',monospace;font-size:9px;
-  color:rgba(255,255,255,.3);margin-bottom:4px;letter-spacing:1px}
+.minimap-label{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;text-align:center;padding:3px;color:rgba(0,245,255,.4)}
+#controls{position:absolute;right:16px;bottom:86px;width:168px;background:var(--panel);border:1px solid rgba(0,245,255,.15);padding:10px 12px}
+.ctrl-line{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.35);margin-bottom:4px}
 .ctrl-key{color:var(--c)}
-
-/* Perf badge */
-#perf-badge{position:absolute;bottom:22px;right:16px;font-family:'Share Tech Mono',monospace;
-  font-size:7px;letter-spacing:2px;color:rgba(0,245,255,.22);pointer-events:none}
-
-/* Notifications */
-#notif{position:absolute;top:60px;left:50%;transform:translateX(-50%);
-  pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px}
-.notif{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;
-  color:var(--g);text-shadow:0 0 12px var(--g);opacity:0;
-  transition:opacity .3s;white-space:nowrap}
+#mission{position:absolute;left:16px;bottom:28px;width:220px;background:var(--panel);border:1px solid rgba(255,215,0,.25);padding:10px 12px}
+#mission .info-title{color:var(--g);border-color:rgba(255,215,0,.2)}
+#notif{position:absolute;top:100px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px}
+.notif{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--g);text-shadow:0 0 12px var(--g);opacity:0;transition:opacity .3s}
 .notif.show{opacity:1}
-
-/* Crosshair */
-#crosshair{position:fixed;width:20px;height:20px;pointer-events:none;
-  transform:translate(-50%,-50%);z-index:20}
-
-/* Overlay */
-#overlay{position:absolute;inset:0;background:rgba(0,4,8,.9);z-index:30;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  pointer-events:all;overflow-y:auto;padding:60px 20px 40px}
-#overlay.hidden{display:none}
-.ov-title{font-size:64px;font-weight:900;letter-spacing:8px;
-  background:linear-gradient(135deg,var(--c) 0%,var(--p) 50%,var(--m) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  line-height:.9;text-align:center}
-.ov-apex{font-size:10px;letter-spacing:8px;color:rgba(255,255,255,.2);
-  margin-top:6px;margin-bottom:40px}
-.ov-desc{font-family:'Share Tech Mono',monospace;font-size:12px;
-  color:rgba(255,255,255,.4);letter-spacing:2px;text-align:center;
-  max-width:500px;line-height:2;margin-bottom:36px}
-.seed-wrap{display:flex;gap:10px;align-items:center;margin-bottom:28px}
+#crosshair{position:fixed;width:20px;height:20px;pointer-events:none;transform:translate(-50%,-50%);z-index:20;display:none}
+body.playing #crosshair{display:block}
+#overlay,#pause-ov{position:absolute;inset:0;background:rgba(0,4,8,.92);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;overflow-y:auto;padding:70px 20px 40px}
+#overlay.hidden,#pause-ov.hidden{display:none}
+.ov-title{font-size:clamp(40px,8vw,64px);font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,var(--c),var(--p),var(--m));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:.9;text-align:center}
+.ov-apex{font-size:10px;letter-spacing:6px;color:rgba(255,255,255,.25);margin:8px 0 28px}
+.ov-desc{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,255,255,.45);letter-spacing:1px;text-align:center;max-width:520px;line-height:1.8;margin-bottom:24px}
+.seed-wrap{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
 .seed-label{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.3)}
-.seed-input{font-family:'Share Tech Mono',monospace;font-size:13px;
-  background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);
-  color:var(--c);padding:8px 14px;letter-spacing:2px;width:180px;outline:none}
-.seed-input:focus{border-color:var(--c);box-shadow:var(--gc)}
-.start-btn{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;
-  letter-spacing:5px;padding:16px 48px;background:transparent;
-  border:1px solid var(--c);color:var(--c);cursor:pointer;
-  text-shadow:var(--gc);box-shadow:var(--gc),inset 0 0 20px rgba(0,245,255,.06);
-  transition:all .2s;pointer-events:all}
-.start-btn:hover{background:rgba(0,245,255,.08);transform:scale(1.03);
-  box-shadow:0 0 20px #00f5ff,0 0 40px #00f5ff60,inset 0 0 30px rgba(0,245,255,.12)}
-.biome-list{display:flex;gap:16px;margin-top:32px;flex-wrap:wrap;justify-content:center}
-.biome-chip{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;
-  padding:5px 12px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3)}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 900px){
-  #sideinfo{width:150px}
-  #controls{width:144px;bottom:92px}
-}
-@media (max-width: 700px){
-  #nav{top:8px}
-  .nav-btn{font-size:10px;padding:5px 10px}
-  #sideinfo,#controls,#minimap-wrap,#perf-badge{display:none}
-  #inventory{bottom:34px}
-  #topbar{padding:0 10px;height:52px;top:34px}
-  .brand-title{font-size:12px;letter-spacing:3px}
-  .top-stats{gap:10px}
-  .stat-val{font-size:10px}
-  .biome-badge{font-size:7px;letter-spacing:1px;padding:2px 6px}
-  .ov-title{font-size:46px}
-  .ov-desc{font-size:10px;max-width:90%;line-height:1.7}
-  .seed-wrap{flex-direction:column}
-  .legal-box{max-width:90%;font-size:8px;margin-top:18px}
+.seed-input{font-family:'Share Tech Mono',monospace;font-size:13px;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);color:var(--c);padding:8px 14px;width:180px;outline:none}
+.start-btn{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:4px;padding:14px 40px;background:transparent;border:1px solid var(--c);color:var(--c);cursor:pointer}
+.start-btn:hover{background:rgba(0,245,255,.08)}
+.biome-list{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;justify-content:center}
+.biome-chip{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.35)}
+.hud-tools{position:fixed;top:8px;left:10px;z-index:85;display:flex;gap:6px;pointer-events:all}
+.hud-tools button{background:rgba(0,8,20,.85);border:1px solid rgba(0,245,255,.35);color:#8ff;font-family:'Orbitron',monospace;font-size:9px;padding:6px 8px;cursor:pointer}
+@media (max-width:700px){
+  #sideinfo,#controls,#perf-badge{display:none}
+  #inventory{bottom:36px}
+  #topbar{top:52px;padding:0 8px}
+  #mission{left:8px;bottom:96px;width:calc(100vw - 150px)}
+  #minimap-wrap{right:8px;top:108px}
 }
 </style>
 </head>
 <body>
 <div id="wrap">
-
-<!-- NAV -->
 <div id="nav">
-  <a class="nav-btn" href="index.html">HOME</a>  
-  <a class="nav-btn" href="fractal-pong.html">PONG</a>
-  <a class="nav-btn" href="fractal-racers.html">RACERS</a>
+  <a class="nav-btn" href="index.html">HOME</a>
+  <div class="nav-drop">
+    <a href="apps.html">APPS</a>
+    <div class="menu">
+      <a href="fractal-ai-research.html">Fractal AI Research</a>
+      <a href="fractal-meditation.html">Fractal Meditation</a>
+      <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+      <a href="plasma-mind.html">PlasmaMind</a>
+      <a href="fractal-racers.html">Fractal Racers</a>
+      <a href="fractal-pong.html">Fractal Pong</a>
+      <a href="nightmare-eclipse.html">Nightmare Eclipse</a>
+      <a href="ai-hero-quest.html">AI Hero Quest</a>
+      <a href="app-instructions.html">Instructions</a>
+    </div>
+  </div>
+  <div class="nav-drop">
+    <a href="#">KID'S ZONE</a>
+    <div class="menu">
+      <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
+      <a href="maries-adventure.html">Marie's Adventure</a>
+      <a href="certificate.html">Certificate</a>
+    </div>
+  </div>
+  <a class="nav-btn" href="fractile.html">FRACTILE</a>
 </div>
-
+<div class="hud-tools">
+  <button type="button" id="btn-pause" onclick="togglePause()">PAUSE</button>
+  <button type="button" id="btn-focus" onclick="toggleFocus()">PLAY FOCUS</button>
+</div>
 <canvas id="game"></canvas>
-<div id="footer">© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED</div>
-
-<!-- HUD -->
+<div id="footer">© 2026 ITOSHIRO ZUNA LLC · ALL RIGHTS RESERVED · ITOSHIROZUNA.COM</div>
 <div id="hud">
   <div id="topbar">
     <div>
       <div class="brand-title">FracTile</div>
-      <div class="apex-tag">APEX ARENA · by Itoshiro Zuna</div>
+      <div class="apex-tag">APEX ARENA · ITOSHIRO ZUNA</div>
     </div>
     <div class="top-stats">
       <div class="stat"><span class="stat-label">SHARDS</span><span class="stat-val" id="statShards">0</span></div>
+      <div class="stat"><span class="stat-label">MINED</span><span class="stat-val" id="statMined">0</span></div>
       <div class="stat"><span class="stat-label">DEPTH</span><span class="stat-val" id="statDepth">0</span></div>
       <div class="stat"><span class="stat-label">BIOME</span><div class="biome-badge" id="statBiome">MANDELBROT PLAINS</div></div>
-      <div id="fps-disp">60 FPS</div>
+      <div id="fps-disp">— FPS</div>
     </div>
   </div>
-
   <div id="sideinfo">
     <div class="info-panel">
       <div class="info-title">World Coords</div>
@@ -214,133 +154,99 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;
       <div class="info-row">SIERP <span id="fDensS">—</span></div>
     </div>
     <div class="info-panel">
-      <div class="info-title">Render Stats</div>
+      <div class="info-title">Render</div>
       <div class="info-row">DRAWN <span id="rDrawn">0</span></div>
-      <div class="info-row">CULLED <span id="rCulled">0</span></div>
       <div class="info-row">DIRTY <span id="rDirty">NO</span></div>
     </div>
   </div>
-
   <div id="minimap-wrap">
     <canvas id="minimap" width="120" height="120"></canvas>
-    <div class="minimap-label">WORLD MAP</div>
+    <div class="minimap-label">WORLD MAP · CLICK TO JUMP</div>
   </div>
-
+  <div id="mission">
+    <div class="info-title">Mission</div>
+    <div class="info-row">SHARDS <span id="mShards">0 / 12</span></div>
+    <div class="info-row">BIOMES <span id="mBiomes">1 / 4</span></div>
+    <div class="info-row">MINED <span id="mMined">0 / 20</span></div>
+  </div>
   <div id="inventory"></div>
-
   <div id="controls">
-    <div class="ctrl-line"><span class="ctrl-key">WASD / ↑↓←→</span> Pan</div>
-    <div class="ctrl-line"><span class="ctrl-key">LClick</span> Mine block</div>
-    <div class="ctrl-line"><span class="ctrl-key">RClick</span> Place block</div>
-    <div class="ctrl-line"><span class="ctrl-key">Scroll</span> Zoom</div>
-    <div class="ctrl-line"><span class="ctrl-key">1–5</span> Select block</div>
-    <div class="ctrl-line"><span class="ctrl-key">F</span> Flood fill</div>
+    <div class="ctrl-line"><span class="ctrl-key">WASD</span> Pan</div>
+    <div class="ctrl-line"><span class="ctrl-key">LClick</span> Mine</div>
+    <div class="ctrl-line"><span class="ctrl-key">RClick</span> Place</div>
+    <div class="ctrl-line"><span class="ctrl-key">Scroll</span> Zoom to cursor</div>
+    <div class="ctrl-line"><span class="ctrl-key">1–5</span> Block</div>
+    <div class="ctrl-line"><span class="ctrl-key">F</span> Fill air</div>
     <div class="ctrl-line"><span class="ctrl-key">G</span> New world</div>
+    <div class="ctrl-line"><span class="ctrl-key">P</span> Pause</div>
+    <div class="ctrl-line"><span class="ctrl-key">Drag</span> Touch pan</div>
   </div>
-
-  <div id="perf-badge">OFFSCREEN CACHE · VIEWPORT CULL · ZERO SHADOWBLUR</div>
-
   <div id="notif"></div>
-
-  <svg id="crosshair" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <line x1="10" y1="2" x2="10" y2="8" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
-    <line x1="10" y1="12" x2="10" y2="18" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
-    <line x1="2" y1="10" x2="8" y2="10" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
-    <line x1="12" y1="10" x2="18" y2="10" stroke="#00f5ff" stroke-width="1.5" opacity="0.8"/>
-    <circle cx="10" cy="10" r="1.5" fill="#00f5ff" opacity="0.6"/>
+  <svg id="crosshair" viewBox="0 0 20 20" fill="none">
+    <line x1="10" y1="2" x2="10" y2="8" stroke="#00f5ff" stroke-width="1.5"/>
+    <line x1="10" y1="12" x2="10" y2="18" stroke="#00f5ff" stroke-width="1.5"/>
+    <line x1="2" y1="10" x2="8" y2="10" stroke="#00f5ff" stroke-width="1.5"/>
+    <line x1="12" y1="10" x2="18" y2="10" stroke="#00f5ff" stroke-width="1.5"/>
+    <circle cx="10" cy="10" r="1.5" fill="#00f5ff"/>
   </svg>
 </div>
-
-<!-- Start Overlay -->
 <div id="overlay">
   <div class="ov-title">Frac<br>Tile</div>
   <div class="ov-apex">APEX ARENA · FRACTAL VOXEL WORLD</div>
-  <div class="ov-desc">
-    Procedural fractal terrain • Mine &amp; build • Collect energy shards<br>
-    Julia Caves · Sierpinski Spires · Mandelbrot Plains · Koch Forest
-  </div>
+  <div class="ov-desc">Pan the isometric map. Mine glowing tiles. Grab gold shards.<br>Clear the mission: 12 shards, 20 mines, 4 biomes.</div>
   <div class="seed-wrap">
     <div class="seed-label">WORLD SEED</div>
-    <input class="seed-input" id="seedInput" type="text" placeholder="random" maxlength="20"/>
+    <input class="seed-input" id="seedInput" type="text" placeholder="random or type a word" maxlength="24"/>
   </div>
-  <button class="start-btn" onclick="startGame()">▶ ENTER WORLD</button>
+  <button class="start-btn" id="startBtn">ENTER WORLD</button>
   <div class="biome-list">
-    <div class="biome-chip">◈ MANDELBROT PLAINS</div>
-    <div class="biome-chip">◈ JULIA CAVES</div>
-    <div class="biome-chip">◈ SIERPINSKI SPIRES</div>
-    <div class="biome-chip">◈ KOCH FOREST</div>
-    <div class="biome-chip">◈ VOID CRYSTALS</div>
+    <div class="biome-chip">MANDELBROT PLAINS</div>
+    <div class="biome-chip">JULIA CAVES</div>
+    <div class="biome-chip">SIERPINSKI SPIRES</div>
+    <div class="biome-chip">KOCH FOREST</div>
+    <div class="biome-chip">VOID CRYSTALS</div>
   </div>
-  <div class="legal-box">
-    © 2026 Itoshiro Zuna LLC · All Rights Reserved<br>
-    This game and all associated assets are the proprietary property of Itoshiro Zuna LLC.
-    Unauthorized reproduction, distribution, or modification is strictly prohibited
-    without the express written permission of Itoshiro Zuna LLC.
-    nicolasquirozmd.com
-  </div>
+  <div class="legal-box">© 2026 Itoshiro Zuna LLC · All Rights Reserved · itoshirozuna.com</div>
 </div>
-
-</div><!-- #wrap -->
-
+<div id="pause-ov" class="hidden">
+  <div class="ov-title" style="font-size:36px">PAUSED</div>
+  <div class="ov-desc">Site tabs stay at the top. Resume or generate a new seed.</div>
+  <button class="start-btn" onclick="togglePause()">RESUME</button>
+  <button class="start-btn" style="margin-top:12px;border-color:#ffd700;color:#ffd700" onclick="regenerate();togglePause();">NEW WORLD</button>
+</div>
+</div>
 <script>
-// ══════════════════════════════════════════════════════════════
-//  FracTile · APEX ARENA — © 2026 Itoshiro Zuna LLC
-//  Performance Fixes Applied:
-//    [1] Offscreen world canvas — dirty-chunk patching only
-//    [2] Viewport culling — drawImage clips to visible rect
-//    [3] Zero shadowBlur — neon via color-layer stacking
-// ══════════════════════════════════════════════════════════════
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d',{alpha:false});
+const miniCanvas=document.getElementById('minimap');
+const mCtx=miniCanvas.getContext('2d');
 
-const canvas    = document.getElementById('game');
-const ctx       = canvas.getContext('2d');
-const miniCanvas = document.getElementById('minimap');
-const mCtx      = miniCanvas.getContext('2d');
-
-// ── CONSTANTS ─────────────────────────────────────────────────
-const WORLD  = 128;
-const ISO_W  = 64;
-const ISO_H  = 32;
-const BLK_H  = 20;
-
-// ── BLOCK DEFINITIONS ─────────────────────────────────────────
-// No shadowBlur needed: bright topEdge + dark body = neon without GPU cost
-const BLOCKS = {
-  0: { name:'Air' },
-  1: { name:'Fractastone', top:'#003d44', topHL:'#00b8cc', topEdge:'#00f5ff', sideL:'#002830', sideR:'#001c22', pattern:'mandel'  },
-  2: { name:'Neon Dirt',   top:'#440020', topHL:'#cc0066', topEdge:'#ff00aa', sideL:'#330018', sideR:'#220010', pattern:'koch'    },
-  3: { name:'Void Crystal',top:'#260040', topHL:'#7722cc', topEdge:'#bb55ff', sideL:'#1a0030', sideR:'#110020', pattern:'julia'   },
-  4: { name:'Koch Bark',   top:'#1a2200', topHL:'#4d6600', topEdge:'#88cc00', sideL:'#111800', sideR:'#0a1000', pattern:'sierp'   },
-  5: { name:'Energy Core', top:'#442200', topHL:'#cc7700', topEdge:'#ffd700', sideL:'#331a00', sideR:'#221100', pattern:'spiral'  },
+const WORLD=96,ISO_W=64,ISO_H=32,BLK_H=20;
+const BLOCKS={
+  0:{name:'Air'},
+  1:{name:'Fractastone',top:'#003d44',topHL:'#00b8cc',topEdge:'#00f5ff',sideL:'#002830',sideR:'#001c22',pattern:'mandel'},
+  2:{name:'Neon Dirt',top:'#440020',topHL:'#cc0066',topEdge:'#ff00aa',sideL:'#330018',sideR:'#220010',pattern:'koch'},
+  3:{name:'Void Crystal',top:'#260040',topHL:'#7722cc',topEdge:'#bb55ff',sideL:'#1a0030',sideR:'#110020',pattern:'julia'},
+  4:{name:'Koch Bark',top:'#1a2200',topHL:'#4d6600',topEdge:'#88cc00',sideL:'#111800',sideR:'#0a1000',pattern:'sierp'},
+  5:{name:'Energy Core',top:'#442200',topHL:'#cc7700',topEdge:'#ffd700',sideL:'#331a00',sideR:'#221100',pattern:'spiral'}
 };
-const INV_BLOCKS = [1,2,3,4,5];
+const INV_BLOCKS=[1,2,3,4,5];
+const WC_W=WORLD*ISO_W,WC_H=WORLD*ISO_H*3;
 
-// ── STATE ─────────────────────────────────────────────────────
-let world = [], worldSeed = 42;
-let camX = 0, camY = 0, zoom = 1.0;
-let selectedBlock = 1, shards = 0;
-let gameRunning = false, keys = {};
-let mouseScreenX = 0, mouseScreenY = 0;
-let particles = [], floatingShards = [];
-let frameCount = 0, bgPhase = 0;
+let world=[],worldSeed=42,camX=0,camY=0,zoom=1;
+let selectedBlock=1,shards=0,mined=0;
+let gameRunning=false,paused=false,keys={};
+let mouseScreenX=0,mouseScreenY=0;
+let particles=[],floatingShards=[];
+let frameCount=0,bgPhase=0;
+let worldCanvas=null,worldCtx=null,worldDirty=true,dirtySet=new Set(),minimapDirty=true;
+const faceCache={};
+const seenBiomes=new Set();
+let missionDone=false;
 
-// ── FIX 1: OFFSCREEN WORLD CANVAS ────────────────────────────
-let worldCanvas = null, worldCtx = null;
-let worldDirty  = true;
-let dirtySet    = new Set();
-let minimapDirty = true;
-
-// ── FIX 3: BLOCK FACE CACHE — pre-baked, NO shadowBlur ───────
-const faceCache = {};
-
-// ── WORLD CANVAS DIMENSIONS ───────────────────────────────────
-const WC_W = WORLD * ISO_W;
-const WC_H = WORLD * ISO_H * 3;
-
-// ── MATH ──────────────────────────────────────────────────────
-function lerp(a,b,t){ return a+(b-a)*t; }
-function fade(t){ return t*t*t*(t*(t*6-15)+10); }
-function clamp(v,lo,hi){ return v<lo?lo:v>hi?hi:v; }
-
+function lerp(a,b,t){return a+(b-a)*t}
+function fade(t){return t*t*t*(t*(t*6-15)+10)}
+function clamp(v,lo,hi){return v<lo?lo:v>hi?hi:v}
 function pseudoRand(x,y,seed){
   let n=((x*1619+y*31337+seed*1000003)&0x7fffffff);
   n=(n>>13)^n;
@@ -348,460 +254,258 @@ function pseudoRand(x,y,seed){
   return n/0x7fffffff;
 }
 function valueNoise(x,y,freq){
-  x*=freq; y*=freq;
-  const ix=Math.floor(x),iy=Math.floor(y);
-  const fx=x-ix,fy=y-iy;
-  const ux=fade(fx),uy=fade(fy);
-  const r00=pseudoRand(ix,   iy,   worldSeed);
-  const r10=pseudoRand(ix+1, iy,   worldSeed);
-  const r01=pseudoRand(ix,   iy+1, worldSeed);
-  const r11=pseudoRand(ix+1, iy+1, worldSeed);
-  return lerp(lerp(r00,r10,ux),lerp(r01,r11,ux),uy);
+  x*=freq;y*=freq;
+  const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,ux=fade(fx),uy=fade(fy);
+  return lerp(lerp(pseudoRand(ix,iy,worldSeed),pseudoRand(ix+1,iy,worldSeed),ux),lerp(pseudoRand(ix,iy+1,worldSeed),pseudoRand(ix+1,iy+1,worldSeed),ux),uy);
 }
-function fbm(x,y,oct=5){
+function fbm(x,y,oct=4){
   let v=0,a=0.5,f=1,mx=0;
-  for(let i=0;i<oct;i++){v+=valueNoise(x,y,f*0.028)*a;mx+=a;a*=0.5;f*=2.1;}
+  for(let i=0;i<oct;i++){v+=valueNoise(x,y,f*0.032)*a;mx+=a;a*=0.5;f*=2.1;}
   return v/mx;
 }
 function juliaVal(px,py){
   let x=(px/WORLD-0.5)*3.2,y=(py/WORLD-0.5)*2.4;
   const cr=-0.7,ci=0.27;
-  for(let i=0;i<22;i++){
-    const xt=x*x-y*y+cr;y=2*x*y+ci;x=xt;
-    if(x*x+y*y>4) return i/22;
-  }
+  for(let i=0;i<18;i++){const xt=x*x-y*y+cr;y=2*x*y+ci;x=xt;if(x*x+y*y>4)return i/18;}
   return 1;
 }
-function hashSeed(s){
-  let h=0x811c9dc5;
-  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}
-  return h>>>0;
-}
-
-// ── ISO PROJECTION ────────────────────────────────────────────
-// Returns coords on the worldCanvas (not screen)
+function hashSeed(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return h>>>0;}
 function isoBase(gx,gy,elev=0){
-  const ox=WC_W/2, oy=ISO_H*2;
-  return {
-    sx:(gx-gy)*(ISO_W/2)+ox,
-    sy:(gx+gy)*(ISO_H/2)+oy-elev*BLK_H
-  };
+  return {sx:(gx-gy)*(ISO_W/2)+WC_W/2,sy:(gx+gy)*(ISO_H/2)+ISO_H*2-elev*BLK_H};
 }
-
-// Screen → grid cell (accounts for cam + zoom)
 function screenToGrid(scx,scy){
-  const wx=scx/zoom+camX, wy=scy/zoom+camY;
-  const ox=WC_W/2, oy=ISO_H*2;
-  const relX=wx-ox, relY=wy-oy;
-  const gx=Math.round((relX/(ISO_W/2)+relY/(ISO_H/2))/2);
-  const gy=Math.round((relY/(ISO_H/2)-relX/(ISO_W/2))/2);
-  return {gx,gy};
+  const wx=scx/zoom+camX,wy=scy/zoom+camY;
+  const relX=wx-WC_W/2,relY=wy-ISO_H*2;
+  return {gx:Math.round((relX/(ISO_W/2)+relY/(ISO_H/2))/2),gy:Math.round((relY/(ISO_H/2)-relX/(ISO_W/2))/2)};
+}
+function biomeAt(gx,gy){
+  const n=fbm(gx,gy),j=juliaVal(gx,gy);
+  if(n>0.72)return 'SIERPINSKI SPIRES';
+  if(j>0.72)return 'JULIA CAVES';
+  if(n<0.38)return 'VOID DEPTHS';
+  if(n>0.56)return 'FRACTASTONE FIELDS';
+  return 'MANDELBROT PLAINS';
 }
 
-// ── FIX 3: FACE BUILDING — zero shadowBlur ───────────────────
-// Neon look via 3-layer fill: bright edge → dark body → highlight
-function buildFace(type, face){
-  const key=`${type}_${face}`;
-  if(faceCache[key]) return faceCache[key];
-  const b=BLOCKS[type];
-  const c=document.createElement('canvas');
-  const cx=c.getContext('2d');
-
+function buildFace(type,face){
+  const key=type+'_'+face;if(faceCache[key])return faceCache[key];
+  const b=BLOCKS[type],c=document.createElement('canvas'),cx=c.getContext('2d');
   if(face==='top'){
-    const tw=ISO_W,th=ISO_H;
-    c.width=tw;c.height=th;
-    // Layer 1: bright edge diamond
-    cx.beginPath();
-    cx.moveTo(tw/2,0);cx.lineTo(tw,th/2);cx.lineTo(tw/2,th);cx.lineTo(0,th/2);
-    cx.closePath();cx.fillStyle=b.topEdge;cx.fill();
-    // Layer 2: body
-    const ins=1.5;
-    cx.beginPath();
-    cx.moveTo(tw/2,ins);cx.lineTo(tw-ins*2,th/2);cx.lineTo(tw/2,th-ins);cx.lineTo(ins*2,th/2);
-    cx.closePath();cx.fillStyle=b.top;cx.fill();
-    // Layer 3: highlight
-    const hi=4;
-    cx.beginPath();
-    cx.moveTo(tw/2,hi);cx.lineTo(tw-hi*2,th/2);cx.lineTo(tw/2,th-hi);cx.lineTo(hi*2,th/2);
-    cx.closePath();cx.fillStyle=b.topHL+'55';cx.fill();
-    // Fractal pattern (lines only — no curves, cheap)
+    const tw=ISO_W,th=ISO_H;c.width=tw;c.height=th;
+    cx.beginPath();cx.moveTo(tw/2,0);cx.lineTo(tw,th/2);cx.lineTo(tw/2,th);cx.lineTo(0,th/2);cx.closePath();cx.fillStyle=b.topEdge;cx.fill();
+    cx.beginPath();cx.moveTo(tw/2,1.5);cx.lineTo(tw-3,th/2);cx.lineTo(tw/2,th-1.5);cx.lineTo(3,th/2);cx.closePath();cx.fillStyle=b.top;cx.fill();
+    cx.fillStyle=b.topHL+'55';cx.beginPath();cx.moveTo(tw/2,4);cx.lineTo(tw-8,th/2);cx.lineTo(tw/2,th-4);cx.lineTo(8,th/2);cx.closePath();cx.fill();
     drawTopFractal(cx,b.pattern,tw,th,b.topEdge+'65');
-
   }else if(face==='left'){
-    const lw=ISO_W/2,lh=ISO_H/2+BLK_H;
-    c.width=lw;c.height=lh;
-    cx.beginPath();
-    cx.moveTo(0,0);cx.lineTo(lw,ISO_H/2);cx.lineTo(lw,lh);cx.lineTo(0,lh-ISO_H/2);
-    cx.closePath();cx.fillStyle=b.topEdge+'55';cx.fill();
-    cx.beginPath();
-    cx.moveTo(1,1);cx.lineTo(lw-1,ISO_H/2+1);cx.lineTo(lw-1,lh-1);cx.lineTo(1,lh-ISO_H/2-1);
-    cx.closePath();cx.fillStyle=b.sideL;cx.fill();
-    cx.strokeStyle=b.topEdge+'20';cx.lineWidth=0.5;
-    for(let yy=ISO_H/2+6;yy<lh-2;yy+=7){
-      cx.beginPath();cx.moveTo(1,yy);cx.lineTo(lw-1,yy);cx.stroke();
-    }
-
+    const lw=ISO_W/2,lh=ISO_H/2+BLK_H;c.width=lw;c.height=lh;
+    cx.beginPath();cx.moveTo(0,0);cx.lineTo(lw,ISO_H/2);cx.lineTo(lw,lh);cx.lineTo(0,lh-ISO_H/2);cx.closePath();cx.fillStyle=b.sideL;cx.fill();
   }else{
-    const rw=ISO_W/2,rh=ISO_H/2+BLK_H;
-    c.width=rw;c.height=rh;
-    cx.beginPath();
-    cx.moveTo(0,ISO_H/2);cx.lineTo(rw,0);cx.lineTo(rw,rh-ISO_H/2);cx.lineTo(0,rh);
-    cx.closePath();cx.fillStyle=b.topEdge+'35';cx.fill();
-    cx.beginPath();
-    cx.moveTo(1,ISO_H/2+1);cx.lineTo(rw-1,1);cx.lineTo(rw-1,rh-ISO_H/2-1);cx.lineTo(1,rh-1);
-    cx.closePath();cx.fillStyle=b.sideR;cx.fill();
-    cx.strokeStyle=b.topEdge+'15';cx.lineWidth=0.5;
-    for(let yy=ISO_H/2+6;yy<rh-2;yy+=7){
-      cx.beginPath();cx.moveTo(1,yy);cx.lineTo(rw-1,yy);cx.stroke();
-    }
+    const rw=ISO_W/2,rh=ISO_H/2+BLK_H;c.width=rw;c.height=rh;
+    cx.beginPath();cx.moveTo(0,ISO_H/2);cx.lineTo(rw,0);cx.lineTo(rw,rh-ISO_H/2);cx.lineTo(0,rh);cx.closePath();cx.fillStyle=b.sideR;cx.fill();
   }
-
-  faceCache[key]=c;
-  return c;
+  faceCache[key]=c;return c;
 }
-
 function drawTopFractal(cx,pattern,tw,th,col){
-  cx.strokeStyle=col;cx.lineWidth=0.8;
-  cx.save();
-  cx.beginPath();
-  cx.moveTo(tw/2,1);cx.lineTo(tw-2,th/2);cx.lineTo(tw/2,th-1);cx.lineTo(2,th/2);
-  cx.closePath();cx.clip();
-
-  if(pattern==='mandel'){
-    for(let r=0.25;r<0.85;r+=0.2){
-      cx.beginPath();
-      cx.moveTo(tw/2,th/2*(1-r)+1);
-      cx.lineTo(tw*(0.5+r/2.1),th/2);
-      cx.lineTo(tw/2,th/2*(1+r)-1);
-      cx.lineTo(tw*(0.5-r/2.1),th/2);
-      cx.closePath();cx.stroke();
-    }
-  }else if(pattern==='koch'){
-    cx.beginPath();cx.moveTo(3,th/2);
-    for(let i=0;i<=10;i++){
-      cx.lineTo(lerp(3,tw-3,i/10),th/2+Math.sin(i*Math.PI/2)*(th*0.16));
-    }
-    cx.stroke();
-  }else if(pattern==='julia'){
-    cx.beginPath();cx.moveTo(tw/2,3);cx.lineTo(tw/2,th-3);cx.stroke();
-    cx.beginPath();cx.moveTo(3,th/2);cx.lineTo(tw-3,th/2);cx.stroke();
-    cx.beginPath();cx.moveTo(tw*0.25,th*0.3);cx.lineTo(tw*0.75,th*0.7);cx.stroke();
-    cx.beginPath();cx.moveTo(tw*0.75,th*0.3);cx.lineTo(tw*0.25,th*0.7);cx.stroke();
-  }else if(pattern==='sierp'){
-    cx.beginPath();
-    cx.moveTo(tw/2,3);cx.lineTo(tw-4,th-3);cx.lineTo(4,th-3);cx.closePath();cx.stroke();
-    cx.beginPath();
-    cx.moveTo(tw/2,th/2-2);cx.lineTo(tw*0.65,th-3);cx.lineTo(tw*0.35,th-3);cx.closePath();cx.stroke();
-  }else if(pattern==='spiral'){
-    for(let i=0;i<8;i++){
-      const a=i*Math.PI/4;
-      cx.beginPath();
-      cx.moveTo(tw/2,th/2);
-      cx.lineTo(tw/2+Math.cos(a)*tw*0.4,th/2+Math.sin(a)*th*0.35);
-      cx.stroke();
-    }
-  }
+  cx.strokeStyle=col;cx.lineWidth=0.8;cx.save();
+  cx.beginPath();cx.moveTo(tw/2,1);cx.lineTo(tw-2,th/2);cx.lineTo(tw/2,th-1);cx.lineTo(2,th/2);cx.closePath();cx.clip();
+  if(pattern==='mandel'){for(let r=0.25;r<0.85;r+=0.2){cx.beginPath();cx.moveTo(tw/2,th/2*(1-r)+1);cx.lineTo(tw*(0.5+r/2.1),th/2);cx.lineTo(tw/2,th/2*(1+r)-1);cx.lineTo(tw*(0.5-r/2.1),th/2);cx.closePath();cx.stroke();}}
+  else if(pattern==='sierp'){cx.beginPath();cx.moveTo(tw/2,3);cx.lineTo(tw-4,th-3);cx.lineTo(4,th-3);cx.closePath();cx.stroke();}
+  else {cx.beginPath();cx.moveTo(tw/2,3);cx.lineTo(tw/2,th-3);cx.stroke();cx.beginPath();cx.moveTo(3,th/2);cx.lineTo(tw-3,th/2);cx.stroke();}
   cx.restore();
 }
 
-// ── WORLD GENERATION ──────────────────────────────────────────
 function generateWorld(seed){
-  worldSeed=seed;world=[];floatingShards=[];
+  worldSeed=seed;world=[];floatingShards=[];seenBiomes.clear();missionDone=false;mined=0;shards=0;
   for(let y=0;y<WORLD;y++){
     world[y]=[];
     for(let x=0;x<WORLD;x++){
       const n=fbm(x,y),j=juliaVal(x,y);
       let type=0,elev=0;
-      if(n>0.72)      {type=4;elev=Math.floor((n-0.72)/0.28*5);}
-      else if(n>0.56) {type=1;elev=Math.floor((n-0.56)/0.16*3);}
-      else if(n>0.40) {type=2;elev=0;}
-      else if(j>0.72) {type=3;elev=0;}
-      else if(Math.random()<0.006){type=5;elev=0;}
+      if(n>0.72){type=4;elev=Math.floor((n-0.72)/0.28*4);}
+      else if(n>0.56){type=1;elev=Math.floor((n-0.56)/0.16*3);}
+      else if(n>0.40){type=2;elev=0;}
+      else if(j>0.72){type=3;elev=0;}
+      else if(pseudoRand(x,y,worldSeed+9)<0.008){type=5;elev=0;}
       world[y][x]={type,elev};
     }
   }
-  for(let i=0;i<35;i++) spawnShard(Math.floor(Math.random()*WORLD),Math.floor(Math.random()*WORLD));
+  for(let i=0;i<28;i++)spawnShard(Math.floor(Math.random()*WORLD),Math.floor(Math.random()*WORLD));
   worldDirty=true;minimapDirty=true;
+  document.getElementById('statShards').textContent='0';
+  document.getElementById('statMined').textContent='0';
+  updateMission();
 }
 
-// ── WORLD CANVAS INIT ─────────────────────────────────────────
 function initWorldCanvas(){
   worldCanvas=document.createElement('canvas');
   worldCanvas.width=WC_W;worldCanvas.height=WC_H;
   worldCtx=worldCanvas.getContext('2d');
 }
-
-// ── FIX 1A: FULL WORLD REDRAW ────────────────────────────────
 function redrawWorldCanvas(){
   worldCtx.clearRect(0,0,WC_W,WC_H);
-  // Painter order: iterate by gx+gy sum ascending
   for(let sum=0;sum<WORLD*2;sum++){
     for(let gx=Math.max(0,sum-WORLD+1);gx<=Math.min(sum,WORLD-1);gx++){
-      const gy=sum-gx;
-      if(gy<0||gy>=WORLD) continue;
-      renderCellTo(worldCtx,gx,gy);
+      const gy=sum-gx;if(gy>=0&&gy<WORLD)renderCellTo(worldCtx,gx,gy);
     }
   }
   worldDirty=false;dirtySet.clear();
 }
-
-// ── FIX 1B: PATCH DIRTY CELLS ONLY ───────────────────────────
 function patchDirtyCells(){
   for(const key of dirtySet){
     const [gx,gy]=key.split(',').map(Number);
     const {sx,sy}=isoBase(gx,gy);
-    // Clear generous bounding box around this cell
     worldCtx.clearRect(sx-ISO_W/2-4,sy-BLK_H*6-4,ISO_W+8,ISO_H+BLK_H*6+8);
-    // Re-render 3×3 neighbourhood in painter order to avoid seams
     const cells=[];
-    for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
       const nx=gx+dx,ny=gy+dy;
-      if(nx>=0&&nx<WORLD&&ny>=0&&ny<WORLD) cells.push({nx,ny,sum:nx+ny});
+      if(nx>=0&&nx<WORLD&&ny>=0&&ny<WORLD)cells.push({nx,ny,sum:nx+ny});
     }
-    cells.sort((a,b)=>a.sum-b.sum||(a.nx-b.nx));
+    cells.sort((a,b)=>a.sum-b.sum||a.nx-b.nx);
     cells.forEach(({nx,ny})=>renderCellTo(worldCtx,nx,ny));
   }
   dirtySet.clear();
 }
-
 function renderCellTo(tctx,gx,gy){
-  const cell=world[gy][gx];
-  if(!cell||cell.type===0) return;
+  const cell=world[gy][gx];if(!cell||cell.type===0)return;
   const elev=cell.elev||0;
-  const tw=ISO_W,th=ISO_H,bh=BLK_H;
-  // Draw side faces for each elevation level (gives solid stacked look)
   for(let e=0;e<=elev;e++){
     const {sx,sy}=isoBase(gx,gy,e);
-    if(e<elev){
-      tctx.drawImage(buildFace(cell.type,'left'),  sx,       sy+th/2, tw/2, th/2+bh);
-      tctx.drawImage(buildFace(cell.type,'right'),  sx+tw/2, sy,      tw/2, th/2+bh);
-    }else{
-      tctx.drawImage(buildFace(cell.type,'left'),  sx,       sy+th/2, tw/2, th/2+bh);
-      tctx.drawImage(buildFace(cell.type,'right'),  sx+tw/2, sy,      tw/2, th/2+bh);
-      tctx.drawImage(buildFace(cell.type,'top'),    sx,       sy,      tw,   th);
-    }
+    tctx.drawImage(buildFace(cell.type,'left'),sx,sy+ISO_H/2,ISO_W/2,ISO_H/2+BLK_H);
+    tctx.drawImage(buildFace(cell.type,'right'),sx+ISO_W/2,sy,ISO_W/2,ISO_H/2+BLK_H);
+    if(e===elev)tctx.drawImage(buildFace(cell.type,'top'),sx,sy,ISO_W,ISO_H);
   }
 }
-
-// ── FIX 2: VIEWPORT CULL BLIT ────────────────────────────────
-// Only the visible slice of worldCanvas is composited to screen
 function blitWorld(){
-  if(!worldCanvas) return;
-  const srcX=camX, srcY=camY;
-  const srcW=canvas.width/zoom, srcH=canvas.height/zoom;
-  const csx=clamp(srcX,0,WC_W),   csy=clamp(srcY,0,WC_H);
+  if(!worldCanvas)return;
+  const srcX=camX,srcY=camY,srcW=canvas.width/zoom,srcH=canvas.height/zoom;
+  const csx=clamp(srcX,0,WC_W),csy=clamp(srcY,0,WC_H);
   const csw=clamp(srcW,0,WC_W-csx),csh=clamp(srcH,0,WC_H-csy);
-  const dx=(csx-srcX)*zoom,       dy=(csy-srcY)*zoom;
-  ctx.drawImage(worldCanvas,csx,csy,csw,csh,dx,dy,csw*zoom,csh*zoom);
-
-  // Render stat display
-  const vis=Math.round((csw/ISO_W)*(csh/ISO_H));
-  const el=document.getElementById('rDrawn');if(el) el.textContent=vis;
-  const el2=document.getElementById('rCulled');if(el2) el2.textContent=WORLD*WORLD-vis;
-  const el3=document.getElementById('rDirty');if(el3) el3.textContent=worldDirty?'FULL':dirtySet.size>0?dirtySet.size:'NO';
+  ctx.drawImage(worldCanvas,csx,csy,csw,csh,(csx-srcX)*zoom,(csy-srcY)*zoom,csw*zoom,csh*zoom);
+  document.getElementById('rDrawn').textContent=Math.round((csw/ISO_W)*(csh/ISO_H));
+  document.getElementById('rDirty').textContent=worldDirty?'FULL':dirtySet.size||'NO';
 }
 
-// ── BACKGROUND ────────────────────────────────────────────────
-// Cheap gradient + 1-pixel dots — zero shadowBlur
 function drawBackground(){
   const g=ctx.createLinearGradient(0,0,0,canvas.height);
   g.addColorStop(0,'#000408');g.addColorStop(1,'#00080f');
   ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
   const t=bgPhase*0.012;
-  for(let i=0;i<50;i++){
+  for(let i=0;i<40;i++){
     const px=((i*173.3+bgPhase*0.3)%canvas.width+canvas.width)%canvas.width;
-    const py=((i*97.7+Math.sin(t+i)*20)%(canvas.height*0.35)+canvas.height*0.35)%canvas.height;
-    const alpha=0.08+0.12*Math.abs(Math.sin(t*2+i));
-    ctx.globalAlpha=alpha;
+    const py=((i*97.7+Math.sin(t+i)*20)%(canvas.height*0.35))||0;
+    ctx.globalAlpha=0.1+0.12*Math.abs(Math.sin(t*2+i));
     ctx.fillStyle=i%3===0?'#00f5ff':i%3===1?'#ff00aa':'#aa44ff';
     ctx.fillRect(px,py,1,1);
   }
   ctx.globalAlpha=1;
 }
-
-// ── HOVER HIGHLIGHT ───────────────────────────────────────────
-// Double-stroke trick instead of shadowBlur
 function drawHover(){
   const {gx,gy}=screenToGrid(mouseScreenX,mouseScreenY);
-  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD) return;
-  const cell=world[gy]?.[gx];if(!cell) return;
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD)return;
+  const cell=world[gy]?.[gx];if(!cell)return;
   const {sx:wsx,sy:wsy}=isoBase(gx,gy,cell.elev||0);
-  const sx=(wsx-camX)*zoom,sy=(wsy-camY)*zoom;
-  const tw=ISO_W*zoom,th=ISO_H*zoom;
-  ctx.save();
-  for(let w=2;w>=1;w--){
-    ctx.strokeStyle='#00f5ff';
-    ctx.lineWidth=w*2;
-    ctx.globalAlpha=w===2?0.28:0.9;
-    ctx.beginPath();
-    ctx.moveTo(sx+tw/2,sy);ctx.lineTo(sx+tw,sy+th/2);
-    ctx.lineTo(sx+tw/2,sy+th);ctx.lineTo(sx,sy+th/2);
-    ctx.closePath();ctx.stroke();
-  }
+  const sx=(wsx-camX)*zoom,sy=(wsy-camY)*zoom,tw=ISO_W*zoom,th=ISO_H*zoom;
+  ctx.save();ctx.strokeStyle='#00f5ff';ctx.lineWidth=2;ctx.globalAlpha=0.85;
+  ctx.beginPath();ctx.moveTo(sx+tw/2,sy);ctx.lineTo(sx+tw,sy+th/2);ctx.lineTo(sx+tw/2,sy+th);ctx.lineTo(sx,sy+th/2);ctx.closePath();ctx.stroke();
   ctx.restore();
 }
-
-// ── SHARDS ────────────────────────────────────────────────────
 function spawnShard(gx,gy){
-  if(!world[gy]?.[gx]||world[gy][gx].type===0) return;
+  if(!world[gy]?.[gx]||world[gy][gx].type===0)return;
   floatingShards.push({gx,gy,phase:Math.random()*Math.PI*2,collected:false});
 }
-
 function drawHex(cx,x,y,r,rot){
   cx.beginPath();
-  for(let i=0;i<6;i++){
-    const a=i*Math.PI/3+rot;
-    if(i===0) cx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r*0.6);
-    else       cx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r*0.6);
-  }
+  for(let i=0;i<6;i++){const a=i*Math.PI/3+rot;const px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*0.6;i?cx.lineTo(px,py):cx.moveTo(px,py);}
   cx.closePath();cx.fill();
 }
-
 function drawShards(){
   const now=Date.now()*0.001;
   for(let i=floatingShards.length-1;i>=0;i--){
     const s=floatingShards[i];
     if(s.collected){floatingShards.splice(i,1);continue;}
-    const bob=Math.sin(now*2+s.phase)*5;
     const {sx:wsx,sy:wsy}=isoBase(s.gx,s.gy,1);
     const px=(wsx-camX)*zoom+ISO_W*zoom*0.5;
-    const py=(wsy-camY)*zoom+bob;
-    const pulse=0.6+0.4*Math.abs(Math.sin(now*2.5+s.phase));
-    const r=6*zoom*pulse;
-    ctx.save();
-    ctx.fillStyle='#ffd700';
-    ctx.globalAlpha=0.18*pulse;drawHex(ctx,px,py,r*1.8,now*0.6);
-    ctx.globalAlpha=0.38*pulse;drawHex(ctx,px,py,r*1.2,now*0.6);
-    ctx.globalAlpha=pulse;     drawHex(ctx,px,py,r,now*0.6);
-    ctx.fillStyle='#ffffff';
-    ctx.globalAlpha=pulse;     drawHex(ctx,px,py,r*0.3,now*0.6);
+    const py=(wsy-camY)*zoom+Math.sin(now*2+s.phase)*5;
+    const pulse=0.6+0.4*Math.abs(Math.sin(now*2.5+s.phase)),r=6*zoom*pulse;
+    ctx.save();ctx.fillStyle='#ffd700';
+    ctx.globalAlpha=0.2*pulse;drawHex(ctx,px,py,r*1.8,now*0.6);
+    ctx.globalAlpha=pulse;drawHex(ctx,px,py,r,now*0.6);
+    ctx.fillStyle='#fff';ctx.globalAlpha=pulse;drawHex(ctx,px,py,r*0.3,now*0.6);
     ctx.restore();
-
-    if(Math.hypot(mouseScreenX-px,mouseScreenY-py)<24*zoom){
+    if(Math.hypot(mouseScreenX-px,mouseScreenY-py)<26*zoom){
       s.collected=true;shards++;
-      showNotif(`⬡ SHARD +1 · TOTAL: ${shards}`);
+      showNotif('SHARD +1 · '+shards);
       spawnCollectFX(px,py);
       document.getElementById('statShards').textContent=shards;
+      updateMission();
     }
   }
 }
-
-// ── PARTICLES — no shadowBlur, use fillRect ───────────────────
 function spawnMineParticles(gx,gy,type){
   const {sx:wsx,sy:wsy}=isoBase(gx,gy);
-  const px=(wsx-camX)*zoom+ISO_W*zoom/2;
-  const py=(wsy-camY)*zoom+ISO_H*zoom/2;
-  const col=BLOCKS[type]?.topEdge||'#ffffff';
-  for(let i=0;i<18;i++){
+  const px=(wsx-camX)*zoom+ISO_W*zoom/2,py=(wsy-camY)*zoom+ISO_H*zoom/2;
+  const col=BLOCKS[type]?.topEdge||'#fff';
+  for(let i=0;i<14;i++){
     const a=Math.random()*Math.PI*2,spd=2+Math.random()*5;
-    particles.push({
-      x:px,y:py,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-2,
-      r:1.5+Math.random()*2.5,
-      color:Math.random()<0.35?'#ffffff':col,
-      life:35+Math.floor(Math.random()*20),maxLife:55,alpha:1
-    });
-  }
-  for(let i=0;i<5;i++){
-    const a=Math.random()*Math.PI*2;
-    particles.push({
-      x:px,y:py,vx:Math.cos(a)*(3+Math.random()*7),vy:Math.sin(a)*(3+Math.random()*7)-3,
-      isLine:true,angle:a,len:10+Math.random()*18,
-      color:col,life:18,maxLife:18,alpha:1,r:0
-    });
+    particles.push({x:px,y:py,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-2,r:1.5+Math.random()*2,color:col,life:30,maxLife:30,alpha:1});
   }
 }
-
 function spawnCollectFX(px,py){
-  for(let i=0;i<10;i++){
-    const a=i*Math.PI/5;
-    particles.push({x:px,y:py,vx:Math.cos(a)*3.5,vy:Math.sin(a)*3.5,
-      r:2,color:'#ffd700',life:22,maxLife:22,alpha:1});
-  }
+  for(let i=0;i<8;i++){const a=i*Math.PI/4;particles.push({x:px,y:py,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,r:2,color:'#ffd700',life:20,maxLife:20,alpha:1});}
 }
-
 function drawParticles(){
-  for(const p of particles){
-    ctx.save();ctx.globalAlpha=p.alpha;
-    if(p.isLine){
-      ctx.strokeStyle=p.color;ctx.lineWidth=1.2;
-      ctx.beginPath();
-      ctx.moveTo(p.x,p.y);
-      ctx.lineTo(p.x+Math.cos(p.angle)*p.len,p.y+Math.sin(p.angle)*p.len);
-      ctx.stroke();
-    }else{
-      ctx.fillStyle=p.color;
-      ctx.fillRect(p.x-p.r*p.alpha/2,p.y-p.r*p.alpha/2,p.r*p.alpha,p.r*p.alpha);
-    }
-    ctx.restore();
-  }
+  for(const p of particles){ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);}
+  ctx.globalAlpha=1;
 }
-
-// ── MINIMAP ───────────────────────────────────────────────────
-let minimapCache=null;
 function drawMinimap(){
-  const mw=120,mh=120,sc=mw/WORLD;
+  const mw=120,sc=mw/WORLD;
   if(minimapDirty){
-    const off=document.createElement('canvas');off.width=mw;off.height=mh;
-    const ox=off.getContext('2d');
-    ox.fillStyle='#000408';ox.fillRect(0,0,mw,mh);
-    for(let y=0;y<WORLD;y++) for(let x=0;x<WORLD;x++){
-      const t=world[y][x].type;if(!t) continue;
-      ox.fillStyle=BLOCKS[t].topEdge;
-      ox.fillRect(x*sc,y*sc,Math.max(1,sc),Math.max(1,sc));
+    mCtx.fillStyle='#000408';mCtx.fillRect(0,0,mw,mw);
+    for(let y=0;y<WORLD;y++)for(let x=0;x<WORLD;x++){
+      const t=world[y][x].type;if(!t)continue;
+      mCtx.fillStyle=BLOCKS[t].topEdge;mCtx.fillRect(x*sc,y*sc,Math.max(1,sc),Math.max(1,sc));
     }
-    minimapCache=off;minimapDirty=false;
+    minimapDirty=false;
   }
-  mCtx.clearRect(0,0,mw,mh);mCtx.drawImage(minimapCache,0,0);
-  // Shards
-  for(const s of floatingShards){
-    mCtx.fillStyle='#ffd700';mCtx.fillRect(s.gx*sc-0.5,s.gy*sc-0.5,1.5,1.5);
-  }
-  // Camera dot
+  for(const s of floatingShards){mCtx.fillStyle='#ffd700';mCtx.fillRect(s.gx*sc-0.5,s.gy*sc-0.5,2,2);}
   const {gx,gy}=screenToGrid(canvas.width/2,canvas.height/2);
-  mCtx.fillStyle='#00f5ff';
-  mCtx.fillRect(clamp(gx*sc-2,0,mw-4),clamp(gy*sc-2,0,mh-4),4,4);
+  mCtx.fillStyle='#00f5ff';mCtx.fillRect(clamp(gx*sc-2,0,mw-4),clamp(gy*sc-2,0,mw-4),4,4);
 }
 
-// ── INVENTORY ─────────────────────────────────────────────────
 function buildInventory(){
-  const inv=document.getElementById('inventory');
-  inv.innerHTML='';
+  const inv=document.getElementById('inventory');inv.innerHTML='';
   INV_BLOCKS.forEach((bid,i)=>{
     const slot=document.createElement('div');
     slot.className='inv-slot'+(bid===selectedBlock?' active':'');
     slot.onclick=()=>{selectedBlock=bid;buildInventory();};
-    const pc=document.createElement('canvas');
-    pc.width=48;pc.height=36;
+    const pc=document.createElement('canvas');pc.width=48;pc.height=36;
     const pctx=pc.getContext('2d');
     pctx.drawImage(buildFace(bid,'top'),0,0,48,24);
     pctx.drawImage(buildFace(bid,'left'),0,16,24,20);
     pctx.drawImage(buildFace(bid,'right'),24,8,24,20);
     slot.appendChild(pc);
-    const lbl=document.createElement('div');
-    lbl.className='inv-label';lbl.textContent=BLOCKS[bid].name.split(' ')[0];
-    slot.appendChild(lbl);
-    const key=document.createElement('div');
-    key.className='inv-key';key.textContent=i+1;
-    slot.appendChild(key);
+    const lbl=document.createElement('div');lbl.className='inv-label';lbl.textContent=BLOCKS[bid].name.split(' ')[0];slot.appendChild(lbl);
+    const key=document.createElement('div');key.className='inv-key';key.textContent=i+1;slot.appendChild(key);
     inv.appendChild(slot);
   });
 }
-
-// ── NOTIFICATIONS ─────────────────────────────────────────────
 function showNotif(msg){
-  const el=document.createElement('div');
-  el.className='notif';el.textContent=msg;
+  const el=document.createElement('div');el.className='notif';el.textContent=msg;
   document.getElementById('notif').appendChild(el);
-  setTimeout(()=>el.classList.add('show'),10);
-  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),350);},2000);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300);},1800);
 }
-
-// ── HUD ───────────────────────────────────────────────────────
-let lastHudTime=0;
+function updateMission(){
+  document.getElementById('mShards').textContent=shards+' / 12';
+  document.getElementById('mBiomes').textContent=seenBiomes.size+' / 4';
+  document.getElementById('mMined').textContent=mined+' / 20';
+  if(!missionDone&&shards>=12&&seenBiomes.size>=4&&mined>=20){
+    missionDone=true;showNotif('MISSION COMPLETE · WORLD STABILIZED');
+  }
+}
+let lastHud=0;
 function updateHUD(){
-  const now=performance.now();
-  if(now-lastHudTime<500) return;
-  lastHudTime=now;
+  const now=performance.now();if(now-lastHud<250)return;lastHud=now;
   const {gx,gy}=screenToGrid(canvas.width/2,canvas.height/2);
   document.getElementById('coordX').textContent=gx;
   document.getElementById('coordY').textContent=gy;
@@ -812,199 +516,178 @@ function updateHUD(){
     document.getElementById('fDensM').textContent=(n*100).toFixed(0)+'%';
     document.getElementById('fDensJ').textContent=(j*100).toFixed(0)+'%';
     document.getElementById('fDensS').textContent=((1-j)*n*100).toFixed(0)+'%';
-    document.getElementById('statDepth').textContent=(cell.elev||0);
-    let biome='MANDELBROT PLAINS';
-    if(n>0.72)      biome='SIERPINSKI SPIRES';
-    else if(j>0.72) biome='JULIA CAVES';
-    else if(n<0.38) biome='VOID DEPTHS';
-    else if(n>0.56) biome='FRACTASTONE FIELDS';
+    document.getElementById('statDepth').textContent=cell.elev||0;
+    const biome=biomeAt(gx,gy);
     document.getElementById('statBiome').textContent=biome;
+    seenBiomes.add(biome);updateMission();
   }
 }
-
-// ── FPS ───────────────────────────────────────────────────────
 let fpsFrames=0,fpsLast=performance.now();
 function tickFPS(){
-  fpsFrames++;
-  const now=performance.now();
-  if(now-fpsLast>500){
-    const fps=Math.round(fpsFrames/(now-fpsLast)*1000);
-    fpsFrames=0;fpsLast=now;
-    const el=document.getElementById('fps-disp');
-    if(el){
-      el.textContent=fps+' FPS';
-      el.style.color=fps>=50?'rgba(0,245,255,.4)':fps>=30?'rgba(255,215,0,.5)':'rgba(255,80,80,.6)';
-    }
-  }
+  fpsFrames++;const now=performance.now();
+  if(now-fpsLast>500){const fps=Math.round(fpsFrames/(now-fpsLast)*1000);fpsFrames=0;fpsLast=now;
+    const el=document.getElementById('fps-disp');el.textContent=fps+' FPS';
+    el.style.color=fps>=50?'rgba(0,245,255,.5)':fps>=30?'rgba(255,215,0,.6)':'rgba(255,80,80,.7)';}
 }
 
-// ── INPUT ─────────────────────────────────────────────────────
+function mineAt(gx,gy){
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD)return;
+  const cell=world[gy][gx];if(cell.type===0)return;
+  spawnMineParticles(gx,gy,cell.type);
+  if(cell.type===5){shards+=3;document.getElementById('statShards').textContent=shards;showNotif('ENERGY CORE +3');}
+  else showNotif('Mined '+BLOCKS[cell.type].name);
+  world[gy][gx]={type:0,elev:0};dirtySet.add(gx+','+gy);minimapDirty=true;mined++;
+  document.getElementById('statMined').textContent=mined;
+  if(Math.random()<0.18)spawnShard(gx,gy);
+  updateMission();
+}
+function placeAt(gx,gy){
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD)return;
+  if(world[gy][gx].type!==0)return;
+  world[gy][gx]={type:selectedBlock,elev:0};dirtySet.add(gx+','+gy);minimapDirty=true;
+}
+
 canvas.addEventListener('mousemove',e=>{
   const r=canvas.getBoundingClientRect();
   mouseScreenX=(e.clientX-r.left)*(canvas.width/r.width);
   mouseScreenY=(e.clientY-r.top)*(canvas.height/r.height);
-  const ch=document.getElementById('crosshair');
-  ch.style.left=e.clientX+'px';ch.style.top=e.clientY+'px';
+  const ch=document.getElementById('crosshair');ch.style.left=e.clientX+'px';ch.style.top=e.clientY+'px';
 },{passive:true});
-
 canvas.addEventListener('click',e=>{
-  if(!gameRunning) return;
-  const {gx,gy}=screenToGrid(mouseScreenX,mouseScreenY);
-  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD) return;
-  const cell=world[gy][gx];
-  if(cell.type!==0){
-    spawnMineParticles(gx,gy,cell.type);
-    if(cell.type===5){shards+=3;showNotif('⬡ ENERGY CORE! +3 SHARDS');document.getElementById('statShards').textContent=shards;}
-    else showNotif(`⛏ Mined ${BLOCKS[cell.type].name}`);
-    world[gy][gx]={type:0,elev:0};
-    dirtySet.add(`${gx},${gy}`);minimapDirty=true;
-    if(Math.random()<0.15) spawnShard(gx,gy);
-  }
+  if(!gameRunning||paused)return;
+  const {gx,gy}=screenToGrid(mouseScreenX,mouseScreenY);mineAt(gx,gy);
 });
-
 canvas.addEventListener('contextmenu',e=>{
-  e.preventDefault();if(!gameRunning) return;
-  const {gx,gy}=screenToGrid(mouseScreenX,mouseScreenY);
-  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD) return;
-  if(world[gy][gx].type===0){
-    world[gy][gx]={type:selectedBlock,elev:0};
-    dirtySet.add(`${gx},${gy}`);minimapDirty=true;
-  }
+  e.preventDefault();if(!gameRunning||paused)return;
+  const {gx,gy}=screenToGrid(mouseScreenX,mouseScreenY);placeAt(gx,gy);
 });
-
 canvas.addEventListener('wheel',e=>{
-  e.preventDefault();
-  const oldZoom=zoom;
-  zoom=clamp(zoom+(e.deltaY>0?-0.1:0.1),0.3,2.5);
-  // Zoom toward mouse position
-  if(zoom!==oldZoom){
-    camX+=mouseScreenX/zoom-mouseScreenX/oldZoom;
-    camY+=mouseScreenY/zoom-mouseScreenY/oldZoom;
-    camX=clamp(camX,0,Math.max(0,WC_W-canvas.width/zoom));
-    camY=clamp(camY,0,Math.max(0,WC_H-canvas.height/zoom));
-  }
-  // worldCanvas stays at base res — zoom handled by blitWorld drawImage scaling
+  e.preventDefault();if(!gameRunning||paused)return;
+  const old=zoom;
+  zoom=clamp(zoom+(e.deltaY>0?-0.12:0.12),0.35,2.4);
+  camX+=mouseScreenX*(1/old-1/zoom);
+  camY+=mouseScreenY*(1/old-1/zoom);
+  clampCam();
 },{passive:false});
+
+let touchLast=null;
+canvas.addEventListener('touchstart',e=>{
+  if(!e.touches[0])return;
+  const r=canvas.getBoundingClientRect(),t=e.touches[0];
+  mouseScreenX=(t.clientX-r.left)*(canvas.width/r.width);
+  mouseScreenY=(t.clientY-r.top)*(canvas.height/r.height);
+  touchLast={x:t.clientX,y:t.clientY};
+},{passive:true});
+canvas.addEventListener('touchmove',e=>{
+  if(!touchLast||!e.touches[0]||!gameRunning||paused)return;
+  const t=e.touches[0];
+  camX-=(t.clientX-touchLast.x)/zoom;
+  camY-=(t.clientY-touchLast.y)/zoom;
+  touchLast={x:t.clientX,y:t.clientY};clampCam();
+},{passive:true});
+canvas.addEventListener('touchend',()=>{touchLast=null;});
+
+miniCanvas.style.pointerEvents='all';
+miniCanvas.addEventListener('click',e=>{
+  if(!gameRunning||paused)return;
+  const r=miniCanvas.getBoundingClientRect();
+  const gx=Math.floor((e.clientX-r.left)/r.width*WORLD);
+  const gy=Math.floor((e.clientY-r.top)/r.height*WORLD);
+  const {sx,sy}=isoBase(clamp(gx,0,WORLD-1),clamp(gy,0,WORLD-1),0);
+  camX=sx-canvas.width/zoom/2;camY=sy-canvas.height/zoom/2;clampCam();
+  showNotif('Jumped to '+gx+','+gy);
+});
 
 window.addEventListener('keydown',e=>{
   keys[e.code]=true;
-  if(!gameRunning) return;
-  if(e.code==='KeyG') regenerate();
-  if(e.code==='KeyF') floodFill();
+  if(e.code==='KeyP'){togglePause();return;}
+  if(!gameRunning||paused)return;
+  if(e.code==='KeyG')regenerate();
+  if(e.code==='KeyF')floodFill();
   const map={Digit1:1,Digit2:2,Digit3:3,Digit4:4,Digit5:5};
   if(map[e.code]){selectedBlock=map[e.code];buildInventory();}
 });
 window.addEventListener('keyup',e=>{keys[e.code]=false;});
 
-// ── FLOOD FILL ────────────────────────────────────────────────
 function floodFill(){
   const {gx,gy}=screenToGrid(mouseScreenX,mouseScreenY);
-  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD||world[gy][gx].type!==0) return;
-  const queue=[[gx,gy]],visited=new Set();
-  let filled=0;
-  while(queue.length&&filled<150){
-    const [cx,cy]=queue.shift();
-    const k=`${cx},${cy}`;
-    if(visited.has(k)||cx<0||cy<0||cx>=WORLD||cy>=WORLD||world[cy][cx].type!==0) continue;
-    visited.add(k);
-    world[cy][cx]={type:selectedBlock,elev:0};
-    dirtySet.add(k);filled++;
-    queue.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+  if(gx<0||gy<0||gx>=WORLD||gy>=WORLD||world[gy][gx].type!==0)return;
+  const q=[[gx,gy]],seen=new Set();let filled=0;
+  while(q.length&&filled<120){
+    const [cx,cy]=q.shift();const k=cx+','+cy;
+    if(seen.has(k)||cx<0||cy<0||cx>=WORLD||cy>=WORLD||world[cy][cx].type!==0)continue;
+    seen.add(k);world[cy][cx]={type:selectedBlock,elev:0};dirtySet.add(k);filled++;
+    q.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
   }
-  minimapDirty=true;
-  showNotif(`⬡ Flood filled ${filled} tiles`);
+  minimapDirty=true;showNotif('Filled '+filled+' tiles');
 }
-
-// ── GAME LOOP ─────────────────────────────────────────────────
-function update(){
-  bgPhase++;frameCount++;
-  const spd=6/zoom;
-  if(keys['KeyW']||keys['ArrowUp'])    camY-=spd;
-  if(keys['KeyS']||keys['ArrowDown'])  camY+=spd;
-  if(keys['KeyA']||keys['ArrowLeft'])  camX-=spd;
-  if(keys['KeyD']||keys['ArrowRight']) camX+=spd;
+function clampCam(){
   camX=clamp(camX,0,Math.max(0,WC_W-canvas.width/zoom));
   camY=clamp(camY,0,Math.max(0,WC_H-canvas.height/zoom));
-
+}
+function update(){
+  if(paused)return;
+  bgPhase++;frameCount++;
+  const spd=7/zoom;
+  if(keys.KeyW||keys.ArrowUp)camY-=spd;
+  if(keys.KeyS||keys.ArrowDown)camY+=spd;
+  if(keys.KeyA||keys.ArrowLeft)camX-=spd;
+  if(keys.KeyD||keys.ArrowRight)camX+=spd;
+  clampCam();
   for(let i=particles.length-1;i>=0;i--){
-    const p=particles[i];
-    p.x+=p.vx;p.y+=p.vy;p.vy+=0.18;p.vx*=0.96;
-    p.life--;p.alpha=p.life/p.maxLife;
-    if(p.isLine) p.angle+=0.04;
-    if(p.life<=0) particles.splice(i,1);
+    const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.16;p.vx*=0.96;p.life--;p.alpha=p.life/p.maxLife;
+    if(p.life<=0)particles.splice(i,1);
   }
   updateHUD();
 }
-
 function draw(){
-  // Step 1: update world canvas (FIX 1 — only when dirty)
-  if(worldDirty)         redrawWorldCanvas();
-  else if(dirtySet.size) patchDirtyCells();
-
-  // Step 2: background (cheap — no shadowBlur)
-  drawBackground();
-
-  // Step 3: blit visible slice of worldCanvas (FIX 2 — viewport cull)
-  blitWorld();
-
-  // Step 4: overlays — hover, shards, particles (all no shadowBlur, FIX 3)
-  drawHover();
-  drawShards();
-  drawParticles();
-
-  // Step 5: minimap throttled
-  if(frameCount%4===0) drawMinimap();
-
+  if(worldDirty)redrawWorldCanvas();
+  else if(dirtySet.size)patchDirtyCells();
+  drawBackground();blitWorld();drawHover();drawShards();drawParticles();
+  if(frameCount%5===0)drawMinimap();
   tickFPS();
 }
-
 function loop(){
-  if(!gameRunning) return;
+  if(!gameRunning)return;
   update();draw();
   requestAnimationFrame(loop);
 }
-
-// ── RESIZE / REGEN / START ────────────────────────────────────
-function resizeCanvas(){
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
-}
-
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}
 function centreCamera(){
   const {sx,sy}=isoBase(WORLD/2,WORLD/2,0);
-  camX=clamp(sx-canvas.width/zoom/2,  0,Math.max(0,WC_W-canvas.width/zoom));
-  camY=clamp(sy-canvas.height/zoom/2, 0,Math.max(0,WC_H-canvas.height/zoom));
+  camX=sx-canvas.width/zoom/2;camY=sy-canvas.height/zoom/2;clampCam();
 }
-
 function regenerate(){
   worldSeed=Math.floor(Math.random()*999999);
-  generateWorld(worldSeed);particles=[];shards=0;
-  document.getElementById('statShards').textContent='0';
-  centreCamera();worldDirty=true;
-  showNotif(`◈ NEW WORLD · SEED ${worldSeed}`);
+  generateWorld(worldSeed);particles=[];centreCamera();
+  showNotif('NEW WORLD · SEED '+worldSeed);
 }
-
 function startGame(){
   const raw=document.getElementById('seedInput').value.trim();
   worldSeed=raw?hashSeed(raw)%999999:Math.floor(Math.random()*999999);
-  resizeCanvas();
-  initWorldCanvas();
+  resizeCanvas();initWorldCanvas();
   [1,2,3,4,5].forEach(t=>{buildFace(t,'top');buildFace(t,'left');buildFace(t,'right');});
-  generateWorld(worldSeed);
-  buildInventory();
-  centreCamera();
-  gameRunning=true;
+  generateWorld(worldSeed);buildInventory();centreCamera();
+  gameRunning=true;paused=false;
+  document.body.classList.add('playing');
   document.getElementById('overlay').classList.add('hidden');
-  showNotif(`◈ WORLD SEED: ${worldSeed}`);
-  setTimeout(()=>showNotif('⛏ LClick mine · RClick place · F fill · G new world'),1300);
+  showNotif('WORLD SEED '+worldSeed);
+  setTimeout(()=>showNotif('Mine · collect shards · visit biomes'),1200);
   requestAnimationFrame(loop);
 }
-
-window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas();centreCamera();}});
-window.startGame=startGame;
-
-document.fonts.ready.then(()=>buildInventory());
-document.getElementById('crosshair').style.position='fixed';
+function togglePause(){
+  if(!gameRunning)return;
+  paused=!paused;
+  document.getElementById('pause-ov').classList.toggle('hidden',!paused);
+  document.body.classList.toggle('playing',!paused);
+}
+function toggleFocus(){
+  document.body.classList.toggle('focus-play');
+  document.getElementById('btn-focus').textContent=document.body.classList.contains('focus-play')?'SHOW TABS':'PLAY FOCUS';
+}
+document.getElementById('startBtn').onclick=startGame;
+document.getElementById('seedInput').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas();clampCam();}});
 </script>
 </body>
 </html>
