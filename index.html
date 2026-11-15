@@ -443,8 +443,53 @@
     }
     .to-top.show { opacity: 1; pointer-events: auto; }
 
+
+    .kwf-launch { display: flex; flex-direction: column; gap: 22px; }
+    .kwf-poster {
+      width: 100%; border-radius: 18px; object-fit: cover; max-height: 520px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35), 0 0 30px rgba(255,215,0,0.08);
+    }
+    .kwf-launch-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .kwf-videos {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .kwf-videos video {
+      width: 100%; border-radius: 16px; background: #000;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+    }
+    .kwf-roster-title {
+      font-family: 'Orbitron', monospace; font-size: 1rem;
+      letter-spacing: 1px; margin-top: 8px;
+    }
+    .kwf-roster {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .kwf-char {
+      margin: 0; padding: 10px; border-radius: 14px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      text-align: center; transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .kwf-char:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,215,0,0.4);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.28);
+    }
+    .kwf-char img {
+      width: 100%; aspect-ratio: 1 / 1; object-fit: cover; object-position: center top;
+      border-radius: 10px; background: #111; margin-bottom: 8px;
+    }
+    .kwf-char figcaption {
+      font-family: 'Orbitron', monospace; font-size: 0.62rem;
+      letter-spacing: 0.6px; line-height: 1.4; color: var(--gold-soft);
+    }
+
     @media (max-width: 980px) {
       .grid-2, .featured-games-grid, .footer-inner { grid-template-columns: 1fr; }
+      .kwf-videos { grid-template-columns: 1fr; }
       .hero-stats { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 768px) {
@@ -478,6 +523,7 @@
     <div class="nav-links" id="navLinks">
       <a href="#about">About</a>
       <a href="#books">Books</a>
+      <a href="#roblox">Roblox</a>
       <a href="#apps">Apps</a>
       <a href="#kids">Kid's Zone</a>
       <a href="#x">X</a>
@@ -510,8 +556,8 @@
 
     <div class="marquee-wrap" aria-hidden="true">
       <div class="marquee">
-        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> The Eye of Dominance <span>✦</span> The Pattern of Destiny <span>✦</span> Payaso el Clown <span>✦</span> The Marie Chronicles <span>✦</span> The Adventures of Kai <span>✦</span> Kai Wisdom Fighter <span>✦</span> Shit Stalkers <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span></div>
-        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> The Eye of Dominance <span>✦</span> The Pattern of Destiny <span>✦</span> Payaso el Clown <span>✦</span> The Marie Chronicles <span>✦</span> The Adventures of Kai <span>✦</span> Kai Wisdom Fighter <span>✦</span> Shit Stalkers <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span></div>
+        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> The Eye of Dominance <span>✦</span> The Pattern of Destiny <span>✦</span> Payaso el Clown <span>✦</span> The Marie Chronicles <span>✦</span> The Adventures of Kai <span>✦</span> Kai Wisdom Fighter <span>✦</span> Kai Wisdom Fighters on Roblox <span>✦</span> Shit Stalkers <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span></div>
+        <div>The Fractal Symphony of Time <span>✦</span> When Realms Bleed <span>✦</span> The Eye of Dominance <span>✦</span> The Pattern of Destiny <span>✦</span> Payaso el Clown <span>✦</span> The Marie Chronicles <span>✦</span> The Adventures of Kai <span>✦</span> Kai Wisdom Fighter <span>✦</span> Kai Wisdom Fighters on Roblox <span>✦</span> Shit Stalkers <span>✦</span> Mr. Ito’s Fractal Adventure <span>✦</span></div>
       </div>
     </div>
 
@@ -691,6 +737,14 @@
               <div class="meta">KAI • Kids</div>
             </div>
           </a>
+          <a class="book" data-imprint="kai" data-cat="kids" href="https://a.co/d/06uu5UVN" target="_blank" rel="noopener">
+            <img class="book-cover" src="assets/images/kai-wisdom-fighter.jpg" alt="Cover of KAI Wisdom Fighters: Winter Arc: The Adventures at Astral Fortress (Book 1)">
+            <div>
+              <h3>KAI Wisdom Fighters: Winter Arc <span class="badge-soon">New</span></h3>
+              <p>The Adventures at Astral Fortress (Book 1). Kai and the Wisdom Fighters train, laugh, and battle — friendship, courage, and anime-style adventure. Ages 7–12.</p>
+              <div class="meta">KAI • Kids</div>
+            </div>
+          </a>
           <a class="book" data-imprint="beibei" data-cat="satire" href="https://a.co/d/00b1kp7D" target="_blank" rel="noopener">
             <img class="book-cover" src="assets/images/shit-stalkers.jpg" alt="Cover of Shit Stalkers">
             <div>
@@ -703,6 +757,78 @@
         <div style="margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;">
           <a href="https://www.amazon.com/stores/Itoshiro-Zuna/author/B0F67J81B6" target="_blank" rel="noopener" class="btn btn-gold">Browse the full store <i class="fas fa-arrow-right"></i></a>
           <a href="books.html" class="btn btn-outline">Classic books page</a>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section" id="roblox">
+      <div class="reveal">
+        <div class="section-head">
+          <div class="section-label">Now Live</div>
+          <h2 class="section-title">Kai Wisdom Fighters on <em>ROBLOX</em> — Now Live</h2>
+          <p class="section-lead">Fight your way through nine realms as Kai and his crew, beat the bosses, and earn Zuna Coins. Created by Itoshiro Zuna with Kai — now playable on Roblox.</p>
+        </div>
+        <div class="kwf-launch">
+          <img class="kwf-poster" src="assets/images/KWF_thumbnail_v2.jpg" alt="Kai Wisdom Fighters on Roblox — official game thumbnail">
+          <div class="kwf-launch-actions">
+            <a href="https://www.roblox.com/games/118468233625112/KAI-WISDOM-FIGHTER-S" target="_blank" rel="noopener" class="btn btn-gold">Play on Roblox <i class="fas fa-gamepad"></i></a>
+          </div>
+          <div class="kwf-videos">
+            <video controls preload="metadata" playsinline poster="assets/kwf-roblox-clip-1.jpg" src="assets/kwf-roblox-clip-1.mp4" aria-label="Kai Wisdom Fighters Roblox gameplay clip 1"></video>
+            <video controls preload="metadata" playsinline poster="assets/kwf-roblox-clip-2.jpg" src="assets/kwf-roblox-clip-2.mp4" aria-label="Kai Wisdom Fighters Roblox gameplay clip 2"></video>
+          </div>
+          <h3 class="kwf-roster-title">The Wisdom Fighters</h3>
+          <div class="kwf-roster">
+            <figure class="kwf-char">
+              <img src="assets/images/Kai_%20Cosmic%20Wisdom%20Warrior.png" alt="Kai — Cosmic Wisdom Warrior" loading="lazy">
+              <figcaption>Kai — Cosmic Wisdom Warrior</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Yuukario_%20The%20Frost%20Guardian.png" alt="Yuukario — The Frost Guardian" loading="lazy">
+              <figcaption>Yuukario — The Frost Guardian</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Marie%20the%20Scarlet%20Alchemist(1).png" alt="Marie the Scarlet Alchemist" loading="lazy">
+              <figcaption>Marie the Scarlet Alchemist</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Kiro_%20The%20Genius%20Mechanist.png" alt="Kiro — The Genius Mechanist" loading="lazy">
+              <figcaption>Kiro — The Genius Mechanist</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Astrid%2C%20the%20Storm%20Huntress(1).png" alt="Astrid, the Storm Huntress" loading="lazy">
+              <figcaption>Astrid, the Storm Huntress</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Zaid_%20The%20Chroma%20Duelist.png" alt="Zaid — The Chroma Duelist" loading="lazy">
+              <figcaption>Zaid — The Chroma Duelist</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Nakuu_%20The%20Beast%20Fist(1).png" alt="Nakuu — The Beast Fist" loading="lazy">
+              <figcaption>Nakuu — The Beast Fist</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Lyra_%20The%20Crystal%20Sage(1).png" alt="Lyra — The Crystal Sage" loading="lazy">
+              <figcaption>Lyra — The Crystal Sage</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Orion_%20The%20Guardian%20of%20Stars.png" alt="Orion — The Guardian of Stars" loading="lazy">
+              <figcaption>Orion — The Guardian of Stars</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Nazmaki_%20Frostfang%20Redeemed(1).png" alt="Nazmaki — Frostfang Redeemed" loading="lazy">
+              <figcaption>Nazmaki — Frostfang Redeemed</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Astral%20Kong_%20Celestial%20Ape%20King.png" alt="Astral Kong — Celestial Ape King" loading="lazy">
+              <figcaption>Astral Kong — Celestial Ape King</figcaption>
+            </figure>
+            <figure class="kwf-char">
+              <img src="assets/images/Luminous%20Guardian%20of%20Infinity.png" alt="Luminous Guardian of Infinity" loading="lazy">
+              <figcaption>Luminous Guardian of Infinity</figcaption>
+            </figure>
+          </div>
         </div>
       </div>
     </section>
@@ -792,7 +918,7 @@
         <div class="kids-grid">
           <a href="kai-wisdom-fighters.html" class="kid-card">
             <h4><i class="fas fa-gamepad" style="margin-right:8px;"></i>Kai Wisdom Fighters</h4>
-            <p>Epic math battles where knowledge is your superpower. Level up by solving real problems.</p>
+            <p>Epic math battles where knowledge is your superpower. Level up by solving real problems. Now live on Roblox.</p>
           </a>
           <a href="certificate.html" class="kid-card">
             <h4><i class="fas fa-award" style="margin-right:8px;"></i>Fractal Hunters Certificate</h4>
@@ -888,6 +1014,7 @@
       <div class="footer-links">
         <a href="#about">About</a>
         <a href="#books">Books</a>
+        <a href="#roblox">Roblox</a>
         <a href="#apps">Apps & Games</a>
         <a href="#kids">Kid's Zone</a>
       </div>
