@@ -181,28 +181,55 @@
             #panel { bottom: 8px; padding: 8px; }
             .btn { padding: 7px 9px; font-size: 13px; }
         }
-    </style>
+    :root{--gold:#e5bd78;--gold-2:#f6dca9;--ink:#e9edf5;--panel:rgba(12,19,32,.94);--panel-edge:#526075;--ok:#65dcca;--bad:#ed6b7a}
+body{background:#070d19;color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 150px #0008;z-index:4}
+.site-nav{background:linear-gradient(#060b13e8,transparent);padding:16px}.nav-links>a,.dropdown>a{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#9faebf}
+.site-footer{background:transparent;color:#7890a5;font-size:9px;letter-spacing:2px;padding:8px}
+#cinemaBtn{background:#152031;color:#a8bbce;border:1px solid #34435a;font-size:10px;top:12px}
+.bar-card,.level-chip,#roster,#panel,.sheet{border:1px solid #69778d55;border-radius:5px;box-shadow:0 16px 40px #0006;backdrop-filter:blur(18px)}
+.top-bar{top:60px;left:32px;right:32px}.bar-card{width:255px;padding:13px 17px}.label{font-size:10px;letter-spacing:2px;color:#abc1d1;opacity:1}
+.hp-track{height:6px;background:#293244;border:0;border-radius:0;margin-top:10px}.hp-fill{background:linear-gradient(90deg,#318c89,#7bf2cc)}#enemyHp{background:linear-gradient(90deg,#9b4562,#f28e98)}
+.meta{font-size:11px;color:#b2c1d0}.life{height:7px;width:7px;background:#e5bd78;border:0;transform:rotate(45deg);border-radius:0}.life.off{background:#384355}
+.level-chip{background:transparent;border:0;box-shadow:none;font-size:14px;letter-spacing:3px;text-transform:uppercase;text-align:center;min-width:120px}.timer-track{height:3px;background:#263345}
+#panel{bottom:35px;width:min(650px,calc(100vw - 340px));padding:16px 22px;background:linear-gradient(130deg,#111d30f5,#0b1322f5);border-top:2px solid #d5b676}
+#panel::before{content:'CHANNEL YOUR WISDOM';display:block;font-size:9px;letter-spacing:3px;color:#d4b986;margin-bottom:7px}
+#mathProblem{font-weight:400;letter-spacing:3px;font-size:32px}#answerInput{background:#070f1d;color:#fff;border:1px solid #827350;border-radius:3px;width:105px;font-size:20px}
+.btn{background:#d6b57b;color:#121927;border-radius:3px;box-shadow:none;font-size:12px;padding:10px 13px}.btn.ghost{background:#202e43;color:#bbcadd;border:1px solid #37465c}.btn:hover{filter:brightness(1.14)}
+#feedback{font-size:12px;min-height:16px;color:#9ce8da}#work{font-size:12px;color:#e0c796}#scoreLine{font-size:10px;color:#8e9daf;letter-spacing:1px;margin-top:6px}.blk{width:7px;height:7px;border:0;border-radius:1px}#blocks{max-height:18px;margin:0 0 6px}
+#roster{left:24px;bottom:35px;width:220px;padding:12px;background:#0c1523e8}#roster h3{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:#d6b57b;margin:0 0 12px}.kai-row{font-size:11px;padding:9px 7px;border-radius:2px;border-left:2px solid transparent}.kai-row.active{border-color:#d6b57b;background:#d6b57b15}.kai-row:hover{background:#ffffff0a}.xp-mini{background:#243145;height:2px}.xp-mini>i{background:#d6b57b}
+.match-chip.good{color:#7fe0c6}.match-chip.bad{color:#f6a7ad}.toast{background:#0d172bea;color:#dfc28c;border:1px solid #a58b5144;border-radius:3px;font-size:14px;padding:12px 20px;top:20%;font-weight:400}#talk{top:28%;font-size:12px;color:#b3c8d9}#dmg{top:40%;color:#ffd29a;font-size:42px}
+.modal{background:linear-gradient(90deg,#050b17c9,#050b1744);z-index:50;overflow-y:auto;padding:60px 20px 35px}.sheet{width:min(540px,94vw);padding:30px;background:linear-gradient(140deg,#172236f7,#080f1df7)}.sheet h2{font-family:Georgia,serif;font-weight:400;font-size:34px;color:#f5d9a8;letter-spacing:1px}.sheet p{font-size:13px;color:#b4c2d1;line-height:1.7}.sheet label{font-size:12px;color:#bdcddd}.sheet input[type=text],.sheet select{color:#e4eaf0;background:#0b1424;border:1px solid #45536a}.vol{color:#9eafc3;font-size:11px}.vol input{accent-color:#d6b57b;width:100px}.stamp{background:#243146;color:#e5bd78;border-color:#766547}
+#startModal .sheet::before{content:'ITOSHIRO ZUNA  /  LEGENDS OF THE TEN ARENAS';display:block;color:#a0b4cc;font-size:8px;letter-spacing:2.5px;margin-bottom:15px}
+#startModal h2{font-size:44px;line-height:1.05}#coachBlurb{font-size:11px}.sheet .row .btn{min-width:120px}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #f8d79d;outline-offset:3px}
+#loadingNote{position:fixed;bottom:12px;left:20px;color:#adc5d6;z-index:1100;font-size:11px;max-width:70vw}
+@media(min-width:1100px){#panel{left:calc(50% + 65px)}}
+@media(max-width:1000px){#roster{width:170px;left:12px}.kai-row{font-size:10px}#panel{width:calc(100vw - 220px);left:auto;right:12px;transform:none}}
+@media(max-width:720px){.site-nav{display:none}.top-bar{top:44px;left:10px;right:10px;gap:8px}.bar-card{min-width:0;width:36%;padding:8px}.level-chip{min-width:65px;padding:8px 0;font-size:10px;letter-spacing:1px}.label{font-size:8px;letter-spacing:1px}.match-chip{font-size:8px}.meta{font-size:9px}#roster{display:flex;gap:3px;width:calc(100% - 20px);max-height:none;bottom:252px;left:10px;padding:4px;overflow-x:auto}#roster h3{display:none}.kai-row{flex:1;min-width:60px;padding:5px;font-size:9px}#panel{bottom:28px;left:10px;right:10px;transform:none;width:auto;padding:10px}#mathProblem{font-size:27px}.btn{font-size:11px;padding:9px}#panel .row{gap:4px}#panel::before{font-size:8px}#feedback{font-size:10px}.sheet{padding:22px}#startModal h2{font-size:36px}.toast{top:16%;font-size:12px}#talk{top:22%}.site-footer{font-size:8px;letter-spacing:0}}
+@media(max-height:600px){.modal{padding:20px;place-items:start center}.top-bar{top:36px}.bar-card{padding:6px}#panel{padding:7px;bottom:20px}#panel::before,#blocks,#work,#roster{display:none}#mathProblem{font-size:24px;margin:0 0 4px}#panel .btn{padding:6px 9px}.site-footer{padding:3px}}
+
+</style>
 </head>
-<body>
+<body><div id="loadingNote" role="status">Summoning the arena…</div>
     <nav class="site-nav" aria-label="Itoshiro Zuna website">
         <div class="nav-links">
-            <a href="index.html">Home</a>
+            <a href="https://itoshirozuna.com/index.html">Home</a>
             <div class="dropdown">
-                <a href="apps.html">Apps</a>
+                <a href="https://itoshirozuna.com/apps.html">Apps</a>
                 <div class="dropdown-content">
-                    <a href="fractal-ai-research.html">Fractal AI Research</a>
-                    <a href="fractal-meditation.html">Fractal Meditation</a>
-                    <a href="virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
-                    <a href="plasma-mind.html">PlasmaMind: Journey Through Consciousness</a>
-                    <a href="fractal-racers.html">Fractal Racers: Tron Edition</a>
-                    <a href="app-instructions.html">Instructions</a>
+                    <a href="https://itoshirozuna.com/fractal-ai-research.html">Fractal AI Research</a>
+                    <a href="https://itoshirozuna.com/fractal-meditation.html">Fractal Meditation</a>
+                    <a href="https://itoshirozuna.com/virtual-fractal-sanctuary.html">Virtual Fractal Sanctuary</a>
+                    <a href="https://itoshirozuna.com/plasma-mind.html">PlasmaMind: Journey Through Consciousness</a>
+                    <a href="https://itoshirozuna.com/fractal-racers.html">Fractal Racers: Tron Edition</a>
+                    <a href="https://itoshirozuna.com/app-instructions.html">Instructions</a>
                 </div>
             </div>
             <div class="dropdown">
                 <a href="#">Kid's Zone</a>
                 <div class="dropdown-content">
-                    <a href="kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
-                    <a href="certificate.html">Certificate</a>
+                    <a href="https://itoshirozuna.com/kai-wisdom-fighters.html">Kai Wisdom Fighters</a>
+                    <a href="https://itoshirozuna.com/certificate.html">Certificate</a>
                 </div>
             </div>
         </div>
@@ -236,7 +263,7 @@
             <div id="mathProblem">Ready?</div>
             <div id="blocks"></div>
             <div class="row">
-                <input id="answerInput" type="number" inputmode="decimal" placeholder="Answer">
+                <input aria-label="Your answer" id="answerInput" type="number" inputmode="decimal" placeholder="Answer">
                 <button class="btn" id="submitBtn">Submit</button>
                 <button class="btn ghost" id="hintBtn">Hint</button>
                 <button class="btn ghost" id="gradeBtn">Grade</button>
@@ -258,10 +285,10 @@
 
     <div class="modal show" id="startModal">
         <div class="sheet">
-            <h2>Kai Wisdom Fighters</h2>
+            <h2>Kai Wisdom<br>Fighters</h2>
             <p>Solve math to power your Kai. Land enough hits to drop the boss, then climb 10 elemental arenas.</p>
             <p>Hints are free. A 20-second timer keeps the duel moving. Streaks boost damage.</p>
-            <p id="coachBlurb">First time: solve the problem, then your Kai attacks. Keys 1–5 switch Kais. Fire melts ice, water douses lava, earth grounds wind, wind cuts water, magic bites shadow.</p>
+            <p id="coachBlurb">First time: solve the problem, then your Kai attacks. Keys 1–5 switch Kais. Fire breaks earth, water douses fire, earth grounds wind, wind cuts water, and magic counters magic.</p>
             <label>Champion name
                 <input id="playerName" type="text" maxlength="18" placeholder="Your name" style="padding:8px;font-size:16px;border-radius:8px;width:70%">
             </label>
@@ -291,7 +318,7 @@
             <div class="stamp-row" id="stampRow"></div>
             <div class="row" style="margin-top:12px">
                 <button class="btn" id="copyScoreBtn">Copy score</button>
-                <a class="btn" href="certificate.html" style="text-decoration:none">Certificate</a>
+                <a class="btn" href="https://itoshirozuna.com/certificate.html" style="text-decoration:none">Certificate</a>
                 <button class="btn ghost" id="resultsAgain">Play again</button>
             </div>
         </div>
@@ -361,7 +388,10 @@
          * Kai Wisdom Fighters v2 — production single-file game.
          * Three.js arena + grade-scaled arithmetic combat.
          */
-        import * as THREE from 'https://esm.sh/three@0.154.0';
+        let THREE;
+        try { THREE=await import('https://esm.sh/three@0.154.0'); }
+        catch(error){document.getElementById('loadingNote').textContent='The 3D engine could not load. Connect to the internet and reload this file.';throw error;}
+        window.addEventListener('error',()=>{document.getElementById('loadingNote').textContent='The arena encountered a graphics error. Reload to try again.';});
 
         const SAVE_KEY = 'kwf_v2';
         const PROFILE_KEY = 'itoshiro-profile';
@@ -482,21 +512,26 @@
 
         /* ---------- three.js world ---------- */
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 200);
-        camera.position.set(0, 5.2, 16);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 200);
+        camera.position.set(0, 4.0, 20);
+        let renderer;
+        try{renderer = new THREE.WebGLRenderer({ antialias: true,powerPreference:'high-performance' });}
+        catch(error){document.getElementById('loadingNote').textContent='This game needs WebGL. Enable browser hardware acceleration and reload.';throw error;}
+        renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+        renderer.outputColorSpace=THREE.SRGBColorSpace;
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.prepend(renderer.domElement);
 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.95);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.38);
         scene.add(ambient);
-        const sun = new THREE.DirectionalLight(0xffffff, 1.15);
+        const sun = new THREE.DirectionalLight(0xffe4bc, 2.3);
         sun.position.set(6, 18, 10);
         sun.castShadow = true;
-        sun.shadow.mapSize.set(1024, 1024);
+        sun.shadow.mapSize.set(2048, 2048);
+        Object.assign(sun.shadow.camera,{left:-16,right:16,top:16,bottom:-16});sun.shadow.bias=-.0003;
         scene.add(sun);
         const lamp = new THREE.PointLight(0xffffaa, 1.1, 60);
         lamp.position.set(0, 10, 4);
@@ -525,16 +560,45 @@
         terrain.receiveShadow = true;
         scene.add(terrain);
 
+                const arena=new THREE.Group();scene.add(arena);
+        const stone=new THREE.MeshStandardMaterial({color:0x1b2531,roughness:.88,metalness:.15});
+        const trim=new THREE.MeshStandardMaterial({color:0x967851,metalness:.8,roughness:.36});
+        const runeMat=new THREE.MeshBasicMaterial({color:0x64dfef,transparent:true,opacity:.72});
+        const dais=new THREE.Mesh(new THREE.CylinderGeometry(10.5,11.3,.7,96),stone);dais.position.y=-2.42;dais.receiveShadow=true;arena.add(dais);
+        for(const radius of [6.8,9.3,10.35]){const ring=new THREE.Mesh(new THREE.TorusGeometry(radius,.035,8,160),runeMat);ring.rotation.x=Math.PI/2;ring.position.y=-2.055;arena.add(ring);}
+        for(let i=0;i<48;i++){const a=i*Math.PI/24;const mark=new THREE.Mesh(new THREE.BoxGeometry(.06,.018,i%4===0?.65:.22),trim);mark.position.set(Math.cos(a)*9.8,-2.05,Math.sin(a)*9.8);mark.rotation.y=-a+Math.PI/2;arena.add(mark);}
+        // Ancient portal gives the arena a strong distant silhouette.
+        const portal=new THREE.Group();portal.position.set(0,2.8,-13);arena.add(portal);
+        for(const radius of [4.6,5,5.35]){const ring=new THREE.Mesh(new THREE.TorusGeometry(radius,radius===5?.22:.065,12,128),radius===5?stone:trim);portal.add(ring);}
+        const portalLight=new THREE.Mesh(new THREE.TorusGeometry(4.72,.035,8,128),runeMat);portal.add(portalLight);
+        for(let i=0;i<12;i++){const a=i*Math.PI/6;const seal=new THREE.Mesh(new THREE.OctahedronGeometry(.14),runeMat);seal.position.set(Math.sin(a)*5,Math.cos(a)*5,.25);portal.add(seal);}
+        for(const side of [-1,1])for(let i=0;i<4;i++){
+            const column=new THREE.Group();column.position.set(side*(12+i*1.2),-3,-5-i*6);arena.add(column);
+            const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.55,.8,8+i,10),stone);shaft.position.y=3.5;column.add(shaft);
+            const cap=new THREE.Mesh(new THREE.BoxGeometry(1.7,.3,1.7),trim);cap.position.y=7.5+i*.5;column.add(cap);
+            const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(.6),runeMat);crystal.position.y=8.4+i*.5;column.add(crystal);
+        }
+        const moon=new THREE.Mesh(new THREE.SphereGeometry(4.5,40,32),new THREE.MeshBasicMaterial({color:0xb6cbd6}));moon.position.set(-22,21,-62);scene.add(moon);
+        const rim=new THREE.DirectionalLight(0x65cfff,2.1);rim.position.set(-7,8,-9);scene.add(rim);
+        const warm=new THREE.PointLight(0xff9855,2.4,35);warm.position.set(-6,3,5);scene.add(warm);
+        scene.add(new THREE.HemisphereLight(0x9bb8df,0x151019,.8));
+        function animateFighter(f,t,attack){
+            const u=f.userData;u.body.scale.y=.83+Math.sin(t*2)*.012;
+            u.lArm.rotation.x=Math.sin(t*1.6)*.05;u.rArm.rotation.x=-.12+Math.sin(t*1.7)*.05-attack*1.25;
+            u.rArm.userData.elbow.rotation.x=-.22-attack*.6;
+            u.lArm.userData.elbow.rotation.x=-.2+Math.sin(t)*.04;
+            const a=u.cape.geometry.attributes.position;
+            for(let i=0;i<a.count;i++){const y=a.getY(i);a.setZ(i,Math.sin(a.getX(i)*3+t*2.5-y*2)*.09*(1.2-y)+Math.max(0,1-y)*-.1);}
+            a.needsUpdate=true;u.cape.geometry.computeVertexNormals();
+        }
+
         const env = new THREE.Group();
         scene.add(env);
 
         function clearGroup(g) {
-            while (g.children.length) {
-                const c = g.children[0];
-                g.remove(c);
-                c.geometry && c.geometry.dispose();
-                c.material && c.material.dispose();
-            }
+            const geometries=new Set(),materials=new Set();
+            g.traverse(c=>{if(c.geometry)geometries.add(c.geometry);if(c.material)(Array.isArray(c.material)?c.material:[c.material]).forEach(m=>materials.add(m));});
+            g.clear();geometries.forEach(x=>x.dispose());materials.forEach(x=>x.dispose());
         }
 
         function scatter(kind, count, factory) {
@@ -553,7 +617,9 @@
             ambient.color.setHex(p.ambient);
             terrainMat.color.setHex(p.terrain);
             starMat.color.setHex(p.stars);
-            scene.fog = new THREE.FogExp2(p.fog, 0.012);
+            const atmosphere=new THREE.Color(p.fog).multiplyScalar(.065);
+            scene.background=atmosphere;scene.fog = new THREE.FogExp2(atmosphere, 0.012);
+            runeMat.color.setHex(ENEMIES[(level-1)%ENEMIES.length].color);
             const k = p.kind;
             if (k === 'jungle') scatter(k, 16, () => {
                 const g = new THREE.Group();
@@ -576,33 +642,68 @@
         }
 
         function makeFighter(opts) {
-            const g = new THREE.Group();
-            const mat = new THREE.MeshStandardMaterial({ color: opts.color });
-            const body = new THREE.Mesh(new THREE.BoxGeometry(opts.w, opts.h, opts.d), mat);
-            body.position.y = opts.h / 2;
-            body.castShadow = true;
-            const head = new THREE.Mesh(new THREE.SphereGeometry(opts.head, 14, 14), mat);
-            head.position.y = opts.h + opts.head * 0.35;
-            head.castShadow = true;
-            const armG = new THREE.BoxGeometry(opts.limb * 0.7, opts.limb * 2, opts.limb * 0.7);
-            const legG = new THREE.BoxGeometry(opts.limb * 0.75, opts.limb * 2, opts.limb * 0.75);
-            const lArm = new THREE.Mesh(armG, mat); lArm.position.set(-opts.w * 0.75, opts.h * 0.55, 0);
-            const rArm = new THREE.Mesh(armG, mat); rArm.position.set(opts.w * 0.75, opts.h * 0.55, 0);
-            const lLeg = new THREE.Mesh(legG, mat); lLeg.position.set(-opts.w * 0.28, -opts.limb * 0.2, 0);
-            const rLeg = new THREE.Mesh(legG, mat); rLeg.position.set(opts.w * 0.28, -opts.limb * 0.2, 0);
-            [lArm, rArm, lLeg, rLeg].forEach(m => { m.castShadow = true; });
-            const face = new THREE.Group();
-            const acc = new THREE.Group();
-            g.add(body, head, lArm, rArm, lLeg, rLeg, face, acc);
-            g.userData = { mat, face, acc, lArm, rArm, head };
+            const g = new THREE.Group(), boss=opts.w>2;
+            const mat = new THREE.MeshStandardMaterial({color:opts.color,metalness:.68,roughness:.32});
+            const skin = new THREE.MeshStandardMaterial({color:boss?0x596359:0xc79373,roughness:.8});
+            const dark = new THREE.MeshStandardMaterial({color:0x121b24,roughness:.85});
+            const gold = new THREE.MeshStandardMaterial({color:0xc6a46b,metalness:.8,roughness:.28});
+            const hair = new THREE.MeshStandardMaterial({color:0x211c21,roughness:.9});
+            const glow = new THREE.MeshStandardMaterial({color:0xffce87,emissive:0xff7822,emissiveIntensity:2});
+            function ell(parent,m,x,y,z,a,b,c){const o=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),m);o.position.set(x,y,z);o.scale.set(a,b,c);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
+            function segment(parent,m,a,b,r1,r2){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b);const o=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,A.distanceTo(B),16),m);o.position.copy(A).add(B).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.sub(A).normalize());o.castShadow=true;parent.add(o);return o;}
+            // Feet stay grounded. Separate shoulder and elbow pivots drive the cast.
+            const body=ell(g,dark,0,2.22,0,.66,.83,.34);
+            // One broad, flat cuirass with tapered sides and beveled armor edges.
+            const chestOutline=new THREE.Shape();
+            chestOutline.moveTo(-.68,2.96);chestOutline.lineTo(.68,2.96);
+            chestOutline.lineTo(.72,2.69);chestOutline.lineTo(.48,2.22);
+            chestOutline.lineTo(0,2.12);chestOutline.lineTo(-.48,2.22);
+            chestOutline.lineTo(-.72,2.69);chestOutline.closePath();
+            const chest=new THREE.Mesh(new THREE.ExtrudeGeometry(chestOutline,{depth:.16,bevelEnabled:true,bevelThickness:.035,bevelSize:.045,bevelSegments:1,steps:1}),mat);
+            chest.position.z=.23;chest.castShadow=true;chest.receiveShadow=true;g.add(chest);
+            for(let i=0;i<3;i++)ell(g,mat,0,2.25-i*.18,.27,.48-i*.035,.13,.12);
+            const belt=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.16,24),gold);belt.scale.z=.66;belt.position.y=1.86;g.add(belt);
+            ell(g,gold,0,1.86,.4,.16,.13,.065);
+            const crest=new THREE.Mesh(new THREE.OctahedronGeometry(.12),glow);crest.position.set(0,2.72,.44);crest.scale.set(.75,1,.35);g.add(crest);
+            segment(g,skin,[0,2.96,0],[0,3.25,0],.19,.18);
+            const head=ell(g,skin,0,3.61,.025,.36,.46,.32);
+            ell(g,skin,0,3.35,.12,.26,.21,.24);
+            for(const side of [-1,1]){
+                ell(g,skin,side*.36,3.59,0,.075,.13,.075);
+                segment(g,dark,[side*.31,1.79,0],[side*.36,1.04,.04],.27,.22);
+                ell(g,mat,side*.36,1.08,.17,.23,.24,.17);
+                segment(g,mat,[side*.36,.95,.04],[side*.4,.31,0],.2,.15);
+                ell(g,dark,side*.4,.18,.16,.23,.18,.4);
+                ell(g,gold,side*.4,.25,.36,.2,.07,.16);
+                const tasset=new THREE.Mesh(new THREE.BoxGeometry(.35,.48,.12),mat);tasset.position.set(side*.36,1.63,.3);tasset.rotation.z=side*.12;g.add(tasset);
+            }
+            function arm(side){const pivot=new THREE.Group();pivot.position.set(side*.76,2.82,0);g.add(pivot);
+                ell(pivot,mat,side*.08,0,0,.32,.25,.36);ell(pivot,gold,side*.13,.08,.08,.25,.09,.3);
+                segment(pivot,dark,[0,-.12,0],[side*.08,-.67,0],.17,.14);
+                const elbow=new THREE.Group();elbow.position.set(side*.08,-.66,0);pivot.add(elbow);
+                ell(elbow,gold,0,0,0,.17,.17,.17);segment(elbow,mat,[0,-.05,0],[0,-.59,.05],.18,.14);
+                ell(elbow,skin,0,-.7,.09,.14,.18,.12);
+                for(let f=0;f<4;f++)ell(elbow,skin,(f-1.5)*.058,-.82,.1,.035,.09,.055);
+                ell(elbow,skin,-side*.13,-.7,.14,.055,.1,.065);
+                pivot.rotation.z=side*.12;pivot.userData.elbow=elbow;return pivot;}
+            const lArm=arm(-1),rArm=arm(1);
+            // Sculpted hair cap and layered locks rather than a featureless sphere.
+            ell(g,hair,0,3.89,-.035,.37,.23,.32);
+            for(let i=0;i<9;i++){const lock=ell(g,hair,(i-4)*.073,3.91+(i%3)*.03,.17,.09,.24,.1);lock.rotation.z=-.4+i*.065;}
+            const capeGeo=new THREE.PlaneGeometry(1.45,2.35,12,18);
+            const cape=new THREE.Mesh(capeGeo,new THREE.MeshStandardMaterial({color:0x172435,side:THREE.DoubleSide,roughness:1}));
+            cape.position.set(0,1.85,-.42);cape.castShadow=true;g.add(cape);
+            const face=new THREE.Group(),acc=new THREE.Group();g.add(face,acc);
+            g.userData={mat,skin,glow,face,acc,lArm,rArm,head,cape,boss,body};
+            if(boss){g.scale.set(1.27,1.23,1.2);skin.color.setHex(0x6b7465);}
             return g;
         }
 
         const player = makeFighter({ color: 0xff4500, w: 2, h: 2.6, d: 2, head: 0.95, limb: 0.55 });
-        player.position.set(-5, -2, 0);
+        player.position.set(-4.2, -2.05, 0);player.rotation.y=.45;
         scene.add(player);
         const enemy = makeFighter({ color: 0x6b8f3a, w: 2.4, h: 3, d: 2.4, head: 1.1, limb: 0.62 });
-        enemy.position.set(5, -2, 0);
+        enemy.position.set(4.2, -2.05, 0);enemy.rotation.y=-.45;
         scene.add(enemy);
 
         const fx = new THREE.Group();
@@ -612,23 +713,23 @@
 
         let leftPts, rightPts, leftSpd = [], rightSpd = [];
 
-        function setFace(group, palette, menacing = false) {
-            clearGroup(group.userData.face);
-            const eyeM = new THREE.MeshBasicMaterial({ color: palette.eye });
-            const le = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), eyeM);
-            const re = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), eyeM);
-            const nose = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.28, 7), new THREE.MeshStandardMaterial({ color: palette.nose }));
-            const mouth = new THREE.Mesh(new THREE.BoxGeometry(menacing ? 0.5 : 0.36, 0.06, 0.08), new THREE.MeshBasicMaterial({ color: menacing ? 0xffffff : 0x552200 }));
-            const hy = group.userData.head.position.y;
-            le.position.set(-0.28, hy + 0.12, 0.85);
-            re.position.set(0.28, hy + 0.12, 0.85);
-            nose.position.set(0, hy - 0.02, 0.95);
-            nose.rotation.x = Math.PI / 2;
-            mouth.position.set(0, hy - 0.32, 0.88);
-            if (menacing) mouth.rotation.z = Math.PI / 10;
-            group.userData.face.add(le, re, nose, mouth);
-            group.userData.eyes = [le, re];
-            group.userData.mouth = mouth;
+        function setFace(group,palette,menacing=false){
+            clearGroup(group.userData.face);const face=group.userData.face,hy=group.userData.head.position.y;
+            function part(geo,mat,x,y,z){const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);face.add(o);return o;}
+            const white=new THREE.MeshStandardMaterial({color:0xe8ddd0,roughness:.45});
+            const iris=new THREE.MeshStandardMaterial({color:palette.eye,emissive:palette.eye,emissiveIntensity:menacing?1.5:.35});
+            const black=new THREE.MeshStandardMaterial({color:0x161219,roughness:.8});
+            const eyes=[];
+            for(const side of [-1,1]){
+                const eye=part(new THREE.SphereGeometry(.085,16,12),white,side*.145,hy+.035,.301);eye.scale.set(1,.65,.4);eyes.push(eye);
+                const ir=part(new THREE.SphereGeometry(.042,12,10),iris,side*.145+.012,hy+.035,.333);ir.scale.z=.35;
+                part(new THREE.SphereGeometry(.019,10,8),black,side*.145+.014,hy+.035,.349);
+                const brow=part(new THREE.BoxGeometry(.19,.035,.035),black,side*.15,hy+.135,.3);brow.rotation.z=side*(menacing?.24:-.12);
+                const cheek=part(new THREE.SphereGeometry(.11,16,12),group.userData.skin,side*.215,hy-.11,.245);cheek.scale.set(1,.65,.5);
+            }
+            const nose=part(new THREE.SphereGeometry(.08,16,12),group.userData.skin,0,hy-.06,.335);nose.scale.set(.65,1.45,1.3);
+            const mouth=part(new THREE.SphereGeometry(.105,16,12),new THREE.MeshStandardMaterial({color:0x754a42}),0,hy-.225,.28);mouth.scale.set(1,.16,.35);
+            group.userData.eyes=eyes;group.userData.mouth=mouth;
         }
 
         function setAcc(group, kind, magicCape = false) {
@@ -637,19 +738,19 @@
                 const m = new THREE.MeshStandardMaterial({ color: 0x111111 });
                 const h1 = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.9, 7), m);
                 const h2 = h1.clone();
-                h1.position.set(-0.4, group.userData.head.position.y + 0.85, 0);
-                h2.position.set(0.4, group.userData.head.position.y + 0.85, 0);
+                h1.position.set(-0.3, group.userData.head.position.y + 0.65, 0);h1.rotation.z=.35;
+                h2.position.set(0.3, group.userData.head.position.y + 0.65, 0);h2.rotation.z=-.35;
                 group.userData.acc.add(h1, h2);
             } else if (kind === 'wings') {
                 const m = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
-                const w1 = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1), m);
+                const w1 = new THREE.Mesh(new THREE.ConeGeometry(.6,2.5,4), m);
                 const w2 = w1.clone();
                 w1.position.set(-1.4, 1.1, -0.2); w1.rotation.z = Math.PI / 5;
                 w2.position.set(1.4, 1.1, -0.2); w2.rotation.z = -Math.PI / 5;
                 group.userData.acc.add(w1, w2);
             } else if (kind === 'crown') {
-                const c = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.55, 5), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.6, roughness: 0.3 }));
-                c.position.set(0, group.userData.head.position.y + 0.95, 0);
+                const c = new THREE.Mesh(new THREE.CylinderGeometry(.43,.34,.36,8,1,true), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.6, roughness: 0.3 }));
+                c.position.set(0, group.userData.head.position.y + 0.5, 0);
                 group.userData.acc.add(c);
             } else if (kind === 'halo') {
                 const h = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.06, 8, 20), new THREE.MeshBasicMaterial({ color: 0xffe066 }));
@@ -657,7 +758,7 @@
                 h.rotation.x = Math.PI / 2;
                 group.userData.acc.add(h);
             }
-            if (magicCape) {
+            if (false) {
                 const cape = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 3), new THREE.MeshBasicMaterial({ color: 0x9400d3, side: THREE.DoubleSide, transparent: true, opacity: 0.75 }));
                 cape.position.set(0, 1.1, -1.2);
                 group.userData.acc.add(cape);
@@ -700,6 +801,8 @@
         function applyKaiLook() {
             const kai = state.kai[state.current];
             player.userData.mat.color.setHex(kai.color);
+            player.userData.glow.emissive.setHex(kai.color);
+            player.userData.cape.material.color.copy(new THREE.Color(kai.color).multiplyScalar(.18));
             const eyes = { Fire: 0xff2200, Water: 0x00b7eb, Earth: 0xff6f00, Wind: 0xffffff, Magic: 0xcc66ff };
             setFace(player, { eye: eyes[kai.type], nose: kai.color });
             setAcc(player, kai.acc, kai.type === 'Magic');
@@ -711,8 +814,10 @@
             enemy.userData.mat.color.setHex(e.color);
             setFace(enemy, { eye: 0xff1111, nose: 0x111111 }, true);
             setAcc(enemy, e.acc, false);
-            const s = 1 + (state.level - 1) * 0.07;
-            enemy.scale.setScalar(s);
+            const s = 1.15 + (state.level - 1) * 0.025;
+            enemy.scale.set(s*1.12,s,s);enemy.userData.skin.color.copy(new THREE.Color(e.color).lerp(new THREE.Color(0x667177),.65));
+            enemy.userData.glow.emissive.setHex(e.color);
+            enemy.userData.cape.material.color.copy(new THREE.Color(e.color).multiplyScalar(.2));
         }
 
         /* ---------- ui helpers ---------- */
@@ -812,7 +917,7 @@
             if (state.paused) return;
             const ops = { 1: ['+', '-'], 2: ['+', '-'], 3: ['+', '-', '*'], 4: ['+', '-', '*'], 5: ['+', '-', '*', '/'], 6: ['+', '-', '*', '/'] }[state.grade];
             state.op = ops[Math.floor(Math.random() * ops.length)];
-            const cap = { 1: 10, 2: 20, 3: 12, 4: 20, 5: 24, 6: 36 }[state.grade] + state.level * 2 + state.adapt * 3;
+            const cap = Math.max(2, { 1: 10, 2: 20, 3: 12, 4: 20, 5: 24, 6: 36 }[state.grade] + state.level * 2 + state.adapt * 3);
             let a = 1 + Math.floor(Math.random() * cap);
             let b = 1 + Math.floor(Math.random() * cap);
             if (state.op === '-') {
@@ -930,11 +1035,11 @@
             paintHp();
             save();
             toast('story', `Level ${state.level}: ${ENEMIES[state.enemy].name} — ${ENEMIES[state.enemy].story}`, 3200);
-            setTimeout(generateProblem, 900);
+            state.answer=null;state.deadline=0;state.transition=.9;
         }
 
         function checkAnswer() {
-            if (state.paused || state.answer == null) return;
+            if (state.paused || state.answer == null || state.transition>0) return;
             const raw = $('answerInput').value;
             if (raw === '') return;
             const val = parseFloat(raw);
@@ -946,14 +1051,14 @@
                 const m = matchup();
                 state.score += 10 + state.combo * 2 + state.level + (m > 1 ? 8 : 0);
                 state.hits += 1;
-                state.enemyHp = Math.max(0, state.enemyHp - Math.min(22, dmg));
+                state.enemyHp = Math.max(0,100*(1-state.hits/state.needed));
                 gainXp(10);
                 beep('triangle', 720, 0.16, 0.18);
                 $('work').textContent = '';
                 $('feedback').textContent = state.hits >= state.needed
                     ? `Boss down!`
                     : `${m > 1 ? 'Super effective! ' : m < 1 ? 'Resisted. ' : ''}Hit! ${state.needed - state.hits} more. Combo x${state.combo}`;
-                toast('dmg', `−${dmg}`, 700);
+                toast('dmg', state.combo>=3 ? `COMBO ×${state.combo}` : 'WISDOM STRIKE', 700);
                 if (state.coop) toast('talk', 'P2: pick the next Kai with 1–5', 1600);
                 spawnVolley(false);
                 paintHp();
@@ -992,88 +1097,36 @@
         }
 
         /* ---------- combat vfx ---------- */
-        function spawnVolley(fromBoss) {
-            const color = fromBoss ? ENEMIES[state.enemy].color : ORB_COLOR[state.kai[state.current].type];
-            const start = new THREE.Vector3(fromBoss ? 5 : -5, -0.6, 0);
-            const end = new THREE.Vector3(fromBoss ? -5 : 5, -0.6, 0);
-            const n = fromBoss ? 3 : 5;
-            for (let i = 0; i < n; i++) {
-                setTimeout(() => {
-                    const mesh = new THREE.Mesh(
-                        new THREE.SphereGeometry(0.42, 12, 12),
-                        new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.55 })
-                    );
-                    mesh.position.copy(start);
-                    orbs.add(mesh);
-                    beep(fromBoss ? 'sawtooth' : 'sine', fromBoss ? 220 : 360, 0.12, 0.12);
-                    let t = 0;
-                    const iv = setInterval(() => {
-                        t += 0.05;
-                        mesh.position.lerpVectors(start, end, Math.min(1, t));
-                        if (t >= 1) {
-                            clearInterval(iv);
-                            orbs.remove(mesh);
-                            mesh.geometry.dispose(); mesh.material.dispose();
-                            if (i === n - 1) {
-                                state.hitT = fromBoss ? 0 : 18;
-                                state.attackT = fromBoss ? 0 : 16;
-                                if (fromBoss) state.shakeT = 10;
-                                burst(end, fromBoss ? 70 : 110);
-                            }
-                        }
-                    }, 16);
-                }, i * 80);
+        const combatFX=[];
+        function spawnVolley(fromBoss){
+            const color=fromBoss?ENEMIES[state.enemy].color:ORB_COLOR[state.kai[state.current].type];
+            if(!fromBoss)state.attackT=30;else state.bossAttackT=30;
+            for(let i=0;i<5;i++){
+                const mesh=new THREE.Mesh(new THREE.IcosahedronGeometry(i===0?.24:.12,2),new THREE.MeshBasicMaterial({color}));
+                const halo=new THREE.Mesh(new THREE.SphereGeometry(.4,12,12),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.13,depthWrite:false,blending:THREE.AdditiveBlending}));mesh.add(halo);mesh.visible=false;orbs.add(mesh);
+                combatFX.push({mesh,t:-i*.065,duration:.55,fromBoss,color,kind:'bolt'});
             }
         }
-
-        function burst(pos, count) {
-            const geo = new THREE.BufferGeometry();
-            const arr = new Float32Array(count * 3);
-            const dir = [];
-            for (let i = 0; i < count; i++) {
-                dir.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize());
-                arr[i * 3] = pos.x; arr[i * 3 + 1] = pos.y; arr[i * 3 + 2] = pos.z;
+        function burst(pos,count,color=0xffd391){
+            for(let i=0;i<Math.min(count,34);i++){
+                const mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.035+Math.random()*.055),new THREE.MeshBasicMaterial({color,transparent:true}));mesh.position.copy(pos);orbs.add(mesh);
+                combatFX.push({mesh,t:0,duration:.55+Math.random()*.4,kind:'spark',v:new THREE.Vector3(Math.random()-.5,Math.random()-.2,Math.random()-.5).multiplyScalar(5)});
             }
-            geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
-            const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffff66, size: 0.18 }));
-            scene.add(pts);
-            let t = 0;
-            const iv = setInterval(() => {
-                t += 0.03;
-                for (let i = 0; i < count; i++) {
-                    arr[i * 3] += dir[i].x * 0.12;
-                    arr[i * 3 + 1] += dir[i].y * 0.12;
-                    arr[i * 3 + 2] += dir[i].z * 0.12;
-                }
-                geo.attributes.position.needsUpdate = true;
-                if (t > 0.9) { clearInterval(iv); scene.remove(pts); geo.dispose(); pts.material.dispose(); }
-            }, 16);
+            const ring=new THREE.Mesh(new THREE.TorusGeometry(.2,.035,6,48),new THREE.MeshBasicMaterial({color,transparent:true}));ring.position.copy(pos);orbs.add(ring);combatFX.push({mesh:ring,t:0,duration:.45,kind:'ring'});
         }
-
-        function sparkle(pos) { burst(new THREE.Vector3(pos.x, pos.y + 1.2, pos.z), 80); }
-
-        function explodeEnemy() {
-            const bits = [];
-            for (let i = 0; i < 16; i++) {
-                const p = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshBasicMaterial({ color: ENEMIES[state.enemy].color }));
-                p.position.copy(enemy.position);
-                p.userData.v = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.6, Math.random() - 0.5).multiplyScalar(0.28);
-                scene.add(p); bits.push(p);
+        function sparkle(pos){burst(new THREE.Vector3(pos.x,pos.y+2.3,pos.z),30);}
+        function explodeEnemy(){burst(new THREE.Vector3(enemy.position.x,1,0),34,ENEMIES[state.enemy].color);state.shakeT=12;beep('triangle',180,.25,.15);}
+        function tickCombat(dt){
+            for(let i=combatFX.length-1;i>=0;i--){const f=combatFX[i];f.t+=dt;if(f.t<0)continue;f.mesh.visible=true;const p=Math.min(1,f.t/f.duration);
+                if(f.kind==='bolt'){const direction=f.fromBoss?-1:1;f.mesh.position.set(direction*(-4.2+8.4*p),.65+Math.sin(p*Math.PI)*.65,.45);f.mesh.rotation.x+=dt*8;if(p===1){burst(f.mesh.position,12,f.color);if(f.fromBoss)state.shakeT=8;else state.hitT=14;}}
+                else if(f.kind==='spark'){f.v.y-=dt*4;f.mesh.position.addScaledVector(f.v,dt);f.mesh.material.opacity=1-p;}
+                else{f.mesh.scale.setScalar(1+p*12);f.mesh.material.opacity=1-p;}
+                if(p===1){orbs.remove(f.mesh);f.mesh.traverse(c=>{c.geometry?.dispose();c.material?.dispose();});combatFX.splice(i,1);}
             }
-            beep('sawtooth', 180, 0.28, 0.22);
-            let t = 0;
-            const iv = setInterval(() => {
-                t += 0.02;
-                bits.forEach(p => { p.userData.v.y -= 0.01; p.position.add(p.userData.v); p.rotation.x += 0.12; });
-                if (t > 1.6) {
-                    clearInterval(iv);
-                    bits.forEach(p => { scene.remove(p); p.geometry.dispose(); p.material.dispose(); });
-                }
-            }, 16);
         }
 
         /* ---------- loop ---------- */
-        let time = 0;
+        let time = 0,lastFrame=performance.now();
         function tickParticles(pts, spd, xOff, type) {
             if (!pts) return;
             const arr = pts.geometry.attributes.position.array;
@@ -1096,9 +1149,15 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.016;
-            player.position.y = -2 + Math.sin(time * 2) * 0.16;
-            enemy.position.y = -2 + Math.cos(time * 2) * 0.16;
+            const now=performance.now(),dt=Math.min(.04,(now-lastFrame)/1000);lastFrame=now;
+            const preview=$('startModal').classList.contains('show');
+            if(!state.paused||preview){time+=dt;tickCombat(dt);
+            animateFighter(player,time,Math.sin(Math.max(0,state.attackT)/30*Math.PI));
+            animateFighter(enemy,time+.7,Math.sin(Math.max(0,state.bossAttackT||0)/30*Math.PI));
+            if(state.bossAttackT>0)state.bossAttackT=Math.max(0,state.bossAttackT-dt*60);
+            portalLight.rotation.z+=dt*.05;
+            player.position.y=-2.05;
+            enemy.position.y=-2.05;
             if (player.userData.eyes) {
                 const b = Math.sin(time * 2.2) > 0.84 ? 0.55 : 1;
                 player.userData.eyes.forEach(e => e.scale.set(1, b, 1));
@@ -1111,22 +1170,26 @@
             tickParticles(leftPts, leftSpd, -1.35, type);
             tickParticles(rightPts, rightSpd, 1.35, type);
             if (state.attackT > 0) {
-                player.position.x = -5 + Math.sin(state.attackT) * 0.22;
-                state.attackT--;
-                if (state.attackT <= 0) player.position.x = -5;
+                player.position.x = -4.2 + Math.sin(state.attackT/30*Math.PI) * 0.32;
+                state.attackT=Math.max(0,state.attackT-dt*60);
+                if (state.attackT <= 0) player.position.x = -4.2;
             }
             if (state.hitT > 0) {
-                enemy.position.x = 5 + Math.sin(state.hitT * 2) * 0.22;
-                state.hitT--;
-                if (state.hitT <= 0) enemy.position.x = 5;
+                enemy.position.x = 4.2 + Math.sin(state.hitT * 2) * 0.12;
+                state.hitT=Math.max(0,state.hitT-dt*60);
+                if (state.hitT <= 0) enemy.position.x = 4.2;
             }
             if (state.shakeT > 0) {
-                camera.position.set((Math.random() - 0.5) * 0.35, 5.2 + (Math.random() - 0.5) * 0.25, 16);
+                camera.position.set((Math.random() - 0.5) * 0.14, 4 + (Math.random() - 0.5) * 0.1, camera.position.z);
                 state.shakeT--;
-                if (state.shakeT <= 0) camera.position.set(0, 5.2, 16);
+                if (state.shakeT <= 0) camera.position.set(0, 4.0, 20);
             }
-            camera.lookAt(0, 0.6, 0);
+            }
+            camera.position.z=innerWidth/innerHeight<1?28:20;
+            camera.setViewOffset(innerWidth,innerHeight,0,innerHeight*(innerWidth<720?.15:.1),innerWidth,innerHeight);
+            camera.lookAt(0,.3,0);
 
+            if(!state.paused&&state.transition>0){state.transition-=dt;if(state.transition<=0)generateProblem();}
             if (!state.paused && state.deadline) {
                 const left = Math.max(0, state.deadline - performance.now());
                 $('timerFill').style.width = (left / (ANSWER_SECS * 1000) * 100) + '%';
@@ -1147,6 +1210,9 @@
         });
 
         /* ---------- wiring ---------- */
+        function holdGame(){if(!state.paused)state.remaining=Math.max(0,state.deadline-performance.now());state.paused=true;}
+        function unholdGame(){state.paused=false;if(state.answer!==null)state.deadline=performance.now()+(state.remaining??ANSWER_SECS*1000);}
+        document.addEventListener('visibilitychange',()=>{if(document.hidden&&!state.paused)$('pauseBtn').click();});
         function syncVolUI() {
             ['volMusic','volMusicP','volSfx','volSfxP'].forEach(id => {
                 const el = $(id); if (!el) return;
@@ -1186,14 +1252,15 @@
         $('continueBtn').onclick = () => begin(true);
         $('submitBtn').onclick = checkAnswer;
         $('hintBtn').onclick = showHint;
-        $('gradeBtn').onclick = () => { $('gradeSelect').value = state.grade; $('gradeModal').classList.add('show'); };
+        $('gradeBtn').onclick = () => { holdGame();$('gradeSelect').value = state.grade; $('gradeModal').classList.add('show'); };
         $('applyGrade').onclick = () => {
             state.grade = +$('gradeSelect').value;
-            $('gradeModal').classList.remove('show');
+            $('gradeModal').classList.remove('show');unholdGame();
             generateProblem();
             save();
         };
         $('customBtn').onclick = () => {
+            holdGame();
             const k = state.kai[state.current];
             $('colorSelect').value = '0x' + k.color.toString(16).padStart(6, '0');
             $('accSelect').value = k.acc;
@@ -1207,7 +1274,7 @@
             state.aura = $('auraSelect').value;
             applyKaiLook();
             renderRoster();
-            $('customModal').classList.remove('show');
+            $('customModal').classList.remove('show');unholdGame();
             save();
         };
         $('coopBtn').onclick = () => {
@@ -1234,14 +1301,13 @@
         bindVol('volMusic', 'musicVol'); bindVol('volMusicP', 'musicVol');
         bindVol('volSfx', 'sfxVol'); bindVol('volSfxP', 'sfxVol');
         $('pauseBtn').onclick = () => {
-            state.paused = true;
+            holdGame();
             $('pauseModal').classList.add('show');
             save();
         };
         $('resumeBtn').onclick = () => {
-            state.paused = false;
+            unholdGame();
             $('pauseModal').classList.remove('show');
-            state.deadline = performance.now() + ANSWER_SECS * 1000;
             $('answerInput').focus();
         };
         $('restartBtn').onclick = () => { localStorage.removeItem(SAVE_KEY); location.reload(); };
@@ -1259,9 +1325,11 @@
             if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); }
         });
         addEventListener('keydown', (e) => {
-            if (['1','2','3','4','5'].includes(e.key)) selectKai(+e.key - 1);
+            if(e.target.matches('input,select,textarea'))return;
+            if (['1','2','3','4','5'].includes(e.key)&&!state.paused) selectKai(+e.key - 1);
             if (e.key === 'h' || e.key === 'H') showHint();
-            if (e.key === 'p' || e.key === 'P') $('pauseBtn').click();
+            if (e.key === 'p' || e.key === 'P') (state.paused?$('resumeBtn'):$('pauseBtn')).click();
+            if(e.key==='f'||e.key==='F')$('fsBtn').click();
             if (e.key === 'm' || e.key === 'M') $('musicBtn').click();
             if (e.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
         });
@@ -1284,6 +1352,7 @@
         applyEnemyLook();
         updateEnvironment(1);
         animate();
+        document.getElementById('loadingNote').style.display='none';
     </script>
     <footer class="site-footer">© 2026 Itoshiro Zuna LLC. All rights reserved.</footer>
 </body>
