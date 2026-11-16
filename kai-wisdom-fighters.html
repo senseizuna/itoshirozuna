@@ -207,6 +207,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:ins
 @media(max-width:1000px){#roster{width:170px;left:12px}.kai-row{font-size:10px}#panel{width:calc(100vw - 220px);left:auto;right:12px;transform:none}}
 @media(max-width:720px){.site-nav{display:none}.top-bar{top:44px;left:10px;right:10px;gap:8px}.bar-card{min-width:0;width:36%;padding:8px}.level-chip{min-width:65px;padding:8px 0;font-size:10px;letter-spacing:1px}.label{font-size:8px;letter-spacing:1px}.match-chip{font-size:8px}.meta{font-size:9px}#roster{display:flex;gap:3px;width:calc(100% - 20px);max-height:none;bottom:252px;left:10px;padding:4px;overflow-x:auto}#roster h3{display:none}.kai-row{flex:1;min-width:60px;padding:5px;font-size:9px}#panel{bottom:28px;left:10px;right:10px;transform:none;width:auto;padding:10px}#mathProblem{font-size:27px}.btn{font-size:11px;padding:9px}#panel .row{gap:4px}#panel::before{font-size:8px}#feedback{font-size:10px}.sheet{padding:22px}#startModal h2{font-size:36px}.toast{top:16%;font-size:12px}#talk{top:22%}.site-footer{font-size:8px;letter-spacing:0}}
 @media(max-height:600px){.modal{padding:20px;place-items:start center}.top-bar{top:36px}.bar-card{padding:6px}#panel{padding:7px;bottom:20px}#panel::before,#blocks,#work,#roster{display:none}#mathProblem{font-size:24px;margin:0 0 4px}#panel .btn{padding:6px 9px}.site-footer{padding:3px}}
+/* Compact combat dock: no empty status rows or permanently expanded settings. */
+#panel{width:min(680px,calc(100vw - 280px));padding:10px 14px;bottom:30px;left:calc(50% + 65px);right:auto;transform:translateX(-50%)}
+#panel::before{display:none}
+.answer-bar{display:flex;align-items:center;justify-content:center;gap:16px}
+.question{flex:1;min-width:130px}#mathProblem{font-size:26px;letter-spacing:1px;margin:0;white-space:nowrap}
+#blocks{max-height:12px;margin:5px 0 0;gap:1px}#blocks:empty{display:none}.blk{width:5px;height:5px;margin:0}
+#panel .answer-controls{flex-wrap:nowrap;gap:5px}#panel #answerInput{width:86px;font-size:18px;padding:7px 6px;height:36px}
+#panel .btn{font-size:11px;padding:9px 10px;min-height:36px}
+#feedback,#work{min-height:0;margin:5px 0 0;font-size:11px}#feedback:empty,#work:empty{display:none}
+#scoreLine{margin-top:6px;font-size:9px;line-height:1.3}
+#arenaTools{position:relative}#arenaTools summary{list-style:none;cursor:pointer}#arenaTools summary::-webkit-details-marker{display:none}
+#arenaTools summary::after{content:' â–´';font-size:9px}#arenaTools[open] summary{border-color:#d6b57b}
+.tools-menu{position:absolute;bottom:calc(100% + 12px);right:0;width:180px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#101b2bf5;border:1px solid #5a6a81;border-radius:5px;box-shadow:0 8px 28px #0008}
+#arenaTools:not([open]) .tools-menu{display:none}
+summary:focus-visible{outline:2px solid #f8d79d;outline-offset:3px}
+@media(max-width:1000px){#panel{width:calc(100vw - 210px);left:auto;right:12px;transform:none}.answer-bar{flex-wrap:wrap;gap:7px}.question{flex-basis:100%}#mathProblem{font-size:24px}}
+@media(max-width:720px){#panel{width:auto;left:10px;right:10px;bottom:26px;padding:8px 10px}.answer-bar{gap:6px}#panel .answer-controls{width:100%;justify-content:center}#panel .btn{padding:8px;font-size:10px}#panel #answerInput{width:78px}#roster{bottom:190px}#mathProblem{font-size:24px}#scoreLine{font-size:8px}#feedback,#work{font-size:10px}}
+@media(max-height:600px){#panel{bottom:18px;padding:6px 10px}#panel #mathProblem{font-size:22px}.answer-bar{gap:5px}#panel #work:not(:empty){display:block}}
 
 </style>
 </head>
@@ -260,20 +278,26 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:ins
         <div id="roster"></div>
 
         <div id="panel">
-            <div id="mathProblem">Ready?</div>
-            <div id="blocks"></div>
-            <div class="row">
-                <input aria-label="Your answer" id="answerInput" type="number" inputmode="decimal" placeholder="Answer">
-                <button class="btn" id="submitBtn">Submit</button>
-                <button class="btn ghost" id="hintBtn">Hint</button>
-                <button class="btn ghost" id="gradeBtn">Grade</button>
-                <button class="btn ghost" id="customBtn">Style</button>
-                <button class="btn ghost" id="pauseBtn">Pause</button>
-                <button class="btn ghost" id="musicBtn">Music</button>
-                <button class="btn ghost" id="fsBtn">Full</button>
-                <button class="btn ghost" id="coopBtn">Solo</button>
+            <div class="answer-bar">
+                <div class="question"><div id="mathProblem">Ready?</div><div id="blocks"></div></div>
+                <div class="row answer-controls">
+                    <input aria-label="Your answer" id="answerInput" type="number" inputmode="decimal" placeholder="Answer">
+                    <button class="btn" id="submitBtn">Submit</button>
+                    <button class="btn ghost" id="hintBtn">Hint</button>
+                    <button class="btn ghost" id="pauseBtn">Pause</button>
+                    <details id="arenaTools">
+                        <summary class="btn ghost">More</summary>
+                        <div class="tools-menu" aria-label="Arena options">
+                            <button class="btn ghost" id="gradeBtn">Grade</button>
+                            <button class="btn ghost" id="customBtn">Style</button>
+                            <button class="btn ghost" id="musicBtn">Music</button>
+                            <button class="btn ghost" id="fsBtn">Full</button>
+                            <button class="btn ghost" id="coopBtn">Solo</button>
+                        </div>
+                    </details>
+                </div>
             </div>
-            <div id="feedback"></div>
+            <div id="feedback" role="status" aria-live="polite"></div>
             <div id="work"></div>
             <div id="scoreLine">Score 0 · Best 0</div>
         </div>
@@ -1251,6 +1275,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:ins
         $('startBtn').onclick = () => begin(false);
         $('continueBtn').onclick = () => begin(true);
         $('submitBtn').onclick = checkAnswer;
+        const arenaTools=$('arenaTools');
+        arenaTools.addEventListener('click',e=>{if(e.target.closest('button'))arenaTools.open=false;});
+        document.addEventListener('pointerdown',e=>{if(!arenaTools.contains(e.target))arenaTools.open=false;});
+        document.addEventListener('keydown',e=>{if(e.key==='Escape'&&arenaTools.open){arenaTools.open=false;arenaTools.querySelector('summary').focus();}});
         $('hintBtn').onclick = showHint;
         $('gradeBtn').onclick = () => { holdGame();$('gradeSelect').value = state.grade; $('gradeModal').classList.add('show'); };
         $('applyGrade').onclick = () => {
